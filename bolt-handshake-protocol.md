@@ -1,11 +1,12 @@
 # Bolt Handshake Protocol v1
 
 Bolt is a client-server protocol designed primarily for executing queries against a database server.
-Communication occurs through request-response exchanges, in much the same way as HTTP, although unlike HTTP, connections are stateful.
+Communication occurs through request-response exchanges, in much the same way as HTTP.
+Unlike HTTP, however, Bolt connections are stateful.
 
 A Bolt connection always begins with a fixed handshake wherein the client identifies itself as a Bolt client and initiates a version negotiation.
 The outcome of this negotiation determines the version of messaging protocol that follows.
-Messaging protocols are described in other documents.
+Messaging protocols are described elsewhere.
 
 NOTE: Byte values in this document are represented using hexadecimal notation unless otherwise specified.
 
@@ -15,14 +16,13 @@ NOTE: Byte values in this document are represented using hexadecimal notation un
 Bolt requires that all values that can vary by endianness should be transmitted using network byte order, also known as big-endian byte order.
 
 
-## Connection
+## Connection & Disconnection
 
-Bolt communication is intended to take place over a TCP/IP connection. The default port is TCP 7687 but other ports can be used.
+Bolt communication is intended to take place over a TCP connection.
+The default port is TCP 7687 but any port can be used.
 
-
-### Disconnection
-
-There is no formal shutdown procedure for a Bolt connection. Either peer may close the connection at TCP level at any time.
+There is no formal shutdown procedure for a Bolt connection.
+Either peer may close the connection at TCP level at any time.
 Both client and server should be prepared for that to occur and should handle it appropriately.
 
 
@@ -43,7 +43,7 @@ The identification consists of the following four bytes:
 C: 60 60 B0 17
 ```
 
-### Version negotiation
+### Version Negotiation
 
 After identification, a small client-server exchange occurs to determine which version of the messaging protocol to use.
 In this, the client submits up to four protocol versions encoded as big-endian 32-bit unsigned integers.
@@ -64,7 +64,14 @@ C: 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00
 S: 00 00 00 01
 ```
 
+Where both parties are aware of two protocol versions, the exchange below may be seen instead:
+
+```
+C: 00 00 00 02 00 00 00 01 00 00 00 00 00 00 00 00
+S: 00 00 00 02
+```
+
 ## Messaging
 
 A connection may be used for general application-specific messaging following a successful handshake.
-Bolt messaging protocols are versioned and described in other documents.
+Bolt messaging protocols are versioned and described elsewhere.
