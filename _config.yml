@@ -1,2 +1,3 @@
-site.github.project_title: Neo4j Drivers
+name: Neo4j Drivers
+description: Web pages by the Neo4j Drivers Team
 theme: jekyll-theme-cayman
