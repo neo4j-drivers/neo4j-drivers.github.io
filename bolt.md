@@ -1,6 +1,6 @@
 # Bolt
 
-"Bolt" is the name of a group of related protocols and serialisation format used by Neo4j.
+"Bolt" is the name of a series of data interchange protocols used by Neo4j.
 
 ## Version Negotiation
 
