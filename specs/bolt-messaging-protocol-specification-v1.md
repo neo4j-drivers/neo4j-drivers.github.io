@@ -1,8 +1,8 @@
-# Bolt Messaging Protocol v1
+# Bolt v1 Messaging Protocol
 
 This document describes version 1 of the Bolt messaging protocol.
 The messaging protocol is used for the message exchanges that take place following a successful Bolt handshake.
-For details of establishing a connection and performing a handshake, see the [Bolt Handshake Protocol](bolt-handshake-protocol.md).
+For details of establishing a connection and performing a handshake, see the [Bolt Handshake Protocol](bolt-handshake-protocol-specification.md).
 
 NOTE: Byte values in this document are represented using hexadecimal notation unless otherwise specified.
 
@@ -16,7 +16,7 @@ In other words, some request message types elicit a response that may contain de
 
 ### Serialization
 
-Messages and their contents are serialized into network streams using [PackStream](packstream-v1.md).
+Messages and their contents are serialized into network streams using [PackStream](packstream-specification-v1.md).
 Each message is represented as a PackStream structure with a fixed number of fields.
 The message type is denoted by the structure signature, a single byte value.
 

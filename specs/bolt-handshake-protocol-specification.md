@@ -1,4 +1,4 @@
-# Bolt Handshake Protocol v1
+# Bolt Handshake Protocol Specification
 
 Bolt is a client-server protocol designed primarily for executing queries against a database server.
 Communication occurs through request-response exchanges, in much the same way as HTTP.

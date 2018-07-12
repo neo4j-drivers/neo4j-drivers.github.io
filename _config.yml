@@ -1,7 +1,10 @@
 title: Neo4j Drivers
 author: Neo4j Drivers Team
 email: drivers@neo4j.com
-description: Web pages by the Neo4j Drivers Team
+description: >
+    These pages are maintained by the Neo4j Drivers Team
+    and contain information on the Bolt protocol as well
+    as details of tooling and components for driver authors.
 
 github_username: neo4j-drivers
 

@@ -1,4 +1,4 @@
-# PackStream v1
+# PackStream v1 Specification
 
 PackStream is a general purpose data serialisation format, originally inspired by (but incompatible with) [MessagePack](http://msgpack.org).
 The format provides a type system that is fully compatible with the [universal type system](type-system.md) used by [Neo4j](http://neo4j.com).
