@@ -11,7 +11,7 @@ Such entries exist for completeness.
 PackStream is a binary [presentation](https://en.wikipedia.org/wiki/Presentation_layer) format for the exchange of richly-typed data.
 It provides a syntax layer for the Bolt messaging protocol.
 
-- [PackStream Specification v1](specs/packstream-specification-v1.md) (Neo4j 3.0 to 3.5)
+- [PackStream Specification v1](packstream/packstream-specification-v1.md) (Neo4j 3.0 to 3.5)
 - PackStream Specification v2 (Neo4j 4.0)
 
 
@@ -22,7 +22,7 @@ This introduces readability at the expense of a slightly higher byte count.
 
 Jolt is intended primarily for use over an HTTP connection and can be useful within network environments that have a requirement for the automatic inspection of traffic.  
  
-- Jolt Specification v1
+- [Jolt Specification v1](jolt/jolt-specification-v1.md)
 
 
 ## Bolt
@@ -39,13 +39,13 @@ All Bolt connections begin with a handshake to negotiate which version of the me
 Following a successful negotiation, the agreed messaging protocol then takes ownership of the connection for the remainder of its lifetime.
 The handshake itself is not versioned. 
 
-- [Bolt Handshake Protocol Specification](specs/bolt-handshake-protocol-specification.md)
+- [Bolt Handshake Protocol Specification](bolt/bolt-handshake-protocol-specification.md)
 
 ### Bolt v1 (Neo4j 3.0 to 3.3)
 
 Version 1 corresponds to the first releases of the messaging protocol and the type system.
 
-- [Bolt Messaging Protocol Specification v1](specs/bolt-messaging-protocol-specification-v1.md)
+- [Bolt Messaging Protocol Specification v1](bolt/bolt-messaging-protocol-specification-v1.md)
 - Bolt Type System Extensions v1
 
 ### Bolt v2 (Neo4j 3.4)
@@ -59,7 +59,7 @@ There is consequently no second version of the Bolt Messaging Protocol Specifica
 
 Version 3 incorporates both an updated type system and an updated messaging protocol.
 
-- [Bolt Messaging Protocol Specification v3](specs/bolt-messaging-protocol-specification-v3.md)
+- [Bolt Messaging Protocol Specification v3](bolt/bolt-messaging-protocol-specification-v3.md)
 - Bolt Type System Extensions v3
 
 ### Bolt v4 (Neo4j 4.0)

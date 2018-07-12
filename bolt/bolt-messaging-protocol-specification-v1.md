@@ -16,7 +16,7 @@ In other words, some request message types elicit a response that may contain de
 
 ### Serialization
 
-Messages and their contents are serialized into network streams using [PackStream](packstream-specification-v1.md).
+Messages and their contents are serialized into network streams using [PackStream](../packstream/packstream-specification-v1.md).
 Each message is represented as a PackStream structure with a fixed number of fields.
 The message type is denoted by the structure signature, a single byte value.
 
