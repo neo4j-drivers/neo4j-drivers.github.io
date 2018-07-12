@@ -5,4 +5,4 @@ description: Web pages by the Neo4j Drivers Team
 
 github_username: neo4j-drivers
 
-theme: minima
+theme: jekyll-theme-minimal
