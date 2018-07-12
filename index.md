@@ -71,6 +71,10 @@ Version 4 incorporates both an updated type system and an updated messaging prot
 
 
 ## Driver API:
+
+The official Neo4j drivers export a uniform API.
+This allows driver concepts and naming to be shared across ecosystems, making transition between languages and multi-language support easier and more consistent.
+
 - v1.0
 - v1.1
 - v1.2
@@ -83,6 +87,11 @@ Version 4 incorporates both an updated type system and an updated messaging prot
 
 
 ## Connectors
+
+Connectors are low-level libraries that provide Bolt messaging and routing capabilities.
+They are primarily intended for use by drivers and other tooling.
+It is recommended that application developers choose a driver over a connector for general purpose integration with Neo4j.
+
 - C Connector (Seabolt)
 - Java Connector
 - Python Connector
@@ -91,4 +100,7 @@ Version 4 incorporates both an updated type system and an updated messaging prot
 
 
 ## Tools
+
+The links below provide extra resources for driver authors.
+
 - BoltKit
