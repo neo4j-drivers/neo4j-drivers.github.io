@@ -1,6 +1,6 @@
 # Overview of Driver Technology
 
-The sections below contain links to historic, current, and proposed future specifications. 
+The sections below contain links to current, historic, and proposed future specifications. 
 
 Unlinked entries in the lists below generally represent known future artifacts that have not yet been designed or current or historic artifacts that have no specification available.
 Such entries exist for completeness.
