@@ -62,7 +62,8 @@ Plain numbers can be used but should be encoded and interpreted according to the
 
 ```
 function isInt32(n) {
-    return Number.isInteger(n) && n >= -0x80000000 && n < 0x80000000;
+    return (Number.isInteger(n) && 
+            n >= -0x80000000 && n < 0x80000000);
 }
 ```
 
