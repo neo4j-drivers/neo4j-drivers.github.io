@@ -8,11 +8,11 @@ Such entries exist for completeness.
 
 ## PackStream
 
-PackStream is a binary [presentation](https://en.wikipedia.org/wiki/Presentation_layer) format for the exchange of richly typed data.
-It provides a syntactic layer for the Bolt messaging protocol.
+PackStream is a binary [presentation](https://en.wikipedia.org/wiki/Presentation_layer) format for the exchange of richly-typed data.
+It provides a syntax layer for the Bolt messaging protocol.
 
-- [PackStream v1 Specification](specs/packstream-specification-v1.md) (Neo4j 3.0 to 3.5)
-- PackStream v2 Specification (Neo4j 4.0)
+- [PackStream Specification v1](specs/packstream-specification-v1.md) (Neo4j 3.0 to 3.5)
+- PackStream Specification v2 (Neo4j 4.0)
 
 
 ## Jolt
@@ -30,7 +30,7 @@ Jolt is intended primarily for use over an HTTP connection and can be useful wit
 Bolt is an [application protocol](https://en.wikipedia.org/wiki/Application_layer) for the execution of database queries via a database query language, such as [Cypher](https://www.opencypher.org/).
 It is generally carried over a regular [TCP](https://tools.ietf.org/html/rfc793) or [WebSocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) connection.
 
-Bolt inherits its type system from PackStream, over which its messages are generally carried.
+Bolt inherits its core type system from PackStream, over which its messages are generally carried.
 Each version of Bolt provides a number of type system extensions, via the PackStream type extension mechanism.  
 
 ### Bolt Handshake
@@ -51,6 +51,7 @@ Version 1 corresponds to the first releases of the messaging protocol and the ty
 ### Bolt v2 (Neo4j 3.4)
 
 Version 2 incorporates an updated type system, but retains the messaging protocol from version 1.
+There is consequently no second version of the Bolt Messaging Protocol Specification.
 
 - Bolt Type System Extensions v2
 

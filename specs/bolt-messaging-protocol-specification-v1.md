@@ -1,4 +1,4 @@
-# Bolt v1 Messaging Protocol
+# Bolt Messaging Protocol v1
 
 This document describes version 1 of the Bolt messaging protocol.
 The messaging protocol is used for the message exchanges that take place following a successful Bolt handshake.
