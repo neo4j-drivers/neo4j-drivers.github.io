@@ -2,14 +2,15 @@
 
 These pages are maintained by the Neo4j Drivers Team and contain information on the Bolt protocol as well as details of tooling and components for driver authors.
 
-## Contents
 
-- PackStream
+## PackStream
   - v1 (Neo4j 3.0 to 3.5)
     - [Specification](packstream-v1.md)
   - v2 (Neo4j 4.0)
     - Specification
-- Bolt
+
+
+## Bolt
   - [Handshake](bolt-handshake-protocol.md)
   - v1 (Neo4j 3.0 to 3.3)
     - [Messaging](bolt-messaging-protocol-v1.md)
@@ -23,7 +24,9 @@ These pages are maintained by the Neo4j Drivers Team and contain information on 
   - v4 (Neo4j 4.0)
     - Messaging
     - Types
-- Driver API:
+
+
+## Driver API:
   - v1.0
   - v1.1
   - v1.2
@@ -33,5 +36,15 @@ These pages are maintained by the Neo4j Drivers Team and contain information on 
   - v1.6
   - v1.7
   - v2.0
-- Tools
+
+
+## Connectors
+  - C Connector (Seabolt)
+  - Java Connector
+  - Python Connector
+  - Go Connector
+  - .NET Connector
+
+
+## Tools
   - BoltKit

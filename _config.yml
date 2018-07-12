@@ -1,3 +1,8 @@
 title: Neo4j Drivers
+author: Neo4j Drivers Team
+email: drivers@neo4j.com
 description: Web pages by the Neo4j Drivers Team
-theme: jekyll-theme-cayman
+
+github_username: neo4j-drivers
+
+theme: minima
