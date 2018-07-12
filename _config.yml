@@ -5,15 +5,19 @@ description: >
     Tools and components for driver authors can be found here, as well as specifications for the Bolt protocol and related technologies.
     </p>
     <p>
+    <small>
     Copyright &copy; 2002-2018 <a href="https://neo4j.com">Neo4j Sweden AB</a>.
+    </small>
     </p>
     <p>
+    <small>
     <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">
     <img alt="Creative Commons Licence" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/80x15.png" />
     </a>
     <br />
     These works are is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
-    </[>
+    </small>
+    </p>
 
 logo: art/neo4j_symbol_transparent.png
 show_downloads: false
