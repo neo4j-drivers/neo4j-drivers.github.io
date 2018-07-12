@@ -3,7 +3,7 @@ description: >
     These are the official pages of the Neo4j Drivers Team.
     Tools and components for driver authors can be found here, as well as specifications for the Bolt protocol and related technologies.
 
-logo: art/rusty-bolt.png
+logo: art/neo4j_symbol_transparent.png
 show_downloads: false
 
 github_username: neo4j-drivers
