@@ -22,7 +22,7 @@ This introduces readability at the expense of a slightly higher byte count.
 
 Jolt is intended primarily for use over an HTTP connection and can be useful within network environments that have a requirement for the automatic inspection of traffic.  
  
-- Jolt v1 Specification
+- Jolt Specification v1
 
 
 ## Bolt
