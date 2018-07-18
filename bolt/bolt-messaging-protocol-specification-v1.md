@@ -80,6 +80,10 @@ The table below describes the response detail messages defined by this specifica
 |-------------|-----------|---------------|-------------
 | `RECORD`    | `71`      | data::List    | Data values
 
+### 2.6. Protocol Errors
+
+If a server or client receives a message type that is unexpected, according to the transitions described in this document, it must treat that as a protocol error.
+Protocol errors are fatal and should immediately transition the state to `DEFUNCT`, closing any open connections.
 
 
 ## 3. Server States
@@ -95,7 +99,7 @@ This is the initial state and exists only in a logical sense prior to the socket
 
 #### 3.1.1. Transitions from `DISCONNECTED`
 
-- `&lt;CONNECT&gt;` to `CONNECTED` or `DEFUNCT`
+- `<CONNECT>` to `CONNECTED` or `DEFUNCT`
 
 
 ### 3.2. `CONNECTED`
@@ -106,7 +110,7 @@ The connection has not yet been authenticated and permits only one transition, t
 #### 3.2.1. Transitions from `CONNECTED`
 
 - `INIT` to `READY` or `DEFUNCT`
-- `&lt;DISCONNECT&gt;` to `DEFUNCT`
+- `<DISCONNECT>` to `DEFUNCT`
 
 
 ### 3.3. `READY`
@@ -119,8 +123,8 @@ The server will generally transition from here to `STREAMING` but in some except
 #### 3.3.1. Transitions from `READY`
 
 - `RUN` to `STREAMING` or `FAILED`
-- `&lt;INTERRUPT&gt;` to `INTERRUPTED`
-- `&lt;DISCONNECT&gt;` to `DEFUNCT`
+- `<INTERRUPT>` to `INTERRUPTED`
+- `<DISCONNECT>` to `DEFUNCT`
 
 
 ### 3.4. `STREAMING`
@@ -132,8 +136,8 @@ This result must be fully consumed or discarded by a client before the server ca
 
 - `PULL_ALL` to `READY` or `FAILED`
 - `DISCARD_ALL` to `READY` or `FAILED`
-- `&lt;INTERRUPT&gt;` to `INTERRUPTED`
-- `&lt;DISCONNECT&gt;` to `DEFUNCT`
+- `<INTERRUPT>` to `INTERRUPTED`
+- `<DISCONNECT>` to `DEFUNCT`
 
 
 ### 3.5. `FAILED`
@@ -146,13 +150,13 @@ This mode ensures that only one failure can exist at a time, preventing cascadin
 #### 3.5.1. Transitions from `FAILED`
 
 - `ACK_FAILURE` to `READY` to `DEFUNCT`
-- `&lt;INTERRUPT&gt;` to `INTERRUPTED`
-- `&lt;DISCONNECT&gt;` to `DEFUNCT`
+- `<INTERRUPT>` to `INTERRUPTED`
+- `<DISCONNECT>` to `DEFUNCT`
 
 
 ### 3.6. `INTERRUPTED`
 
-This state occurs between the server receiving the jump-ahead `&lt;INTERRUPT&gt;` and the queued `RESET` message.
+This state occurs between the server receiving the jump-ahead `<INTERRUPT>` and the queued `RESET` message.
 Most incoming messages are ignored when `INTERRUPTED`, with the exception of the `RESET` that allows transition back to `READY`.
 
 #### 3.6.1. Transitions from `INTERRUPTED`
@@ -161,8 +165,8 @@ Most incoming messages are ignored when `INTERRUPTED`, with the exception of the
 - `DISCARD_ALL` to `INTERRUPTED`
 - `PULL_ALL` to `INTERRUPTED`
 - `RESET` to `READY` or `DEFUNCT`
-- `&lt;INTERRUPT&gt;` to `INTERRUPTED`
-- `&lt;DISCONNECT&gt;` to `DEFUNCT`
+- `<INTERRUPT>` to `INTERRUPTED`
+- `<DISCONNECT>` to `DEFUNCT`
 
 
 ### 3.7. `DEFUNCT`
@@ -397,13 +401,20 @@ If an `ACK_FAILURE` request has been successfully received, the server should re
 
 #### 4.5.4. `ACK_FAILURE` Response `FAILURE`
 
-If an `ACK_FAILURE` request is received while not in the `READY` state, the server should respond with a `FAILURE` message and immediately close the connection.
+If an `ACK_FAILURE` request is received while not in the `FAILED` state, the server should respond with a `FAILURE` message and immediately close the connection.
 The server may attach metadata to the message to provide more detail on the nature of the failure.
 
 
 ### 4.6. `RESET`
 
-TODO
+`RESET` requests that the connection should be set back to its initial `READY` state, as if an `INIT` had just successfully completed.
+`RESET` is unique in that, on arrival at the server, it splits into two separate signals.
+Firstly, an `<INTERRUPT>` jumps ahead in the message queue, stopping any unit of work that happens to be executing, and putting the state machine into an `INTERRUPTED` state.
+Secondly, the `RESET` queues along with all other incoming messages and is used to put the state machine back to `READY` when its turn for processing arrives.
+
+This essentially means that the `INTERRUPTED` state exists only transitionally between the arrival of a `RESET` in the message queue and the later processing of that `RESET` in its proper position.
+`INTERRUPTED` is therefore the only state to automatically resolve without any further input from the client and whose entry does not generate a response message.
+
 
 #### 4.6.1. `RESET` Synopsis
 
@@ -411,14 +422,27 @@ TODO
 RESET
 ```
 
-#### 4.6.2. `RESET` State Transitions
+#### 4.6.2. `<INTERRUPT>` State Transitions
 
-TODO
+| Initial State | Final State   | Response |
+|---------------|---------------|----------|
+| `READY`       | `INTERRUPTED` | *n/a*    |
+| `STREAMING`   | `INTERRUPTED` | *n/a*    |
+| `FAILED`      | `INTERRUPTED` | *n/a*    |
+| `INTERRUPTED` | `INTERRUPTED` | *n/a*    |
+
+#### 4.6.3. `RESET` State Transitions
+
+| Initial State | Final State   | Response     |
+|---------------|---------------|--------------|
+| `INTERRUPTED` | `READY`       | `SUCCESS {}` |
+| `INTERRUPTED` | `DEFUNCT`     | `FAILURE {}` |
 
 #### 4.6.3. `RESET` Response `SUCCESS`
 
-TODO
+If a `RESET` request has been successfully received, the server should respond with a `SUCCESS` message and enter the `READY` state.
 
 #### 4.6.4. `RESET` Response `FAILURE`
 
-TODO
+If `RESET` is received before the server enters a `READY` state, it should trigger a `FAILURE` followed by immediate closure of the connection.
+Clients receiving a `FAILURE` in response to `RESET` should treat that connection as `DEFUNCT` and dispose of it.
