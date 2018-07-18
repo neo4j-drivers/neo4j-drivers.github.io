@@ -149,7 +149,7 @@ This mode ensures that only one failure can exist at a time, preventing cascadin
 
 #### 3.5.1. Transitions from `FAILED`
 
-- `ACK_FAILURE` to `READY` to `DEFUNCT`
+- `ACK_FAILURE` to `READY` or `DEFUNCT`
 - `<INTERRUPT>` to `INTERRUPTED`
 - `<DISCONNECT>` to `DEFUNCT`
 
@@ -304,7 +304,11 @@ DISCARD_ALL
 
 #### 4.3.2. `DISCARD_ALL` State Transitions
 
-TODO
+| Initial State | Final State   | Response     |
+|---------------|---------------|--------------|
+| `STREAMING`   | `READY`       | `SUCCESS {}` |
+| `STREAMING`   | `FAILED`      | `FAILURE {}` |
+| `INTERRUPTED` | `INTERRUPTED` | `IGNORED`    |
 
 #### 4.3.3. `DISCARD_ALL` Response `SUCCESS`
 
@@ -344,7 +348,11 @@ PULL_ALL
 
 #### 4.4.2. `PULL_ALL` State Transitions
 
-TODO
+| Initial State | Final State   | Response                      |
+|---------------|---------------|-------------------------------|
+| `STREAMING`   | `READY`       | \[`RECORD` ...\] `SUCCESS {}` |
+| `STREAMING`   | `FAILED`      | \[`RECORD` ...\] `FAILURE {}` |
+| `INTERRUPTED` | `INTERRUPTED` | `IGNORED`                     |
 
 #### 4.4.3. `PULL_ALL` Response `SUCCESS`
 
@@ -393,7 +401,10 @@ ACK_FAILURE
 
 #### 4.5.2. `ACK_FAILURE` State Transitions
 
-TODO
+| Initial State | Final State   | Response     |
+|---------------|---------------|--------------|
+| `FAILED`      | `READY`       | `SUCCESS {}` |
+| `FAILED`      | `DEFUNCT`     | `FAILURE {}` |
 
 #### 4.5.3. `ACK_FAILURE` Response `SUCCESS`
 
