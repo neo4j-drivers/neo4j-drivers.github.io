@@ -46,7 +46,7 @@ The handshake itself is not versioned.
 Version 1 corresponds to the first releases of the messaging protocol and the type system.
 
 - [Bolt Messaging Protocol Specification v1](bolt/bolt-messaging-protocol-specification-v1.md)
-- Bolt Type System Extensions v1
+- [Bolt Type System Extensions v1](types/bolt-type-system-extensions-v1.md)
 
 ### Bolt v2 (Neo4j 3.4)
 
