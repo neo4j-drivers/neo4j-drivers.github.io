@@ -280,7 +280,8 @@ The server may attach metadata to the message to provide more detail on the natu
 
 #### 4.2.5. `RUN` Response `IGNORED`
 
-TODO
+A server that receives a `RUN` request while `FAILED` or `INTERRUPTED` should respond with an `IGNORED` message and discard the request without processing it.
+No state change should occur.
 
 
 ### 4.3. `DISCARD_ALL`
