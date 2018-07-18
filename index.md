@@ -92,11 +92,7 @@ Connectors are low-level libraries that provide Bolt messaging and routing capab
 They are primarily intended for use by drivers and other tooling.
 It is recommended that application developers choose a driver over a connector for general purpose integration with Neo4j.
 
-- C Connector (Seabolt)
-- Java Connector
-- Python Connector
-- Go Connector
-- .NET Connector
+- [Seabolt](connectors/seabolt.md) (C Connector)
 
 
 ## Tools
