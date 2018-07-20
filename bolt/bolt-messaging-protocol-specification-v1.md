@@ -210,9 +210,9 @@ INIT "user_agent" {metadata}
 
 The following fields are defined for inclusion in the auth token.
 
-- `scheme`
-- `principal`
-- `credentials`
+- `scheme` (e.g. `"basic"`)
+- `principal` (e.g. `"neo4j"`)
+- `credentials` (e.g. `"password"`)
 
 #### 4.1.2. `INIT` State Transitions
 
@@ -226,7 +226,9 @@ The following fields are defined for inclusion in the auth token.
 A success response indicates that the client is permitted to exchange further messages.
 Servers can include metadata that describes details of the server environment and/or the connection.
 
-- server: "Neo4j/3.4.0"
+The following fields are defined for inclusion in the metadata.
+
+- `server` (e.g. `"Neo4j/3.4.0"`)
 
 #### 4.1.4. `INIT` Response `FAILURE`
 
@@ -273,6 +275,11 @@ The server may attach metadata to the message to provide header detail for the r
 
 Clients should not consider a `SUCCESS` response to indicate completion of the execution of that statement, merely acceptance of it.
 
+The following fields are defined for inclusion in the metadata.
+
+- `fields` (e.g. `["name", "age"]`)
+- `result_available_after` (e.g. `123`)
+
 #### 4.2.4. `RUN` Response `FAILURE`
 
 If a `RUN` request cannot be processed successfully or is invalid, the server should respond with a `FAILURE` message and enter the *FAILED* state.
@@ -315,6 +322,11 @@ DISCARD_ALL
 
 If a `DISCARD_ALL` request has been successfully received, the server should respond with a `SUCCESS` message and enter the *READY* state.
 The server may attach metadata to the message to provide footer detail for the discarded results.
+
+The following fields are defined for inclusion in the metadata.
+
+- `bookmark` (e.g. `"bookmark:1234"`)
+- `result_consumed_after` (e.g. `234`)
 
 #### 4.3.4. `DISCARD_ALL` Response `FAILURE`
 
@@ -359,6 +371,11 @@ PULL_ALL
 
 Following any relevant detail messages, and assuming the `PULL_ALL` request has been successfully processed, the server should respond with a `SUCCESS` message and enter the `READY` state.
 The server may attach metadata to the message to provide footer detail for the results.
+
+The following fields are defined for inclusion in the metadata.
+
+- `bookmark` (e.g. `"bookmark:1234"`)
+- `result_consumed_after` (e.g. `234`)
 
 #### 4.4.4. `PULL_ALL` Response `FAILURE`
 

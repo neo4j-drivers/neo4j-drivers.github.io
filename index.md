@@ -15,7 +15,7 @@ It provides a syntax layer for the Bolt messaging protocol.
 - PackStream Specification v2 (Neo4j 4.0)
 
 
-## Jolt
+### Jolt
 
 Jolt is a proposed PackStream spin-off that provides identical data exchange capabilities to PackStream within a pure [JSON](http://json.org/) context.
 This introduces readability at the expense of a slightly higher byte count.

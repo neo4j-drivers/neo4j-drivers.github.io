@@ -51,7 +51,7 @@ Marker Size          Content
 
 ### Endianness
 
-Packstream exclusively uses https://en.wikipedia.org/wiki/Endianness#Big-endian[big-endian] representations.
+PackStream exclusively uses [big-endian](https://en.wikipedia.org/wiki/Endianness#Big-endian) representations.
 This means that the most significant part of the value is written to the network or memory space first and the least significant part is written last.
 
 
@@ -72,12 +72,12 @@ Integer values occupy either 1, 2, 3, 5 or 9 bytes depending on magnitude.
 The available representations are:
 
 | Representation | Size (bytes) | Description
-|----------------|--------------|---------------------------------------------
+|----------------|--------------|----------------------------------------------
 | TINY_INT       | 1            | Marker byte only
-| INT_8          | 2            | Marker byte followed by `int8_t` value byte
-| INT_16         | 3            | Marker byte followed by `int16_t` value byte
-| INT_32         | 5            | Marker byte followed by `int32_t` value byte
-| INT_64         | 9            | Marker byte followed by `int64_t` value byte
+| INT_8          | 2            | Marker byte followed by signed 8-bit integer
+| INT_16         | 3            | Marker byte followed by signed 16-bit integer
+| INT_32         | 5            | Marker byte followed by signed 32-bit integer
+| INT_64         | 9            | Marker byte followed by signed 64-bit integer
 
 Some marker bytes can be used to carry the value of a small integer as well as its type.
 These markers can be identified by a zero high-order bit (for positive values) or by a high-order nibble containing only ones (for negative values).

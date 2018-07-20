@@ -8,7 +8,7 @@ A Bolt connection always begins with a fixed handshake wherein the client identi
 The outcome of this negotiation determines the version of messaging protocol that follows.
 Messaging protocols are described elsewhere.
 
-NOTE: Byte values in this document are represented using hexadecimal notation unless otherwise specified.
+*NOTE: Byte values in this document are represented using hexadecimal notation unless otherwise specified.*
 
 
 ## Endianness
@@ -46,7 +46,8 @@ C: 60 60 B0 17
 ### Version Negotiation
 
 After identification, a small client-server exchange occurs to determine which version of the messaging protocol to use.
-In this, the client submits up to four protocol versions encoded as big-endian 32-bit unsigned integers.
+In this, the client submits exactly four protocol versions encoded as big-endian 32-bit unsigned integers.
+Protocol version zero can be used as a placeholder if fewer than four versions are required in the exchange.
 Should a match be found for a version supported by the server, the response will contain that version encoded as a single 32-bit integer.
 If no match is found, a zero value is returned followed by immediate closure of the connection by the server.
 
