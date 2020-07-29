@@ -39,7 +39,38 @@ All Bolt connections begin with a handshake to negotiate which version of the me
 Following a successful negotiation, the agreed messaging protocol then takes ownership of the connection for the remainder of its lifetime.
 The handshake itself is not versioned. 
 
-- [Bolt Handshake Protocol Specification](bolt/bolt-handshake-protocol-specification.md)
+- [Bolt Protocol Handshake Specification](bolt/bolt-protocol-handshake-specification.md)
+
+
+### Bolt Message Specification
+
+* Version 1 corresponds to the first releases of the message specification.
+* Version 2 incorporates no changes to the message specification.
+* Version 3 incorporates an updated message specification.
+* Version 4.0 incorporates an updated message specification.
+* Version 4.1 incorporates an updated message specification.
+
+- [Bolt Protocol Message Specification](bolt/bolt-protocol-message-specification.md)
+
+
+### Bolt Protocol Type System Specification
+
+* Version 1 corresponds to the first releases of the type system specification.
+* Version 2 incorporates an updated type system specification.
+* Version 3 incorporates an updated type system specification.
+* Version 4.0 incorporates an updated type system specification.
+
+- [Bolt Protocol Type System Extensions](types/bolt-type-system-extensions-v1.md)
+
+
+### Bolt Protocol and Neo4j Compatibility
+
+* Neo4j 3.0 to 3.3 supports Bolt Version 1
+* Neo4j 3.4 supports Bolt Version 2
+* Neo4j 3.5 supports Bolt Version 3
+* Neo4j 4.0 supports Bolt Version 4.0 (3)
+* Neo4j 4.1 supports Bolt Version 4.1 (4.0, 3)
+
 
 ### Bolt v1 (Neo4j 3.0 to 3.3)
 
@@ -70,20 +101,34 @@ Version 4 incorporates both an updated type system and an updated messaging prot
 - Bolt Type System Extensions v4
 
 
-## Driver API:
+## Neo4j Driver API
 
 The official Neo4j drivers export a uniform API.
+
 This allows driver concepts and naming to be shared across ecosystems, making transition between languages and multi-language support easier and more consistent.
 
-- v1.0
-- v1.1
-- v1.2
-- v1.3
-- v1.4
-- v1.5
-- v1.6
-- v1.7
-- v2.0
+* Driver
+* Session
+* Transaction
+
+
+* DriverConfig
+* SessionConfig
+* TransactionConfig
+
+
+* TransactionManager
+
+
+* ConnectionPool
+* Routing
+
+
+* BoltProtocol
+
+
+* Neo4jExceptions
+* DriverExceptions
 
 
 ## Connectors
