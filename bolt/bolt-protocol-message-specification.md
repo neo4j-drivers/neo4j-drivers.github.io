@@ -1,20 +1,116 @@
-# Bolt Protocol Message Specification
+# Bolt Protocol Message Specification (DRAFT!!!)
+
+
+* [Version 4.1](#version-41)
+* [Version 4.0](#version-40)
+* [Version 3](#version-3)
+* [Version 2](#version-2)
+* [Version 1](#version-1)
 
 
 # Version 4.1
 
+## 1. Changes
+
+* `BEGIN` message now requires the field address.
+
+## 2. New
+
+## 3. Messages
+
+## Messages
+
+| Message       | Signature | Request Message | Summary Message | Detail Message | Fields                                     | Description               |
+|---------------|:---------:|:---------------:|:---------------:|:--------------:|--------------------------------------------|---------------------------|
+| `HELLO`       | `01`      | x               |                 |                | `user_agent::String`, `auth_token::Map`    | initialize connection     |
+| `GOODBYE`     | `02`      | x               |                 |                |                                            | close the connection      |
+| `RUN`         | `10`      | x               |                 |                | `statement::String`, `parameters::Map`     | execute a statement       |
+| `DISCARD`     | `2F`      | x               |                 |                | `<missing>`                                | discard records           |
+| `PULL`        | `3F`      | x               |                 |                | `<missing>`                                | fetch records             |
+| `BEGIN`       | `11`      | x               |                 |                | `<missing>`                                |                           |
+| `COMMIT`      | `12`      | x               |                 |                |                                            |                           |
+| `ROLLBACK`    | `13`      | x               |                 |                |                                            |                           |
+| `RESET`       | `0F`      | x               |                 |                |                                            |                           |
+| `SUCCESS`     | `70`      |                 | x               |                | `metadata::Map`                            | request succeeded         |
+| `IGNORED`     | `7E`      |                 | x               |                |                                            | request was ignored       |
+| `FAILURE`     | `7F`      |                 | x               |                | `metadata::Map`                            | request failed            |
+| `RECORD`      | `71`      |                 |                 | x              | `data::List`                               | data values               |
 
 # Version 4.0
+
+## 1. Changes
+
+* `DISCARD_ALL` message renamed to `DISCARD` and introduced new fields.
+* `PULL_ALL` message renamed to `PULL` and introduced new fields.
+
+## 2. New
+
+* The `DISCARD` message can now discard an arbitrary number of records.
+* The `PULL` message can now fetch an arbitrary number of records.
+
+## 3. Messages
+
+## Messages
+
+| Message       | Signature | Request Message | Summary Message | Detail Message | Fields                                | Description               |
+|---------------|:---------:|:---------------:|:---------------:|:--------------:|---------------------------------------|---------------------------|
+| `HELLO`       | `01`      | x               |                 |                | user\_agent::String, auth\_token::Map | initialize connection     |
+| `GOODBYE`     | `02`      | x               |                 |                |                                       | close the connection      |
+| `RUN`         | `10`      | x               |                 |                | statement::String, parameters::Map    | execute a statement       |
+| `DISCARD`     | `2F`      | x               |                 |                | \<missing\>                           | discard records           |
+| `PULL`        | `3F`      | x               |                 |                | \<missing\>                           | fetch records             |
+| `BEGIN`       | `11`      | x               |                 |                | \<missing\>                           |                           |
+| `COMMIT`      | `12`      | x               |                 |                |                                       |                           |
+| `ROLLBACK`    | `13`      | x               |                 |                |                                       |                           |
+| `RESET`       | `0F`      | x               |                 |                |                                       |                           |
+| `SUCCESS`     | `70`      |                 | x               |                | metadata::Map                         | request succeeded         |
+| `IGNORED`     | `7E`      |                 | x               |                |                                       | request was ignored       |
+| `FAILURE`     | `7F`      |                 | x               |                | metadata::Map                         | request failed            |
+| `RECORD`      | `71`      |                 |                 | x              | data::List                            | data values               |
 
 
 # Version 3
 
+## 1. Changes
+
+* `INIT` message renamed to `HELLO`.
+* `ACK_FAILUER` message has been removed.
+
+## 2. New
+
+* `BEGIN` message.
+* `COMMIT` message.
+* `ROLLBACK` message.
+
+## 3. Messages
+
+## Messages
+
+| Message       | Signature | Request Message | Summary Message | Detail Message | Fields                                | Description               |
+|---------------|:---------:|:---------------:|:---------------:|:--------------:|---------------------------------------|---------------------------|
+| `HELLO`       | `01`      | x               |                 |                | user\_agent::String, auth\_token::Map | initialize connection     |
+| `GOODBYE`     | `02`      | x               |                 |                |                                       | close the connection      |
+| `RUN`         | `10`      | x               |                 |                | statement::String, parameters::Map    | execute a statement       |
+| `DISCARD_ALL` | `2F`      | x               |                 |                |                                       | discard all records       |
+| `PULL_ALL`    | `3F`      | x               |                 |                |                                       | fetch all records         |
+| `BEGIN`       | `11`      | x               |                 |                | \<missing\>                           |                           |
+| `COMMIT`      | `12`      | x               |                 |                |                                       |                           |
+| `ROLLBACK`    | `13`      | x               |                 |                |                                       |                           |
+| `RESET`       | `0F`      | x               |                 |                |                                       |                           |
+| `SUCCESS`     | `70`      |                 | x               |                | metadata::Map                         | request succeeded         |
+| `IGNORED`     | `7E`      |                 | x               |                |                                       | request was ignored       |
+| `FAILURE`     | `7F`      |                 | x               |                | metadata::Map                         | request failed            |
+| `RECORD`      | `71`      |                 |                 | x              | data::List                            | data values               |
+
 
 # Version 2
 
+## 1. Changes
+
+No changes.
+
 
 # Version 1
-
 
 ## 1. Overview
 
