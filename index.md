@@ -11,8 +11,11 @@ Such entries exist for completeness.
 PackStream is a binary [presentation](https://en.wikipedia.org/wiki/Presentation_layer) format for the exchange of richly-typed data.
 It provides a syntax layer for the Bolt messaging protocol.
 
-- [PackStream Specification v1](packstream/packstream-specification-v1.md) (Neo4j 3.0 to 3.5)
-- PackStream Specification v2 (Neo4j 4.0)
+- Version 1 corresponds to the first releases of the PackStream specification.
+- Version 2. Extended the PackStream specification.
+
+
+[PackStream Specification](packstream/packstream-specification.md)
 
 
 ### Jolt
@@ -21,8 +24,10 @@ Jolt is a proposed PackStream spin-off that provides identical data exchange cap
 This introduces readability at the expense of a slightly higher byte count.
 
 Jolt is intended primarily for use over an HTTP connection and can be useful within network environments that have a requirement for the automatic inspection of traffic.  
- 
-- [Jolt Specification v1](jolt/jolt-specification-v1.md)
+
+- Version 1 corresponds to the first releases of the Jolt specification.
+
+[Jolt Specification](jolt/jolt-specification.md)
 
 
 ## Bolt
@@ -39,18 +44,18 @@ All Bolt connections begin with a handshake to negotiate which version of the me
 Following a successful negotiation, the agreed messaging protocol then takes ownership of the connection for the remainder of its lifetime.
 The handshake itself is not versioned. 
 
-- [Bolt Protocol Handshake Specification](bolt/bolt-protocol-handshake-specification.md)
+[Bolt Protocol Handshake Specification](bolt/bolt-protocol-handshake-specification.md)
 
 
 ### Bolt Message Specification
 
-* Version 1 corresponds to the first releases of the message specification.
+* Version 1 corresponds to the first releases of the message specification. Uses PackStream Version 1.
 * Version 2 incorporates no changes to the message specification.
 * Version 3 incorporates an updated message specification.
-* Version 4.0 incorporates an updated message specification.
+* Version 4.0 incorporates an updated message specification. Uses PackStream Version 2.
 * Version 4.1 incorporates an updated message specification.
 
-- [Bolt Protocol Message Specification](bolt/bolt-protocol-message-specification.md)
+[Bolt Protocol Message Specification](bolt/bolt-protocol-message-specification.md)
 
 
 ### Bolt Protocol Type System Specification
@@ -60,7 +65,7 @@ The handshake itself is not versioned.
 * Version 3 incorporates an updated type system specification.
 * Version 4.0 incorporates an updated type system specification.
 
-- [Bolt Protocol Type System Extensions](types/bolt-type-system-extensions-v1.md)
+[Bolt Protocol Type System Extensions](types/bolt-type-system-extensions-v1.md)
 
 
 ### Bolt Protocol and Neo4j Compatibility
@@ -72,76 +77,31 @@ The handshake itself is not versioned.
 * Neo4j 4.1 supports Bolt Version 4.1 (4.0, 3)
 
 
-### Bolt v1 (Neo4j 3.0 to 3.3)
-
-Version 1 corresponds to the first releases of the messaging protocol and the type system.
-
-- [Bolt Messaging Protocol Specification v1](bolt/bolt-messaging-protocol-specification-v1.md)
-- [Bolt Type System Extensions v1](types/bolt-type-system-extensions-v1.md)
-
-### Bolt v2 (Neo4j 3.4)
-
-Version 2 incorporates an updated type system, but retains the messaging protocol from version 1.
-There is consequently no second version of the Bolt Messaging Protocol Specification.
-
-- Bolt Type System Extensions v2
-
-### Bolt v3 (Neo4j 3.5)
-
-Version 3 incorporates both an updated type system and an updated messaging protocol.
-
-- [Bolt Messaging Protocol Specification v3](bolt/bolt-messaging-protocol-specification-v3.md)
-- Bolt Type System Extensions v3
-
-### Bolt v4 (Neo4j 4.0)
-
-Version 4 incorporates both an updated type system and an updated messaging protocol.
-
-- Bolt Messaging Protocol Specification v4
-- Bolt Type System Extensions v4
-
-
 ## Neo4j Driver API
 
 The official Neo4j drivers export a uniform API.
 
 This allows driver concepts and naming to be shared across ecosystems, making transition between languages and multi-language support easier and more consistent.
 
-* Driver
-* Session
-* Transaction
-
-
-* DriverConfig
-* SessionConfig
-* TransactionConfig
-
-
-* TransactionManager
-
-
-* ConnectionPool
-* Routing
-
-
-* BoltProtocol
-
-
-* Neo4jExceptions
-* DriverExceptions
+[Driver API Specification](driver_api/driver-api-specification.md)
 
 
 ## Connectors
 
 Connectors are low-level libraries that provide Bolt messaging and routing capabilities.
-They are primarily intended for use by drivers and other tooling.
-It is recommended that application developers choose a driver over a connector for general purpose integration with Neo4j.
 
-- [Seabolt](connectors/seabolt.md) (C Connector)
+[Seabolt](connectors/seabolt.md) (C Connector)
 
 
-## Tools
+## Neo4j Drivers
 
-The links below provide extra resources for driver authors.
+[Java Driver](https://github.com/neo4j/neo4j-java-driver)
 
-- BoltKit
+[JavaScript Driver](https://github.com/neo4j/neo4j-javascript-driver)
+
+[.NET Driver](https://github.com/neo4j/neo4j-dotnet-driver)
+
+[Python Driver](https://github.com/neo4j/neo4j-python-driver)
+
+[Go Driver](https://github.com/neo4j/neo4j-go-driver)
+
