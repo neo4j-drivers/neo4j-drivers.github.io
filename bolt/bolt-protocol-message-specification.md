@@ -45,6 +45,7 @@
 
 ## 2. New
 
+* Serialization is specified with PackStream Version 2.
 * The `DISCARD` message can now discard an arbitrary number of records.
 * The `PULL` message can now fetch an arbitrary number of records.
 
@@ -55,14 +56,14 @@
 | Message       | Signature | Request Message | Summary Message | Detail Message | Fields                                | Description               |
 |---------------|:---------:|:---------------:|:---------------:|:--------------:|---------------------------------------|---------------------------|
 | `HELLO`       | `01`      | x               |                 |                | user\_agent::String, auth\_token::Map | initialize connection     |
-| `GOODBYE`     | `02`      | x               |                 |                |                                       | close the connection      |
+| `GOODBYE`     | `02`      | x               |                 |                | triggers a `<DISCONNECT>` signal      | close the connection      |
+| `RESET`       | `0F`      | x               |                 |                | triggers a `<INTERRUPT>` signal       | reset connection          |
 | `RUN`         | `10`      | x               |                 |                | statement::String, parameters::Map    | execute a statement       |
 | `DISCARD`     | `2F`      | x               |                 |                | \<missing\>                           | discard records           |
 | `PULL`        | `3F`      | x               |                 |                | \<missing\>                           | fetch records             |
 | `BEGIN`       | `11`      | x               |                 |                | \<missing\>                           |                           |
 | `COMMIT`      | `12`      | x               |                 |                |                                       |                           |
 | `ROLLBACK`    | `13`      | x               |                 |                |                                       |                           |
-| `RESET`       | `0F`      | x               |                 |                |                                       |                           |
 | `SUCCESS`     | `70`      |                 | x               |                | metadata::Map                         | request succeeded         |
 | `IGNORED`     | `7E`      |                 | x               |                |                                       | request was ignored       |
 | `FAILURE`     | `7F`      |                 | x               |                | metadata::Map                         | request failed            |
@@ -84,23 +85,31 @@
 
 ## 3. Messages
 
-## Messages
-
 | Message       | Signature | Request Message | Summary Message | Detail Message | Fields                                | Description               |
 |---------------|:---------:|:---------------:|:---------------:|:--------------:|---------------------------------------|---------------------------|
 | `HELLO`       | `01`      | x               |                 |                | user\_agent::String, auth\_token::Map | initialize connection     |
-| `GOODBYE`     | `02`      | x               |                 |                |                                       | close the connection      |
+| `GOODBYE`     | `02`      | x               |                 |                | triggers a `<DISCONNECT>` signal      | close the connection      |
+| `RESET`       | `0F`      | x               |                 |                | triggers a `<INTERRUPT>` signal       | reset connection          |
 | `RUN`         | `10`      | x               |                 |                | statement::String, parameters::Map    | execute a statement       |
 | `DISCARD_ALL` | `2F`      | x               |                 |                |                                       | discard all records       |
 | `PULL_ALL`    | `3F`      | x               |                 |                |                                       | fetch all records         |
 | `BEGIN`       | `11`      | x               |                 |                | \<missing\>                           |                           |
 | `COMMIT`      | `12`      | x               |                 |                |                                       |                           |
 | `ROLLBACK`    | `13`      | x               |                 |                |                                       |                           |
-| `RESET`       | `0F`      | x               |                 |                |                                       |                           |
 | `SUCCESS`     | `70`      |                 | x               |                | metadata::Map                         | request succeeded         |
 | `IGNORED`     | `7E`      |                 | x               |                |                                       | request was ignored       |
 | `FAILURE`     | `7F`      |                 | x               |                | metadata::Map                         | request failed            |
 | `RECORD`      | `71`      |                 |                 | x              | data::List                            | data values               |
+
+
+### 3.1 Server Singnals
+
+Jump ahead is that the signal will imediatly be available before any messages are processed in the message queue.
+
+| Server Signal   | Jump Ahead | Description            |
+|:---------------:|:----------:|------------------------|
+| `<INTERRUPT>`   | x          | an interrupt signal    |
+| `<DISCONNECT>`  |            | a disconnect signal    |
 
 
 # Version 2
@@ -137,9 +146,11 @@ More details of this process can be found in the sections below.
 
 ### 2.1. Serialization
 
-Messages and their contents are serialized into network streams using [PackStream](../packstream/packstream-specification-v1.md).
+Messages and their contents are serialized into network streams using [PackStream Specification](../packstream/packstream-specification.md).
 Each message is represented as a PackStream structure with a fixed number of fields.
 The message type is denoted by the structure signature, a single byte value.
+
+**Serialization is specified with PackStream Version 1.**
 
 
 ### 2.2. Chunking
@@ -155,143 +166,27 @@ This is used to signal message boundaries to a receiving parties, allowing block
 This also allows for unknown message types to be received and handled without breaking the messaging chain.
 
 
-### 2.3. Request Messages
+### 2.3. Messages
 
-The table below describes the request messages defined by this specification.
+* Request Message, the client sends a message.
+* Summary Message, the server will always respond with one summary message.
+* Detail Message, the server will always repond with zero or more detail messages before sending a summary message.
 
-| Name          | Signature | Fields                              | Description
-|---------------|-----------|-------------------------------------|-----------------------
-| `INIT`        | `01`      | user_agent::String, auth_token::Map | Initialize connection
-| `ACK_FAILURE` | `0E`      |                                     | Acknowledge failure
-| `RESET`       | `0F`      |                                     | Reset connection
-| `RUN`         | `10`      | statement::String, parameters::Map  | Run statement
-| `DISCARD_ALL` | `2F`      |                                     | Discard all results
-| `PULL_ALL`    | `3F`      |                                     | Fetch all results
-
-Request messages, conditions of usage and their permitted responses are described in more detail in the sections below.
-
-
-### 2.4. Response Summary Messages
-
-The table below describes the response summary messages defined by this specification.
-
-| Name        | Signature | Fields        | Description
-|-------------|-----------|---------------|---------------------
-| `SUCCESS`   | `70`      | metadata::Map | Request succeeded
-| `IGNORED`   | `7E`      |               | Request was ignored
-| `FAILURE`   | `7F`      | metadata::Map | Request failed
-
-### 2.5. Response Detail Messages
-
-The table below describes the response detail messages defined by this specification.
-
-| Name        | Signature | Fields        | Description
-|-------------|-----------|---------------|-------------
-| `RECORD`    | `71`      | data::List    | Data values
-
-### 2.6. Protocol Errors
-
-If a server or client receives a message type that is unexpected, according to the transitions described in this document, it must treat that as a protocol error.
-Protocol errors are fatal and should immediately transition the state to `DEFUNCT`, closing any open connections.
+| Message       | Signature | Request Message | Summary Message | Detail Message | Fields                                | Description                    |
+|---------------|:---------:|:---------------:|:---------------:|:--------------:|---------------------------------------|--------------------------------|
+| `INIT`        | `01`      | x               |                 |                | user\_agent::String, auth\_token::Map | initialize connection          |
+| `ACL_FAILURE` | `0E`      | x               |                 |                | triggers a `<DISCONNECT>` signal      | acknowledge a failure response |
+| `RESET`       | `0F`      | x               |                 |                | triggers a `<INTERRUPT>` signal       | reset connection               |
+| `RUN`         | `10`      | x               |                 |                | statement::String, parameters::Map    | execute a statement            |
+| `DISCARD_ALL` | `2F`      | x               |                 |                |                                       | discard all records            |
+| `PULL_ALL`    | `3F`      | x               |                 |                |                                       | fetch all records              |
+| `SUCCESS`     | `70`      |                 | x               |                | metadata::Map                         | request succeeded              |
+| `IGNORED`     | `7E`      |                 | x               |                |                                       | request was ignored            |
+| `FAILURE`     | `7F`      |                 | x               |                | metadata::Map                         | request failed                 |
+| `RECORD`      | `71`      |                 |                 | x              | data::List                            | data values                    |
 
 
-## 3. Server States
-
-Each connection maintained by a Bolt server will occupy one of several states throughout its lifetime.
-This state is used to determine what actions may be undertaken by the client.
-
-
-### 3.1. `DISCONNECTED`
-
-No socket connection has yet been established.
-This is the initial state and exists only in a logical sense prior to the socket being opened.
-
-#### 3.1.1. Transitions from `DISCONNECTED`
-
-- `<CONNECT>` to `CONNECTED` or `DEFUNCT`
-
-
-### 3.2. `CONNECTED`
-
-After a new connection has been established and handshake has been completed successfully, the server enters the `CONNECTED` state.
-The connection has not yet been authenticated and permits only one transition, through successful initialization, into the `READY` state.
-
-#### 3.2.1. Transitions from `CONNECTED`
-
-- `INIT` to `READY` or `DEFUNCT`
-- `<DISCONNECT>` to `DEFUNCT`
-
-
-### 3.3. `READY`
-
-The `READY` state indicates that the connection is ready to accept a new `RUN` request.
-This is the "normal" state for a connection and becomes available after successful initialization and when not executing another statement.
-
-The server will generally transition from here to `STREAMING` but in some exceptional circumstances will enter either `FAILED` or `INTERRUPTED` states.
-
-#### 3.3.1. Transitions from `READY`
-
-- `RUN` to `STREAMING` or `FAILED`
-- `<INTERRUPT>` to `INTERRUPTED`
-- `<DISCONNECT>` to `DEFUNCT`
-
-
-### 3.4. `STREAMING`
-
-When `STREAMING`, a result is available for streaming from server to client.
-This result must be fully consumed or discarded by a client before the server can re-enter the `READY` state and allow any further statements to be executed.
-
-#### 3.4.1. Transitions from `STREAMING`
-
-- `PULL_ALL` to `READY` or `FAILED`
-- `DISCARD_ALL` to `READY` or `FAILED`
-- `<INTERRUPT>` to `INTERRUPTED`
-- `<DISCONNECT>` to `DEFUNCT`
-
-
-### 3.5. `FAILED`
-
-When `FAILED`, a connection is in a temporarily unusable state.
-This is generally as the result of encountering a recoverable error.
-No more work will be processed until the failure has been acknowledged by `ACK_FAILURE` or until the connection has been `RESET`.
-This mode ensures that only one failure can exist at a time, preventing cascading issues from batches of work.
-
-#### 3.5.1. Transitions from `FAILED`
-
-- `ACK_FAILURE` to `READY` or `DEFUNCT`
-- `<INTERRUPT>` to `INTERRUPTED`
-- `<DISCONNECT>` to `DEFUNCT`
-
-
-### 3.6. `INTERRUPTED`
-
-This state occurs between the server receiving the jump-ahead `<INTERRUPT>` and the queued `RESET` message.
-Most incoming messages are ignored when `INTERRUPTED`, with the exception of the `RESET` that allows transition back to `READY`.
-
-#### 3.6.1. Transitions from `INTERRUPTED`
-
-- `RUN` to `INTERRUPTED`
-- `DISCARD_ALL` to `INTERRUPTED`
-- `PULL_ALL` to `INTERRUPTED`
-- `RESET` to `READY` or `DEFUNCT`
-- `<INTERRUPT>` to `INTERRUPTED`
-- `<DISCONNECT>` to `DEFUNCT`
-
-
-### 3.7. `DEFUNCT`
-
-This is not strictly a connection state, but is instead a logical state that exists after a connection has been closed.
-When `DEFUNCT`, a connection is permanently usable.
-This may arise due to a graceful shutdown or can occur after an unrecoverable error or protocol violation.
-Clients and servers should clear up any resources associated with a connection on entering this state, including closing any open sockets.
-This is a terminal state on which no further transitions may be carried out.
-
-
-
-## 4. Requests
-
-
-### 4.1. `INIT`
+### 2.3.1 `INIT`
 
 `INIT` is a request for the connection to be authorized for use with the remote database. 
 
@@ -311,7 +206,7 @@ The auth token should be used by the server to determine whether the client is p
 If this authentication fails, the server MUST respond with a `FAILURE` message and immediately close the connection.
 Clients wishing to retry initialization should establish a new connection.
 
-#### 4.1.1. `INIT` Synopsis
+#### Synopsis
 
 ```
 INIT "user_agent" {metadata}
@@ -323,29 +218,52 @@ The following fields are defined for inclusion in the auth token.
 - `principal` (e.g. `"neo4j"`)
 - `credentials` (e.g. `"password"`)
 
-#### 4.1.2. `INIT` State Transitions
+Example:
 
-| Initial State | Final State | Response     |
-|---------------|-------------|--------------|
-| `CONNECTED`   | `READY`     | `SUCCESS {}` |
-| `CONNECTED`   | `DEFUNCT`   | `FAILURE {}` |
+```
+INIT "example_agent" {"scheme": "basic", "principal": "neo4j", "credentials": "password"}
+```
 
-#### 4.1.3. `INIT` Response `SUCCESS`
 
-A success response indicates that the client is permitted to exchange further messages.
+#### Server Response `SUCCESS`
+
+A `SUCCESS` message response indicates that the client is permitted to exchange further messages.
 Servers can include metadata that describes details of the server environment and/or the connection.
 
-The following fields are defined for inclusion in the metadata.
+The following fields are defined for inclusion in the `SUCCESS` metadata.
 
-- `server` (e.g. `"Neo4j/3.4.0"`)
+  - `server` (e.g. `"Neo4j/3.4.0"`)
 
-#### 4.1.4. `INIT` Response `FAILURE`
+Example:
 
-A failure response indicates that the client is not permitted to exchange further messages.
+```
+SUCCESS {"server": "Neo4j/3.4.0"}
+```
+
+
+#### Server Response `IGNORED`
+
+The `IGNORED` message response indicates that the server ignored the `INIT` message.
+
+Example:
+
+```
+IGNORED
+```
+
+
+#### Server Response `FAILURE`
+
+A `FAILURE` message response indicates that the client is not permitted to exchange further messages.
 Servers may choose to include metadata describing the nature of the failure but MUST immediately close the connection after the failure has been sent.
 
+Example:
 
-### 4.2. `RUN`
+```
+FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
+```
+
+### 2.3.2 `RUN`
 
 `RUN` submits a new statement for execution, the result of which will be consumed by a subsequent message, such as `PULL_ALL`.
 
@@ -363,23 +281,21 @@ This document does not specify how the server should handle an incoming statemen
 The parameters generally contain variable fields for a database query or remote procedure call.
 This document does not specify how the server should handle incoming parameters.
 
-#### 4.2.1. `RUN` Synopsis
+#### Synopsis
 
 ```
 RUN "statement" {parameters}
 ```
 
-#### 4.2.2. `RUN` State Transitions
+Example:
 
-| Initial State | Final State   | Response     |
-|---------------|---------------|--------------|
-| `READY`       | `STREAMING`   | `SUCCESS {}` |
-| `READY`       | `FAILED`      | `FAILURE {}` |
-| `INTERRUPTED` | `INTERRUPTED` | `IGNORED`    |
+```
+RUN "RETURN $a AS x" {"a": 1}
+```
 
-#### 4.2.3. `RUN` Response `SUCCESS`
+#### Server Response `SUCCESS`
 
-If a `RUN` request has been successfully received and is considered valid, the server should respond with a `SUCCESS` message and enter the *STREAMING* state.
+If a `RUN` request has been successfully received and is considered valid by the server, the server should respond with a `SUCCESS` message and enter the *STREAMING* state.
 The server may attach metadata to the message to provide header detail for the results that follow.
 
 Clients should not consider a `SUCCESS` response to indicate completion of the execution of that statement, merely acceptance of it.
@@ -389,15 +305,34 @@ The following fields are defined for inclusion in the metadata.
 - `fields` (e.g. `["name", "age"]`)
 - `result_available_after` (e.g. `123`)
 
-#### 4.2.4. `RUN` Response `FAILURE`
+Example:
 
-If a `RUN` request cannot be processed successfully or is invalid, the server should respond with a `FAILURE` message and enter the *FAILED* state.
+```
+SUCCESS {"fields": ["x"], "result_available_after": 123}
+```
+#### Server Response `IGNORED`
+
+A server that receives a `RUN` request while `FAILED` state or `INTERRUPTED` state should respond with an `IGNORED` message and discard the request without processing it.
+No state change should occur.
+
+Example:
+
+```
+IGNORED
+```
+
+
+#### Server Response `FAILURE`
+
+If a `RUN` message cannot be processed successfully or is invalid, the server should respond with a `FAILURE` message and enter the `FAILED` state.
 The server may attach metadata to the message to provide more detail on the nature of the failure.
 
-#### 4.2.5. `RUN` Response `IGNORED`
+Example:
 
-A server that receives a `RUN` request while `FAILED` or `INTERRUPTED` should respond with an `IGNORED` message and discard the request without processing it.
-No state change should occur.
+```
+FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
+```
+
 
 
 ### 4.3. `DISCARD_ALL`
@@ -410,7 +345,7 @@ No detail messages should be returned.
 Valid summary messages are `SUCCESS`, `FAILURE` and `IGNORED`.
 
 The server MUST be in a `STREAMING` state to be able to successfully process a `DISCARD_ALL` request.
-If the server is in a `FAILED` or `INTERRUPTED` state, the request will be `IGNORED`.
+If the server is in a `FAILED` state or `INTERRUPTED` state, the request will be `IGNORED`.
 For any other states, receipt of a `DISCARD_ALL` request will be considered a protocol violation and will lead to connection closure.
 
 #### 4.3.1. `DISCARD_ALL` Synopsis
@@ -418,14 +353,6 @@ For any other states, receipt of a `DISCARD_ALL` request will be considered a pr
 ```
 DISCARD_ALL
 ```
-
-#### 4.3.2. `DISCARD_ALL` State Transitions
-
-| Initial State | Final State   | Response     |
-|---------------|---------------|--------------|
-| `STREAMING`   | `READY`       | `SUCCESS {}` |
-| `STREAMING`   | `FAILED`      | `FAILURE {}` |
-| `INTERRUPTED` | `INTERRUPTED` | `IGNORED`    |
 
 #### 4.3.3. `DISCARD_ALL` Response `SUCCESS`
 
@@ -444,7 +371,7 @@ The server may attach metadata to the message to provide more detail on the natu
 
 #### 4.3.5. `DISCARD_ALL` Response `IGNORED`
 
-A server that receives a `DISCARD_ALL` request while `FAILED` or `INTERRUPTED` should respond with an `IGNORED` message and discard the request without processing it.
+A server that receives a `DISCARD_ALL` request while in `FAILED` state or `INTERRUPTED` state, should respond with an `IGNORED` message and discard the request without processing it.
 No state change should occur.
 
 
@@ -467,14 +394,6 @@ For any other states, receipt of a `PULL_ALL` request will be considered a proto
 ```
 PULL_ALL
 ```
-
-#### 4.4.2. `PULL_ALL` State Transitions
-
-| Initial State | Final State   | Response                      |
-|---------------|---------------|-------------------------------|
-| `STREAMING`   | `READY`       | \[`RECORD` ...\] `SUCCESS {}` |
-| `STREAMING`   | `FAILED`      | \[`RECORD` ...\] `FAILURE {}` |
-| `INTERRUPTED` | `INTERRUPTED` | `IGNORED`                     |
 
 #### 4.4.3. `PULL_ALL` Response `SUCCESS`
 
@@ -526,12 +445,6 @@ For any other states, receipt of an `ACK_FAILURE` request will be considered a p
 ACK_FAILURE
 ```
 
-#### 4.5.2. `ACK_FAILURE` State Transitions
-
-| Initial State | Final State   | Response     |
-|---------------|---------------|--------------|
-| `FAILED`      | `READY`       | `SUCCESS {}` |
-| `FAILED`      | `DEFUNCT`     | `FAILURE {}` |
 
 #### 4.5.3. `ACK_FAILURE` Response `SUCCESS`
 
@@ -547,7 +460,7 @@ The server may attach metadata to the message to provide more detail on the natu
 
 `RESET` requests that the connection should be set back to its initial `READY` state, as if an `INIT` had just successfully completed.
 `RESET` is unique in that, on arrival at the server, it splits into two separate signals.
-Firstly, an `<INTERRUPT>` jumps ahead in the message queue, stopping any unit of work that happens to be executing, and putting the state machine into an `INTERRUPTED` state.
+Firstly, an `<INTERRUPT>` **signal jumps ahead in the message queue**, stopping any unit of work that happens to be executing, and putting the state machine into an `INTERRUPTED` state.
 Secondly, the `RESET` queues along with all other incoming messages and is used to put the state machine back to `READY` when its turn for processing arrives.
 
 This essentially means that the `INTERRUPTED` state exists only transitionally between the arrival of a `RESET` in the message queue and the later processing of that `RESET` in its proper position.
@@ -560,21 +473,6 @@ This essentially means that the `INTERRUPTED` state exists only transitionally b
 RESET
 ```
 
-#### 4.6.2. `<INTERRUPT>` State Transitions
-
-| Initial State | Final State   | Response |
-|---------------|---------------|----------|
-| `READY`       | `INTERRUPTED` | *n/a*    |
-| `STREAMING`   | `INTERRUPTED` | *n/a*    |
-| `FAILED`      | `INTERRUPTED` | *n/a*    |
-| `INTERRUPTED` | `INTERRUPTED` | *n/a*    |
-
-#### 4.6.3. `RESET` State Transitions
-
-| Initial State | Final State   | Response     |
-|---------------|---------------|--------------|
-| `INTERRUPTED` | `READY`       | `SUCCESS {}` |
-| `INTERRUPTED` | `DEFUNCT`     | `FAILURE {}` |
 
 #### 4.6.3. `RESET` Response `SUCCESS`
 
@@ -584,3 +482,22 @@ If a `RESET` request has been successfully received, the server should respond w
 
 If `RESET` is received before the server enters a `READY` state, it should trigger a `FAILURE` followed by immediate closure of the connection.
 Clients receiving a `FAILURE` in response to `RESET` should treat that connection as `DEFUNCT` and dispose of it.
+
+
+
+## 3. Server States
+
+Each connection maintained by a Bolt server will occupy one of several states throughout its lifetime.
+This state is used to determine what actions may be undertaken by the client.
+
+### 3.1. Protocol Errors
+
+If a server or client receives a message type that is unexpected, according to the transitions described in this document, it must treat that as a protocol error.
+Protocol errors are fatal and should immediately transition the server state to `DEFUNCT`, closing any open connections.
+
+
+## 4. Requests
+
+
+
+

@@ -1,4 +1,15 @@
-# PackStream Specification v1
+# PackStream Specification
+
+* [Version 1](#version1)
+* [Version 2](#version2)
+
+
+## Version 2
+
+\<missing\>
+
+
+## Version 1
 
 PackStream is a general purpose data serialisation format, originally inspired by (but incompatible with) [MessagePack](http://msgpack.org).
 The format provides a type system that is fully compatible with the [universal type system](type-system.md) used by [Neo4j](http://neo4j.com).
@@ -6,17 +17,17 @@ The format provides a type system that is fully compatible with the [universal t
 PackStream offers a number of core data types, many supported by multiple binary representations, as well as a flexible extension mechanism.
 The core data types are as follows:
 
-| Data Type | Description
-|-----------|----------------------
-| Null      | Missing or empty value
-| Boolean   | True or false
-| Integer   | Signed 64-bit integer
-| Float     | 64-bit floating point number
-| Bytes     | Byte array
-| String    | Unicode text
-| List      | Ordered collection of values
-| Map       | Keyed collection of values
-| Structure | Composite value with a type signature
+| Data Type   | Description
+|-------------|----------------------
+| `Null`      | missing or empty value
+| `Boolean`   | true or false
+| `Integer`   | signed 64-bit integer
+| `Float`     | 64-bit floating point number
+| `Bytes`     | byte array
+| `String`    | unicode text (UTF-8)
+| `List`      | ordered collection of values
+| `Map`       | keyed collection of values
+| `Structure` | composite value with a type signature
 
 NOTE: Neither unsigned integers nor 32-bit floating point numbers are included.
 This is a deliberate design decision to allow broader compatibility across client languages.
@@ -34,7 +45,9 @@ Many small integers (specifically between -16 and +127 inclusive) are also encod
 A number of marker bytes are reserved for future expansion of the format itself.
 These bytes should not be used, and encountering them in an incoming stream should treated as an error.
 
+
 ### Sized Values
+
 Some representations are of a variable length and, as such, have their size explicitly encoded in the representation.
 Such values generally begin with a single marker byte, followed by a size, followed by the data content itself.
 In this context, the marker denotes both type and scale and therefore determines the number of bytes used to represent the size of the data.
@@ -71,13 +84,13 @@ to denote false.
 Integer values occupy either 1, 2, 3, 5 or 9 bytes depending on magnitude.
 The available representations are:
 
-| Representation | Size (bytes) | Description
-|----------------|--------------|----------------------------------------------
-| TINY_INT       | 1            | Marker byte only
-| INT_8          | 2            | Marker byte followed by signed 8-bit integer
-| INT_16         | 3            | Marker byte followed by signed 16-bit integer
-| INT_32         | 5            | Marker byte followed by signed 32-bit integer
-| INT_64         | 9            | Marker byte followed by signed 64-bit integer
+| Representation   | Size (bytes) | Description
+|------------------|--------------|----------------------------------------------
+| `TINY_INT`       | 1            | marker byte only
+| `INT_8`          | 2            | marker byte followed by signed 8-bit integer
+| `INT_16`         | 3            | marker byte followed by signed 16-bit integer
+| `INT_32`         | 5            | marker byte followed by signed 32-bit integer
+| `INT_64`         | 9            | marker byte followed by signed 64-bit integer
 
 Some marker bytes can be used to carry the value of a small integer as well as its type.
 These markers can be identified by a zero high-order bit (for positive values) or by a high-order nibble containing only ones (for negative values).
@@ -89,14 +102,14 @@ The following table shows the optimal representation for every possible integer 
 
 | Range Minimum              |  Range Maximum             | Optimal Representation
 |----------------------------|----------------------------|------------------------
-| -9 223 372 036 854 775 808 |             -2 147 483 649 | INT_64
-|             -2 147 483 648 |                    -32 769 | INT_32
-|                    -32 768 |                       -129 | INT_16
-|                       -128 |                        -17 | INT_8
-|                        -16 |                       +127 | TINY_INT
-|                       +128 |                    +32 767 | INT_16
-|                    +32 768 |             +2 147 483 647 | INT_32
-|             +2 147 483 648 | +9 223 372 036 854 775 807 | INT_64
+| -9 223 372 036 854 775 808 |             -2 147 483 649 | `INT_64`
+|             -2 147 483 648 |                    -32 769 | `INT_32`
+|                    -32 768 |                       -129 | `INT_16`
+|                       -128 |                        -17 | `INT_8`
+|                        -16 |                       +127 | `TINY_INT`
+|                       +128 |                    +32 767 | `INT_16`
+|                    +32 768 |             +2 147 483 647 | `INT_32`
+|             +2 147 483 648 | +9 223 372 036 854 775 807 | `INT_64`
 
 
 ## Float
