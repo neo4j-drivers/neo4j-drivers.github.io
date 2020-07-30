@@ -175,7 +175,7 @@ This also allows for unknown message types to be received and handled without br
 | Message       | Signature | Request Message | Summary Message | Detail Message | Fields                                | Description                    |
 |---------------|:---------:|:---------------:|:---------------:|:--------------:|---------------------------------------|--------------------------------|
 | `INIT`        | `01`      | x               |                 |                | user\_agent::String, auth\_token::Map | initialize connection          |
-| `ACL_FAILURE` | `0E`      | x               |                 |                | triggers a `<DISCONNECT>` signal      | acknowledge a failure response |
+| `ACK_FAILURE` | `0E`      | x               |                 |                |                                       | acknowledge a failure response |
 | `RESET`       | `0F`      | x               |                 |                | triggers a `<INTERRUPT>` signal       | reset connection               |
 | `RUN`         | `10`      | x               |                 |                | statement::String, parameters::Map    | execute a statement            |
 | `DISCARD_ALL` | `2F`      | x               |                 |                |                                       | discard all records            |
@@ -265,11 +265,22 @@ FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 
 ### 2.3.2 `RUN`
 
-`RUN` submits a new statement for execution, the result of which will be consumed by a subsequent message, such as `PULL_ALL`.
+A `RUN` message submits a new statement for execution, the result of which will be consumed by a subsequent message, such as `PULL_ALL`.
 
-The `RUN` message uses the structure signature `10` and passes two fields: *statement* (string) and *parameters* (map).
-No detail messages should be returned.
-Valid summary messages are `SUCCESS`, `FAILURE` and `IGNORED`.
+**PackStream Structure Signature:** `10`
+
+**Fields:**
+
+* statement::String
+* parameters::Map
+
+**Detail Messages:** 0
+
+**Valid Summary Messages:**
+
+* `SUCCESS`
+* `IGNORED`
+* `FAILURE`
 
 The server MUST be in a `READY` state to be able to successfully process a `RUN` request.
 If the server is in a `FAILED` or `INTERRUPTED` state, the request will be `IGNORED`.
@@ -494,10 +505,4 @@ This state is used to determine what actions may be undertaken by the client.
 
 If a server or client receives a message type that is unexpected, according to the transitions described in this document, it must treat that as a protocol error.
 Protocol errors are fatal and should immediately transition the server state to `DEFUNCT`, closing any open connections.
-
-
-## 4. Requests
-
-
-
 
