@@ -61,6 +61,18 @@ The handshake itself is not versioned.
 [Bolt Protocol Message Specification](bolt/bolt-protocol-message-specification.md)
 
 
+## Bolt Protocol Server State Specification
+
+For the server, each connection using the Bolt Protocol will occupy one of several states throughout its lifetime.
+
+This state is used to determine what actions may be undertaken by the client.
+
+* **Version 1**, corresponds to the first releases of the type system specification.
+* **Version 3**, incorporates new states.
+
+See, [Bolt Protocol Server State Specification](bolt-protocol-server-state-specification.md)
+
+
 ### Bolt Protocol Type System Specification
 
 * **Version 1**, corresponds to the first releases of the type system specification.

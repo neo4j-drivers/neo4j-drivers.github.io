@@ -24,7 +24,7 @@
 |---------------|:---------:|:---------------:|:---------------:|:--------------:|--------------------------------------------|---------------------------|
 | `HELLO`       | `01`      | x               |                 |                | `user_agent::String`, `auth_token::Map`    | initialize connection     |
 | `GOODBYE`     | `02`      | x               |                 |                |                                            | close the connection      |
-| `RUN`         | `10`      | x               |                 |                | `statement::String`, `parameters::Map`     | execute a statement       |
+| `RUN`         | `10`      | x               |                 |                | `query::String`, `parameters::Map`         | execute a query           |
 | `DISCARD`     | `2F`      | x               |                 |                | `<missing>`                                | discard records           |
 | `PULL`        | `3F`      | x               |                 |                | `<missing>`                                | fetch records             |
 | `BEGIN`       | `11`      | x               |                 |                | `<missing>`                                |                           |
@@ -53,21 +53,21 @@
 
 ## Messages
 
-| Message       | Signature | Request Message | Summary Message | Detail Message | Fields                                | Description               |
-|---------------|:---------:|:---------------:|:---------------:|:--------------:|---------------------------------------|---------------------------|
-| `HELLO`       | `01`      | x               |                 |                | user\_agent::String, auth\_token::Map | initialize connection     |
-| `GOODBYE`     | `02`      | x               |                 |                | triggers a `<DISCONNECT>` signal      | close the connection      |
-| `RESET`       | `0F`      | x               |                 |                | triggers a `<INTERRUPT>` signal       | reset connection          |
-| `RUN`         | `10`      | x               |                 |                | statement::String, parameters::Map    | execute a statement       |
-| `DISCARD`     | `2F`      | x               |                 |                | \<missing\>                           | discard records           |
-| `PULL`        | `3F`      | x               |                 |                | \<missing\>                           | fetch records             |
-| `BEGIN`       | `11`      | x               |                 |                | \<missing\>                           |                           |
-| `COMMIT`      | `12`      | x               |                 |                |                                       |                           |
-| `ROLLBACK`    | `13`      | x               |                 |                |                                       |                           |
-| `SUCCESS`     | `70`      |                 | x               |                | metadata::Map                         | request succeeded         |
-| `IGNORED`     | `7E`      |                 | x               |                |                                       | request was ignored       |
-| `FAILURE`     | `7F`      |                 | x               |                | metadata::Map                         | request failed            |
-| `RECORD`      | `71`      |                 |                 | x              | data::List                            | data values               |
+| Message       | Signature | Request Message | Summary Message | Detail Message | Fields                                  | Description               |
+|---------------|:---------:|:---------------:|:---------------:|:--------------:|-----------------------------------------|---------------------------|
+| `HELLO`       | `01`      | x               |                 |                | `user_agent::String`, `auth_token::Map` | initialize connection     |
+| `GOODBYE`     | `02`      | x               |                 |                | triggers a `<DISCONNECT>` signal        | close the connection      |
+| `RESET`       | `0F`      | x               |                 |                | triggers a `<INTERRUPT>` signal         | reset connection          |
+| `RUN`         | `10`      | x               |                 |                | `query::String`, `parameters::Map`      | execute a query           |
+| `DISCARD`     | `2F`      | x               |                 |                | \<missing\>                             | discard records           |
+| `PULL`        | `3F`      | x               |                 |                | \<missing\>                             | fetch records             |
+| `BEGIN`       | `11`      | x               |                 |                | \<missing\>                             |                           |
+| `COMMIT`      | `12`      | x               |                 |                |                                         |                           |
+| `ROLLBACK`    | `13`      | x               |                 |                |                                         |                           |
+| `SUCCESS`     | `70`      |                 | x               |                | `metadata::Map`                         | request succeeded         |
+| `IGNORED`     | `7E`      |                 | x               |                |                                         | request was ignored       |
+| `FAILURE`     | `7F`      |                 | x               |                | `metadata::Map`                         | request failed            |
+| `RECORD`      | `71`      |                 |                 | x              | `data::List`                            | data values               |
 
 
 # Version 3
@@ -85,21 +85,21 @@
 
 ## 3. Messages
 
-| Message       | Signature | Request Message | Summary Message | Detail Message | Fields                                | Description               |
-|---------------|:---------:|:---------------:|:---------------:|:--------------:|---------------------------------------|---------------------------|
-| `HELLO`       | `01`      | x               |                 |                | user\_agent::String, auth\_token::Map | initialize connection     |
-| `GOODBYE`     | `02`      | x               |                 |                | triggers a `<DISCONNECT>` signal      | close the connection      |
-| `RESET`       | `0F`      | x               |                 |                | triggers a `<INTERRUPT>` signal       | reset connection          |
-| `RUN`         | `10`      | x               |                 |                | statement::String, parameters::Map    | execute a statement       |
-| `DISCARD_ALL` | `2F`      | x               |                 |                |                                       | discard all records       |
-| `PULL_ALL`    | `3F`      | x               |                 |                |                                       | fetch all records         |
-| `BEGIN`       | `11`      | x               |                 |                | \<missing\>                           |                           |
-| `COMMIT`      | `12`      | x               |                 |                |                                       |                           |
-| `ROLLBACK`    | `13`      | x               |                 |                |                                       |                           |
-| `SUCCESS`     | `70`      |                 | x               |                | metadata::Map                         | request succeeded         |
-| `IGNORED`     | `7E`      |                 | x               |                |                                       | request was ignored       |
-| `FAILURE`     | `7F`      |                 | x               |                | metadata::Map                         | request failed            |
-| `RECORD`      | `71`      |                 |                 | x              | data::List                            | data values               |
+| Message       | Signature | Request Message | Summary Message | Detail Message | Fields                                  | Description               |
+|---------------|:---------:|:---------------:|:---------------:|:--------------:|-----------------------------------------|---------------------------|
+| `HELLO`       | `01`      | x               |                 |                | `user_agent::String`, `auth_token::Map` | initialize connection     |
+| `GOODBYE`     | `02`      | x               |                 |                | triggers a `<DISCONNECT>` signal        | close the connection      |
+| `RESET`       | `0F`      | x               |                 |                | triggers a `<INTERRUPT>` signal         | reset connection          |
+| `RUN`         | `10`      | x               |                 |                | `query::String`, `parameters::Map`      | execute a query           |
+| `DISCARD_ALL` | `2F`      | x               |                 |                |                                         | discard all records       |
+| `PULL_ALL`    | `3F`      | x               |                 |                |                                         | fetch all records         |
+| `BEGIN`       | `11`      | x               |                 |                | \<missing\>                             |                           |
+| `COMMIT`      | `12`      | x               |                 |                |                                         |                           |
+| `ROLLBACK`    | `13`      | x               |                 |                |                                         |                           |
+| `SUCCESS`     | `70`      |                 | x               |                | `metadata::Map`                         | request succeeded         |
+| `IGNORED`     | `7E`      |                 | x               |                |                                         | request was ignored       |
+| `FAILURE`     | `7F`      |                 | x               |                | `metadata::Map`                         | request failed            |
+| `RECORD`      | `71`      |                 |                 | x              | `data::List`                            | data values               |
 
 
 ### 3.1 Server Singnals
@@ -130,10 +130,13 @@ For details of establishing a connection and performing a handshake, see the [Bo
 *NOTE: Byte values in this document are represented using hexadecimal notation unless otherwise specified.*
 
 
-## 2. Server States
+## 2. Bolt Protocol Server State Specification
 
-Each connection maintained by a Bolt server will occupy one of several states throughout its lifetime.
+For the server, each connection using the Bolt Protocol will occupy one of several states throughout its lifetime.
+
 This state is used to determine what actions may be undertaken by the client.
+
+See, [Bolt Protocol Server State Specification](bolt-protocol-server-state-specification.md)
 
 ### 2.1. Protocol Errors
 
@@ -151,7 +154,7 @@ In other words, some request message types elicit a response that may contain de
 Messages may also be pipelined.
 In other words, clients may send multiple requests eagerly without first waiting for responses.
 When a failure occurs in this scenario, servers MUST ignore all subsequent requests until the client has explicitly acknowledged receipt of the failure.
-This prevents inadvertent execution of statements that may not be valid.
+This prevents inadvertent execution of queries that may not be valid.
 More details of this process can be found in the sections below.
 
 
@@ -183,18 +186,18 @@ This also allows for unknown message types to be received and handled without br
 * Summary Message, the server will always respond with one summary message.
 * Detail Message, the server will always repond with zero or more detail messages before sending a summary message.
 
-| Message       | Signature | Request Message | Summary Message | Detail Message | Fields                                | Description                    |
-|---------------|:---------:|:---------------:|:---------------:|:--------------:|---------------------------------------|--------------------------------|
-| `INIT`        | `01`      | x               |                 |                | user\_agent::String, auth\_token::Map | initialize connection          |
-| `ACK_FAILURE` | `0E`      | x               |                 |                |                                       | acknowledge a failure response |
-| `RESET`       | `0F`      | x               |                 |                | triggers a `<INTERRUPT>` signal       | reset connection               |
-| `RUN`         | `10`      | x               |                 |                | statement::String, parameters::Map    | execute a statement            |
-| `DISCARD_ALL` | `2F`      | x               |                 |                |                                       | discard all records            |
-| `PULL_ALL`    | `3F`      | x               |                 |                |                                       | fetch all records              |
-| `SUCCESS`     | `70`      |                 | x               |                | metadata::Map                         | request succeeded              |
-| `IGNORED`     | `7E`      |                 | x               |                |                                       | request was ignored            |
-| `FAILURE`     | `7F`      |                 | x               |                | metadata::Map                         | request failed                 |
-| `RECORD`      | `71`      |                 |                 | x              | data::List                            | data values                    |
+| Message       | Signature | Request Message | Summary Message | Detail Message | Fields                                  | Description                    |
+|---------------|:---------:|:---------------:|:---------------:|:--------------:|-----------------------------------------|--------------------------------|
+| `INIT`        | `01`      | x               |                 |                | `user_agent::String`, `auth_token::Map` | initialize connection          |
+| `ACK_FAILURE` | `0E`      | x               |                 |                |                                         | acknowledge a failure response |
+| `RESET`       | `0F`      | x               |                 |                | triggers a `<INTERRUPT>` signal         | reset connection               |
+| `RUN`         | `10`      | x               |                 |                | `query::String`, `parameters::Map`      | execute a query                |
+| `DISCARD_ALL` | `2F`      | x               |                 |                |                                         | discard all records            |
+| `PULL_ALL`    | `3F`      | x               |                 |                |                                         | fetch all records              |
+| `SUCCESS`     | `70`      |                 | x               |                | `metadata::Map`                         | request succeeded              |
+| `IGNORED`     | `7E`      |                 | x               |                |                                         | request was ignored            |
+| `FAILURE`     | `7F`      |                 | x               |                | `metadata::Map`                         | request failed                 |
+| `RECORD`      | `71`      |                 |                 | x              | `data::List`                            | data values                    |
 
 
 ### 3.3.1 `INIT`
@@ -276,13 +279,13 @@ FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 
 ### 3.3.2 `RUN`
 
-A `RUN` message submits a new statement for execution, the result of which will be consumed by a subsequent message, such as `PULL_ALL`.
+A `RUN` message submits a new query for execution, the result of which will be consumed by a subsequent message, such as `PULL_ALL`.
 
 **PackStream Structure Signature:** `10`
 
 **Fields:**
 
-* statement::String
+* query::String
 * parameters::Map
 
 **Detail Messages:** 0
@@ -297,8 +300,8 @@ The server MUST be in a `READY` state to be able to successfully process a `RUN`
 If the server is in a `FAILED` or `INTERRUPTED` state, the request will be `IGNORED`.
 For any other states, receipt of a `RUN` request will be considered a protocol violation and will lead to connection closure.
 
-The statement generally contains a database query or remote procedure call.
-This document does not specify how the server should handle an incoming statement.
+The query generally contains a [Cypher](https://neo4j.com/docs/cypher-manual/current/) query or a remote procedure call.
+This document does not specify how the server should handle an incoming query.
 
 The parameters generally contain variable fields for a database query or remote procedure call.
 This document does not specify how the server should handle incoming parameters.
@@ -306,7 +309,7 @@ This document does not specify how the server should handle incoming parameters.
 #### Synopsis
 
 ```
-RUN "statement" {parameters}
+RUN "query" {parameters}
 ```
 
 Example:
@@ -320,7 +323,7 @@ RUN "RETURN $a AS x" {"a": 1}
 If a `RUN` request has been successfully received and is considered valid by the server, the server should respond with a `SUCCESS` message and enter the *STREAMING* state.
 The server may attach metadata to the message to provide header detail for the results that follow.
 
-Clients should not consider a `SUCCESS` response to indicate completion of the execution of that statement, merely acceptance of it.
+Clients should not consider a `SUCCESS` response to indicate completion of the execution of that query, merely acceptance of it.
 
 The following fields are defined for inclusion in the metadata.
 

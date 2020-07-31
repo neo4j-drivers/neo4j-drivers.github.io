@@ -104,7 +104,7 @@ This is a terminal state on which no further transitions may be carried out.
 ### `STREAMING`
 
 When `STREAMING`, a result is available for streaming from server to client.
-This result must be fully consumed or discarded by a client before the server can re-enter the `READY` state and allow any further statements to be executed.
+This result must be fully consumed or discarded by a client before the server can re-enter the `READY` state and allow any further queries to be executed.
 
 #### Transitions from `STREAMING`
 
