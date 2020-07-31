@@ -12,6 +12,8 @@
 * [**Version 1**](#version-1)
 
 
+**NOTE:** Byte values are represented using hexadecimal notation unless otherwise specified.
+
 
 # Version 4.0
 
@@ -146,11 +148,9 @@ No changes.
 
 ## 1. Overview
 
-This document describes version 1 of the Bolt messaging protocol.
+This section describes version 1 of the Bolt messaging protocol.
 The messaging protocol is used for the message exchanges that take place on a connection following a successful Bolt handshake.
-For details of establishing a connection and performing a handshake, see the [Bolt Protocol Handshake Specification](bolt-protocol-handshake-specification.md).
-
-*NOTE: Byte values in this document are represented using hexadecimal notation unless otherwise specified.*
+For details of establishing a connection and performing a handshake, see [Bolt Protocol Handshake Specification](bolt-protocol-handshake-specification.md).
 
 
 ## 2. Bolt Protocol Server State Specification
