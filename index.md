@@ -11,8 +11,8 @@ Such entries exist for completeness.
 PackStream is a binary [presentation](https://en.wikipedia.org/wiki/Presentation_layer) format for the exchange of richly-typed data.
 It provides a syntax layer for the Bolt messaging protocol.
 
-- Version 1 corresponds to the first releases of the PackStream specification.
-- Version 2. Extended the PackStream specification.
+- **Version 1**, corresponds to the first releases of the PackStream specification.
+- **Version 2**, incorporates an extension to the PackStream specification.
 
 
 [PackStream Specification](packstream/packstream-specification.md)
@@ -25,7 +25,7 @@ This introduces readability at the expense of a slightly higher byte count.
 
 Jolt is intended primarily for use over an HTTP connection and can be useful within network environments that have a requirement for the automatic inspection of traffic.  
 
-- Version 1 corresponds to the first releases of the Jolt specification.
+- **Version 1**, corresponds to the first releases of the Jolt specification.
 
 [Jolt Specification](jolt/jolt-specification.md)
 
@@ -38,32 +38,35 @@ It is generally carried over a regular [TCP](https://tools.ietf.org/html/rfc793)
 Bolt inherits its core type system from PackStream, over which its messages are generally carried.
 Each version of Bolt provides a number of type system extensions, via the PackStream type extension mechanism.  
 
-### Bolt Handshake
+### Bolt Protocol Handshake Specification
 
 All Bolt connections begin with a handshake to negotiate which version of the messaging protocol to use.
 Following a successful negotiation, the agreed messaging protocol then takes ownership of the connection for the remainder of its lifetime.
 The handshake itself is not versioned. 
 
+* **Version 1**, corresponds to the first releases of the handshake specification.
+* **Version 4.0**, incorporates an updated handshake specification. Now supports Major and Minor versions.
+
 [Bolt Protocol Handshake Specification](bolt/bolt-protocol-handshake-specification.md)
 
 
-### Bolt Message Specification
+### Bolt Protocol Message Specification
 
-* Version 1 corresponds to the first releases of the message specification. Uses PackStream Version 1.
-* Version 2 incorporates no changes to the message specification.
-* Version 3 incorporates an updated message specification.
-* Version 4.0 incorporates an updated message specification. Uses PackStream Version 2.
-* Version 4.1 incorporates an updated message specification.
+* **Version 1**, corresponds to the first releases of the message specification. Uses PackStream Version 1.
+* **Version 2**, incorporates no changes to the message specification.
+* **Version 3**, incorporates an updated message specification.
+* **Version 4.0**, incorporates an updated message specification. Uses PackStream Version 2.
+* **Version 4.1**, incorporates an updated message specification.
 
 [Bolt Protocol Message Specification](bolt/bolt-protocol-message-specification.md)
 
 
 ### Bolt Protocol Type System Specification
 
-* Version 1 corresponds to the first releases of the type system specification.
-* Version 2 incorporates an updated type system specification.
-* Version 3 incorporates an updated type system specification.
-* Version 4.0 incorporates an updated type system specification.
+* **Version 1**, corresponds to the first releases of the type system specification.
+* **Version 2**, incorporates an updated type system specification.
+* **Version 3**, incorporates an updated type system specification.
+* **Version 4.0**, incorporates an updated type system specification.
 
 [Bolt Protocol Type System Extensions](types/bolt-type-system-extensions-v1.md)
 
