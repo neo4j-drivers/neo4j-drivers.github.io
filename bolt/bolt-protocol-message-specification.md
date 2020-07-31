@@ -130,7 +130,18 @@ For details of establishing a connection and performing a handshake, see the [Bo
 *NOTE: Byte values in this document are represented using hexadecimal notation unless otherwise specified.*
 
 
-## 2. Message Exchange
+## 2. Server States
+
+Each connection maintained by a Bolt server will occupy one of several states throughout its lifetime.
+This state is used to determine what actions may be undertaken by the client.
+
+### 2.1. Protocol Errors
+
+If a server or client receives a message type that is unexpected, according to the transitions described in this document, it must treat that as a protocol error.
+Protocol errors are fatal and should immediately transition the server state to `DEFUNCT`, closing any open connections.
+
+
+## 3. Message Exchange
 
 Messages are exchanged in a request-response pattern between client and server.
 Each request consists of exactly one message and each response consists of zero or more detail messages followed by exactly one summary message.
@@ -144,7 +155,7 @@ This prevents inadvertent execution of statements that may not be valid.
 More details of this process can be found in the sections below.
 
 
-### 2.1. Serialization
+### 3.1. Serialization
 
 Messages and their contents are serialized into network streams using [PackStream Specification](../packstream/packstream-specification.md).
 Each message is represented as a PackStream structure with a fixed number of fields.
@@ -153,7 +164,7 @@ The message type is denoted by the structure signature, a single byte value.
 **Serialization is specified with PackStream Version 1.**
 
 
-### 2.2. Chunking
+### 3.2. Chunking
 
 A layer of chunking is also applied to message transmissions as a way to more predictably manage packets of data.
 The chunking process allows the message to be broken into one or more pieces, each of an arbitrary size, and for those pieces to be transmitted within separate chunks.
@@ -166,7 +177,7 @@ This is used to signal message boundaries to a receiving parties, allowing block
 This also allows for unknown message types to be received and handled without breaking the messaging chain.
 
 
-### 2.3. Messages
+### 3.3. Messages
 
 * Request Message, the client sends a message.
 * Summary Message, the server will always respond with one summary message.
@@ -186,7 +197,7 @@ This also allows for unknown message types to be received and handled without br
 | `RECORD`      | `71`      |                 |                 | x              | data::List                            | data values                    |
 
 
-### 2.3.1 `INIT`
+### 3.3.1 `INIT`
 
 `INIT` is a request for the connection to be authorized for use with the remote database. 
 
@@ -221,7 +232,7 @@ The following fields are defined for inclusion in the auth token.
 Example:
 
 ```
-INIT "example_agent" {"scheme": "basic", "principal": "neo4j", "credentials": "password"}
+INIT "example-agent-1" {"scheme": "basic", "principal": "neo4j", "credentials": "password"}
 ```
 
 
@@ -263,7 +274,7 @@ Example:
 FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 ```
 
-### 2.3.2 `RUN`
+### 3.3.2 `RUN`
 
 A `RUN` message submits a new statement for execution, the result of which will be consumed by a subsequent message, such as `PULL_ALL`.
 
@@ -346,77 +357,168 @@ FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 
 
 
-### 4.3. `DISCARD_ALL`
+### 3.3.3 `DISCARD_ALL`
 
-`DISCARD_ALL` issues a request to discard the outstanding result and return to a `READY` state.
-A receiving server should not abort the request but continue to process it without streaming any detail back to the client.
+The `DISCARD_ALL` message issues a request to discard the outstanding result and return to a `READY` state.
 
-A `DISCARD_ALL` message uses the signature `2F` and passes no fields.
-No detail messages should be returned.
-Valid summary messages are `SUCCESS`, `FAILURE` and `IGNORED`.
+A receiving server should not abort the request but continue to process it without streaming any detail messages back to the client.
+
+**Signature:** `2F`
+
+**Fields:** 0
+
+**Detail Messages:** 0
+
+**Valid Summary Messages:**
+
+* `SUCCESS`
+* `IGNORED`
+* `FAILURE`
 
 The server MUST be in a `STREAMING` state to be able to successfully process a `DISCARD_ALL` request.
 If the server is in a `FAILED` state or `INTERRUPTED` state, the request will be `IGNORED`.
 For any other states, receipt of a `DISCARD_ALL` request will be considered a protocol violation and will lead to connection closure.
 
-#### 4.3.1. `DISCARD_ALL` Synopsis
+#### Synopsis
 
 ```
 DISCARD_ALL
 ```
 
-#### 4.3.3. `DISCARD_ALL` Response `SUCCESS`
 
-If a `DISCARD_ALL` request has been successfully received, the server should respond with a `SUCCESS` message and enter the *READY* state.
+Example:
+
+```
+DISCARD_ALL
+```
+
+#### Server Response `SUCCESS`
+
+If a `DISCARD_ALL` request has been successfully received, the server should respond with a `SUCCESS` message and enter the `READY` state.
 The server may attach metadata to the message to provide footer detail for the discarded results.
 
 The following fields are defined for inclusion in the metadata.
 
 - `bookmark` (e.g. `"bookmark:1234"`)
-- `result_consumed_after` (e.g. `234`)
+- `result_consumed_after` (e.g. `123`)
 
-#### 4.3.4. `DISCARD_ALL` Response `FAILURE`
+Example:
 
-If a `DISCARD_ALL` request cannot be processed successfully, the server should respond with a `FAILURE` message and enter the *FAILED* state.
-The server may attach metadata to the message to provide more detail on the nature of the failure.
+```
+SUCCESS {"bookmark": "example_bookmark_identifier", "result_consumed_after": 123}
+```
 
-#### 4.3.5. `DISCARD_ALL` Response `IGNORED`
+#### Server Response `IGNORED`
 
 A server that receives a `DISCARD_ALL` request while in `FAILED` state or `INTERRUPTED` state, should respond with an `IGNORED` message and discard the request without processing it.
+
 No state change should occur.
 
+Example:
 
-### 4.4. `PULL_ALL`
+```
+IGNORED
+```
 
-`PULL_ALL` issues a request to stream the outstanding result back to the client, before returning to a `READY` state.
+#### Server Response `FAILURE`
+
+If a `DISCARD_ALL` message request cannot be processed successfully, the server should respond with a `FAILURE` message and enter the `FAILED` state.
+The server may attach metadata to the message to provide more detail on the nature of the failure.
+
+Example:
+
+```
+FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
+```
+
+
+### 3.3.4 `PULL_ALL`
+
+The `PULL_ALL` message issues a request to stream the outstanding result back to the client, before returning to a `READY` state.
+
 Result detail consists of zero or more detail messages being sent before the summary message.
+
 This version of the protocol defines one such detail message, namely `RECORD`.
 
 A `PULL_ALL` message uses the signature `3F` and passes no fields.
 Zero or more detail messages may be returned.
-Valid summary messages are `SUCCESS`, `FAILURE` and `IGNORED`.
+
+**Signature:** `3F`
+
+**Fields:** 0
+
+**Detail Messages:** zero or more `RECORD`
+
+**Valid Summary Messages:**
+
+* `SUCCESS`
+* `IGNORED`
+* `FAILURE`
 
 The server MUST be in a `STREAMING` state to be able to successfully process a `PULL_ALL` request.
 If the server is in a `FAILED` or `INTERRUPTED` state, the request will be IGNORED.
 For any other states, receipt of a `PULL_ALL` request will be considered a protocol violation and will lead to connection closure.
 
-#### 4.4.1. `PULL_ALL` Synopsis
+#### Synopsis
 
 ```
 PULL_ALL
 ```
 
-#### 4.4.3. `PULL_ALL` Response `SUCCESS`
+Example:
+
+```
+PULL_ALL
+```
+
+#### Server Response `RECORD`
+
+Zero or more `RECORD` messages may be returned in response to a `PULL_ALL` prior to the trailing summary message.
+
+Each record carries with it **a list of values** which form the data content of the record.
+
+The order of the values within the list should be meaningful to the client, perhaps based on a requested ordering for that result, but no guarantees should be made around the order of records within the result.
+
+A record should only be considered valid if followed by a `SUCCESS` summary message.
+
+Until this summary has been received, the record's validity should be considered tentative.
+
+Example:
+
+```
+RECORD [1, 2, 3]
+```
+
+
+#### Server Response `SUCCESS`
 
 Following any relevant detail messages, and assuming the `PULL_ALL` request has been successfully processed, the server should respond with a `SUCCESS` message and enter the `READY` state.
+
 The server may attach metadata to the message to provide footer detail for the results.
 
 The following fields are defined for inclusion in the metadata.
 
 - `bookmark` (e.g. `"bookmark:1234"`)
-- `result_consumed_after` (e.g. `234`)
+- `result_consumed_after` (e.g. `123`)
 
-#### 4.4.4. `PULL_ALL` Response `FAILURE`
+Example:
+
+```
+SUCCESS {"bookmark": "example_bookmark_identifier", "result_consumed_after": 123}
+```
+
+#### Server Response `IGNORED`
+
+A server that receives a `PULL_ALL` request while `FAILED` or `INTERRUPTED` should respond with an `IGNORED` message and discard the request without processing it.
+No state change should occur.
+
+Example:
+
+```
+IGNORED
+```
+
+#### Server Response `FAILURE`
 
 If a `PULL_ALL` request cannot be processed successfully, the server should respond with a `FAILURE` message and enter the `FAILED` state.
 The server may attach metadata to the message to provide more detail on the nature of the failure.
@@ -424,85 +526,114 @@ The server may attach metadata to the message to provide more detail on the natu
 Failure may occur at any time during result streaming which may lead to a number of detail messages preceding the `FAILURE` message.
 In this case, that result detail should be considered invalid.
 
-#### 4.4.5. `PULL_ALL` Response `IGNORED`
+Example:
 
-A server that receives a `PULL_ALL` request while `FAILED` or `INTERRUPTED` should respond with an `IGNORED` message and discard the request without processing it.
-No state change should occur.
-
-#### 4.4.6. `PULL_ALL` Response `RECORD`
-
-Zero or more `RECORD` messages may be returned in response to a `PULL_ALL` prior to the trailing summary message.
-Each record carries with it a list of values which form the data content of the record.
-The order of the values within the list should be meaningful to the client, perhaps based on a requested ordering for that result, but no guarantees should be made around the order of records within the result.
-
-A record should only be considered valid if followed by a `SUCCESS` summary message.
-Until this summary has been received, the record's validity should be considered tentative.
+```
+FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
+```
 
 
-### 4.5. `ACK_FAILURE`
+### 3.3.5 `ACK_FAILURE`
 
 `ACK_FAILURE` signals to the server that the client has acknowledged a previous failure and should return to a `READY` state.
 
-The `ACK_FAILURE` message has the signature `0E` and passes no fields.
-No detail messages should be returned.
-Valid summary messages are `SUCCESS` and `FAILURE`.
+**Signature:** `0E`
 
-The server MUST be in a `FAILED` state to be able to successfully process an `ACK_FAILURE` request.
+**Fields:**
+
+**Detail Messages:**
+
+**Valid Summary Messages:**
+
+* `SUCCESS`
+* `FAILURE`
+
+The server **MUST** be in a `FAILED` state to be able to successfully process an `ACK_FAILURE` request.
 For any other states, receipt of an `ACK_FAILURE` request will be considered a protocol violation and will lead to connection closure.
 
-#### 4.5.1. `ACK_FAILURE` Synopsis
+#### Synopsis
 
 ```
 ACK_FAILURE
 ```
 
+Example:
 
-#### 4.5.3. `ACK_FAILURE` Response `SUCCESS`
+```
+ACK_FAILURE
+```
+
+#### Server Response `SUCCESS`
 
 If an `ACK_FAILURE` request has been successfully received, the server should respond with a `SUCCESS` message and enter the `READY` state.
 
-#### 4.5.4. `ACK_FAILURE` Response `FAILURE`
+The server may attach metadata to the `SUCCESS` message.
+
+Example:
+
+```
+SUCCESS {}
+```
+
+#### Server Response `FAILURE`
 
 If an `ACK_FAILURE` request is received while not in the `FAILED` state, the server should respond with a `FAILURE` message and immediately close the connection.
+
 The server may attach metadata to the message to provide more detail on the nature of the failure.
 
+Example:
 
-### 4.6. `RESET`
+```
+FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
+```
 
-`RESET` requests that the connection should be set back to its initial `READY` state, as if an `INIT` had just successfully completed.
-`RESET` is unique in that, on arrival at the server, it splits into two separate signals.
+
+### 3.3.6 `RESET`
+
+The `RESET` message requests that the connection should be set back to its initial `READY` state, as if an `INIT` had just successfully completed.
+
+The `RESET` message is unique in that, on arrival at the server, it splits into two separate signals.
+
 Firstly, an `<INTERRUPT>` **signal jumps ahead in the message queue**, stopping any unit of work that happens to be executing, and putting the state machine into an `INTERRUPTED` state.
+
 Secondly, the `RESET` queues along with all other incoming messages and is used to put the state machine back to `READY` when its turn for processing arrives.
 
 This essentially means that the `INTERRUPTED` state exists only transitionally between the arrival of a `RESET` in the message queue and the later processing of that `RESET` in its proper position.
-`INTERRUPTED` is therefore the only state to automatically resolve without any further input from the client and whose entry does not generate a response message.
+
+The `INTERRUPTED` state is therefore the only state to automatically resolve without any further input from the client and whose entry does not generate a response message.
 
 
-#### 4.6.1. `RESET` Synopsis
+#### Synopsis
 
 ```
 RESET
 ```
 
+Example:
 
-#### 4.6.3. `RESET` Response `SUCCESS`
+```
+RESET
+```
 
-If a `RESET` request has been successfully received, the server should respond with a `SUCCESS` message and enter the `READY` state.
+#### Server Response `SUCCESS`
 
-#### 4.6.4. `RESET` Response `FAILURE`
+If a `RESET` message request has been successfully received, the server should respond with a `SUCCESS` message and enter the `READY` state.
 
-If `RESET` is received before the server enters a `READY` state, it should trigger a `FAILURE` followed by immediate closure of the connection.
+
+Example:
+
+```
+SUCCESS {}
+```
+
+#### Server Response `FAILURE`
+
+If `RESET` message is received before the server enters a `READY` state, it should trigger a `FAILURE` followed by immediate closure of the connection.
 Clients receiving a `FAILURE` in response to `RESET` should treat that connection as `DEFUNCT` and dispose of it.
 
+Example:
 
-
-## 3. Server States
-
-Each connection maintained by a Bolt server will occupy one of several states throughout its lifetime.
-This state is used to determine what actions may be undertaken by the client.
-
-### 3.1. Protocol Errors
-
-If a server or client receives a message type that is unexpected, according to the transitions described in this document, it must treat that as a protocol error.
-Protocol errors are fatal and should immediately transition the server state to `DEFUNCT`, closing any open connections.
+```
+FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
+```
 
