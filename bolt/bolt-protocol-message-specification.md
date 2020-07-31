@@ -29,8 +29,6 @@
 
 ## 3. Messages
 
-## Messages
-
 | Message       | Signature | Request Message | Summary Message | Detail Message | Fields                                  | Description               |
 |---------------|:---------:|:---------------:|:---------------:|:--------------:|-----------------------------------------|---------------------------|
 | `HELLO`       | `01`      | x               |                 |                | `user_agent::String`, `auth_token::Map` | initialize connection     |
@@ -71,8 +69,8 @@ Jump ahead is that the signal will imediatly be available before any messages ar
 | Message       | Signature | Request Message | Summary Message | Detail Message | Fields                                     | Description               |
 |---------------|:---------:|:---------------:|:---------------:|:--------------:|--------------------------------------------|---------------------------|
 | `HELLO`       | `01`      | x               |                 |                | `user_agent::String`, `auth_token::Map`    | initialize connection     |
-| `GOODBYE`     | `02`      | x               |                 |                |                                            | close the connection      |
-| `RESET`       | `0F`      | x               |                 |                |                                            | reset the connection      |
+| `GOODBYE`     | `02`      | x               |                 |                | triggers a `<DISCONNECT>` signal           | close the connection      |
+| `RESET`       | `0F`      | x               |                 |                | triggers a `<INTERRUPT>` signal            | reset the connection      |
 | `RUN`         | `10`      | x               |                 |                | `query::String`, `parameters::Map`         | execute a query           |
 | `DISCARD`     | `2F`      | x               |                 |                | `n::Integer`, `qid::Integer`               | discard records           |
 | `PULL`        | `3F`      | x               |                 |                | `n::Integer`, `qid::Integer`               | fetch records             |
@@ -187,7 +185,7 @@ In other words, some request message types elicit a response that may contain de
 
 Messages may also be pipelined.
 In other words, clients may send multiple requests eagerly without first waiting for responses.
-When a failure occurs in this scenario, servers MUST ignore all subsequent requests until the client has explicitly acknowledged receipt of the failure.
+When a failure occurs in this scenario, servers **must** ignore all subsequent requests until the client has explicitly acknowledged receipt of the failure.
 This prevents inadvertent execution of queries that may not be valid.
 More details of this process can be found in the sections below.
 
@@ -209,7 +207,7 @@ The chunking process allows the message to be broken into one or more pieces, ea
 Each chunk consists of a two-byte header, detailing the chunk size in bytes followed by the chunk data itself.
 Chunk headers are 16-bit unsigned integers, meaning that the maximum theoretical chunk size permitted is 65,535 bytes.
 
-Each encoded message MUST be terminated with a chunk of zero size, i.e. `[00 00]`.
+Each encoded message **must** be terminated with a chunk of zero size, i.e. `[00 00]`.
 This is used to signal message boundaries to a receiving parties, allowing blocks of data to be fully received without requiring that the message is parsed immediately.
 This also allows for unknown message types to be received and handled without breaking the messaging chain.
 
@@ -242,8 +240,8 @@ The `INIT` message uses the structure signature `01` and passes two fields: *use
 No detail messages should be returned.
 Valid summary messages are `SUCCESS` and `FAILURE`.
 
-The server MUST be in the `CONNECTED` state to be able to process an `INIT` request.
-For any other states, receipt of an `INIT` request MUST be considered a protocol violation and lead to connection closure.
+The server **must** be in the `CONNECTED` state to be able to process an `INIT` request.
+For any other states, receipt of an `INIT` request **must** be considered a protocol violation and lead to connection closure.
 
 Clients should send `INIT` requests to the network immediately after connection and process the corresponding response before using that connection in any other way.
 
@@ -251,7 +249,7 @@ A receiving server may choose to register or otherwise log the user agent but ma
 User agents should use the form `"name/version"`, for example `"my-client/1.2.3"`.
 
 The auth token should be used by the server to determine whether the client is permitted to exchange further messages.
-If this authentication fails, the server MUST respond with a `FAILURE` message and immediately close the connection.
+If this authentication fails, the server **must** respond with a `FAILURE` message and immediately close the connection.
 Clients wishing to retry initialization should establish a new connection.
 
 ##### Synopsis
@@ -303,7 +301,7 @@ IGNORED
 ##### Server Response `FAILURE`
 
 A `FAILURE` message response indicates that the client is not permitted to exchange further messages.
-Servers may choose to include metadata describing the nature of the failure but MUST immediately close the connection after the failure has been sent.
+Servers may choose to include metadata describing the nature of the failure but **must** immediately close the connection after the failure has been sent.
 
 Example:
 
@@ -330,7 +328,7 @@ A `RUN` message submits a new query for execution, the result of which will be c
 * `IGNORED`
 * `FAILURE`
 
-The server MUST be in a `READY` state to be able to successfully process a `RUN` request.
+The server **must** be in a `READY` state to be able to successfully process a `RUN` request.
 If the server is in a `FAILED` or `INTERRUPTED` state, the request will be `IGNORED`.
 For any other states, receipt of a `RUN` request will be considered a protocol violation and will lead to connection closure.
 
@@ -410,7 +408,7 @@ A receiving server should not abort the request but continue to process it witho
 * `IGNORED`
 * `FAILURE`
 
-The server MUST be in a `STREAMING` state to be able to successfully process a `DISCARD_ALL` request.
+The server **must** be in a `STREAMING` state to be able to successfully process a `DISCARD_ALL` request.
 If the server is in a `FAILED` state or `INTERRUPTED` state, the request will be `IGNORED`.
 For any other states, receipt of a `DISCARD_ALL` request will be considered a protocol violation and will lead to connection closure.
 
@@ -490,7 +488,7 @@ Zero or more detail messages may be returned.
 * `IGNORED`
 * `FAILURE`
 
-The server MUST be in a `STREAMING` state to be able to successfully process a `PULL_ALL` request.
+The server **must** be in a `STREAMING` state to be able to successfully process a `PULL_ALL` request.
 If the server is in a `FAILED` or `INTERRUPTED` state, the request will be IGNORED.
 For any other states, receipt of a `PULL_ALL` request will be considered a protocol violation and will lead to connection closure.
 
@@ -583,7 +581,7 @@ FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 * `SUCCESS`
 * `FAILURE`
 
-The server **MUST** be in a `FAILED` state to be able to successfully process an `ACK_FAILURE` request.
+The server **must** be in a `FAILED` state to be able to successfully process an `ACK_FAILURE` request.
 For any other states, receipt of an `ACK_FAILURE` request will be considered a protocol violation and will lead to connection closure.
 
 ##### Synopsis
