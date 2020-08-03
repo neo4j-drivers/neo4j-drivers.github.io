@@ -18,26 +18,32 @@
 
 ## 2. New
 
-* The `DISCARD` message can now discard an arbitrary number of records.
-* The `PULL` message can now fetch an arbitrary number of records.
+* The `BEGIN` message now have a field `db` to specify a database name.
+* The `RUN` message now have a field `db` to specify a database name.
+* **Explicit transaction** (`BEGIN`+`RUN`) can now get a server response with a `SUCCESS` and metadata key `qid` (query identification).
+* The `DISCARD` message can now discard an arbitrary number of records. New fields `n` and `qid`.
+* The `DISCARD` message can now get a server response with a `SUCCESS` and metadata key `has_more`. 
+* The `PULL` message can now fetch an arbitrary number of records. New fields `n` and `qid`.
+* The `PULL` message can now get a server response with a `SUCCESS` and metadata key `has_more`. 
+
 
 ## 3. Messages
 
 | Message       | Signature | Request Message | Summary Message | Detail Message | Fields                                                                                                                                                        | Description                                             |
 |---------------|:---------:|:---------------:|:---------------:|:--------------:|---------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
-| `HELLO`       | `01`      | x               |                 |                | `extra::Map( user_agent::String, scheme::String, principal::String, credentials::String)`                                                                     | initialize connection                                   |
+| `HELLO`       | `01`      | x               |                 |                | `extra::Map( user_agent::String, scheme::String, principal::String, credentials::String )`                                                                    | initialize connection                                   |
 | `GOODBYE`     | `02`      | x               |                 |                |                                                                                                                                                               | close the connection, triggers a `<DISCONNECT>` signal  |
 | `RESET`       | `0F`      | x               |                 |                |                                                                                                                                                               | reset the connection, triggers a `<INTERRUPT>` signal   |
-| `RUN`         | `10`      | x               |                 |                | `query::String`, `parameters::Map`, `extra::Map( bookmarks::List<String>, tx_timeout::Integer, tx_metadata::Map<String, Value>, mode::String, db:String)`     | execute a query                                         |
+| `RUN`         | `10`      | x               |                 |                | `query::String`, `parameters::Map`, `extra::Map( bookmarks::List<String>, tx_timeout::Integer, tx_metadata::Map<String, Value>, mode::String, db:String )`    | execute a query                                         |
 | `DISCARD`     | `2F`      | x               |                 |                | `n::Integer`, `qid::Integer`                                                                                                                                  | discard records                                         |
 | `PULL`        | `3F`      | x               |                 |                | `n::Integer`, `qid::Integer`                                                                                                                                  | fetch records                                           |
-| `BEGIN`       | `11`      | x               |                 |                | \<missing\>                                                                                                                                                   | begin a new transaction                                 |
+| `BEGIN`       | `11`      | x               |                 |                | `extra::Map( bookmarks::List<String>, tx_timeout::Integer, tx_metadata::Map<String, Value>, mode::String, db::String )`                                       | begin a new transaction                                 |
 | `COMMIT`      | `12`      | x               |                 |                |                                                                                                                                                               | commit a transaction                                    |
 | `ROLLBACK`    | `13`      | x               |                 |                |                                                                                                                                                               | rollback a transaction                                  |
-| `SUCCESS`     | `70`      |                 | x               |                | `metadata::Map`                                                                                                                                               | request succeeded                                       |
+| `SUCCESS`     | `70`      |                 | x               |                | `metadata::Map<String, Value>`                                                                                                                                | request succeeded                                       |
 | `IGNORED`     | `7E`      |                 | x               |                |                                                                                                                                                               | request was ignored                                     |
-| `FAILURE`     | `7F`      |                 | x               |                | `metadata::Map`                                                                                                                                               | request failed                                          |
-| `RECORD`      | `71`      |                 |                 | x              | `data::List`                                                                                                                                                  | data values                                             |
+| `FAILURE`     | `7F`      |                 | x               |                | `metadata::Map( code::String, message::String )`                                                                                                              | request failed                                          |
+| `RECORD`      | `71`      |                 |                 | x              | `data::List<Value>`                                                                                                                                           | data values                                             |
 
 
 **Server Signals**
@@ -169,7 +175,7 @@ GOODBYE
 
 ### 3.3. `RESET`
 
-The `RESET` message requests that the connection should be set back to its initial state, as if an HELLO had just been successfully completed.
+The `RESET` message requests that the connection should be set back to its initial state, as if a `HELLO` message had just been successfully completed.
 
 The `RESET` message is unique in that it on arrival at the server, it jumps ahead in the message queue, stopping any unit of work that happens to be executing.
 
@@ -717,7 +723,7 @@ Metadata keys are described in the section of this document relating to the mess
 **Fields:**
 
 ```
-metadata::Map
+metadata::Map<String, Value>
 ```
 
 #### Synopsis
@@ -797,13 +803,13 @@ These messages are currently only ever received in response to a `PULL` message 
 **Fields:**
 
 ```
-List<Value>
+data::List<Value>
 ```
 
 #### Synopsis
 
 ```
-RECORD [values]
+RECORD [data]
 ```
 
 Example 1:
@@ -823,29 +829,31 @@ RECORD [{"point": [1, 2]}, "example_data", 123]
 
 ## 1. Changes
 
-* `BEGIN` message now requires the field address.
+* The `BEGIN` message fields have change. 
 
 ## 2. New
+
+* The `BEGIN` message now requires the sub field `routing::Map( address::String, )`.
+
 
 ## 3. Messages
 
 
-| Message       | Signature | Request Message | Summary Message | Detail Message | Fields                                                                                              | Description                                             |
-|---------------|:---------:|:---------------:|:---------------:|:--------------:|-----------------------------------------------------------------------------------------------------|---------------------------------------------------------|
-| `HELLO`       | `01`      | x               |                 |                | `extra::Map( user_agent::String, scheme::String, principal::String, credentials::String)`           | initialize connection                                   |
-| `GOODBYE`     | `02`      | x               |                 |                |                                                                                                     | close the connection, triggers a `<DISCONNECT>` signal  |
-| `RESET`       | `0F`      | x               |                 |                |                                                                                                     | reset the connection, triggers a `<INTERRUPT>` signal   |
-| `RUN`         | `10`      | x               |                 |                | `query::String`, `parameters::Map`                                                                  | execute a query                                         |
-| `DISCARD`     | `2F`      | x               |                 |                | `n::Integer`, `qid::Integer`                                                                        | discard records                                         |
-| `PULL`        | `3F`      | x               |                 |                | `n::Integer`, `qid::Integer`                                                                        | fetch records                                           |
-| `BEGIN`       | `11`      | x               |                 |                | \<missing\>                                                                                         | begin a new transaction                                 |
-| `COMMIT`      | `12`      | x               |                 |                |                                                                                                     | commit a transaction                                    |
-| `ROLLBACK`    | `13`      | x               |                 |                |                                                                                                     | rollback a transaction                                  |
-| `SUCCESS`     | `70`      |                 | x               |                | `metadata::Map`                                                                                     | request succeeded                                       |
-| `IGNORED`     | `7E`      |                 | x               |                |                                                                                                     | request was ignored                                     |
-| `FAILURE`     | `7F`      |                 | x               |                | `metadata::Map`                                                                                     | request failed                                          |
-| `RECORD`      | `71`      |                 |                 | x              | `data::List`                                                                                        | data values                                             |
-
+| Message       | Signature | Request Message | Summary Message | Detail Message | Fields                                                                                                                                                        | Description                                             |
+|---------------|:---------:|:---------------:|:---------------:|:--------------:|---------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
+| `HELLO`       | `01`      | x               |                 |                | `extra::Map( user_agent::String, scheme::String, principal::String, credentials::String, routing::Map(address::String) )`                                     | initialize connection                                   |
+| `GOODBYE`     | `02`      | x               |                 |                |                                                                                                                                                               | close the connection, triggers a `<DISCONNECT>` signal  |
+| `RESET`       | `0F`      | x               |                 |                |                                                                                                                                                               | reset the connection, triggers a `<INTERRUPT>` signal   |
+| `RUN`         | `10`      | x               |                 |                | `query::String`, `parameters::Map`, `extra::Map( bookmarks::List<String>, tx_timeout::Integer, tx_metadata::Map<String, Value>, mode::String, db:String )`    | execute a query                                         |
+| `DISCARD`     | `2F`      | x               |                 |                | `n::Integer`, `qid::Integer`                                                                                                                                  | discard records                                         |
+| `PULL`        | `3F`      | x               |                 |                | `n::Integer`, `qid::Integer`                                                                                                                                  | fetch records                                           |
+| `BEGIN`       | `11`      | x               |                 |                | `extra::Map( bookmarks::List<String>, tx_timeout::Integer, tx_metadata::Map<String, Value>, mode::String, db::String )`                                       | begin a new transaction                                 |
+| `COMMIT`      | `12`      | x               |                 |                |                                                                                                                                                               | commit a transaction                                    |
+| `ROLLBACK`    | `13`      | x               |                 |                |                                                                                                                                                               | rollback a transaction                                  |
+| `SUCCESS`     | `70`      |                 | x               |                | `metadata::Map<String, Value>`                                                                                                                                | request succeeded                                       |
+| `IGNORED`     | `7E`      |                 | x               |                |                                                                                                                                                               | request was ignored                                     |
+| `FAILURE`     | `7F`      |                 | x               |                | `metadata::Map( code::String, message::String )`                                                                                                              | request failed                                          |
+| `RECORD`      | `71`      |                 |                 | x              | `data::List<Value>`                                                                                                                                           | data values                                             |
 
 **Server Signals**
 
