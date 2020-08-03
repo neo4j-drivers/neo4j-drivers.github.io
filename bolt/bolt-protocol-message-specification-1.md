@@ -1,13 +1,5 @@
-# Bolt Protocol Message Specification (DRAFT!!!)
+# Bolt Protocol Message Specification - Version 1
 
-
-* [**Version 4.0**](#version-40)
-
-    * [Version 4.1](#version-41)
-
-* [**Version 3**](#version-3)
-
-* [**Version 2**](#version-2)
 
 * [**Version 1**](#version-1)
 
@@ -15,247 +7,14 @@
 **NOTE:** Byte values are represented using hexadecimal notation unless otherwise specified.
 
 
-# Version 4.0
-
-## 1. Changes
-
-* `DISCARD_ALL` message renamed to `DISCARD` and introduced new fields.
-* `PULL_ALL` message renamed to `PULL` and introduced new fields.
-
-## 2. New
-
-* The `DISCARD` message can now discard an arbitrary number of records.
-* The `PULL` message can now fetch an arbitrary number of records.
-
-## 3. Messages
-
-| Message       | Signature | Request Message | Summary Message | Detail Message | Fields                                                                                              | Description                                             |
-|---------------|:---------:|:---------------:|:---------------:|:--------------:|-----------------------------------------------------------------------------------------------------|---------------------------------------------------------|
-| `HELLO`       | `01`      | x               |                 |                | `extra::Map( user_agent::String, scheme::String, principal::String, credentials::String)`           | initialize connection                                   |
-| `GOODBYE`     | `02`      | x               |                 |                |                                                                                                     | close the connection, triggers a `<DISCONNECT>` signal  |
-| `RESET`       | `0F`      | x               |                 |                |                                                                                                     | reset the connection, triggers a `<INTERRUPT>` signal   |
-| `RUN`         | `10`      | x               |                 |                | `query::String`, `parameters::Map`                                                                  | execute a query                                         |
-| `DISCARD`     | `2F`      | x               |                 |                | `n::Integer`, `qid::Integer`                                                                        | discard records                                         |
-| `PULL`        | `3F`      | x               |                 |                | `n::Integer`, `qid::Integer`                                                                        | fetch records                                           |
-| `BEGIN`       | `11`      | x               |                 |                | \<missing\>                                                                                         | begin a new transaction                                 |
-| `COMMIT`      | `12`      | x               |                 |                |                                                                                                     | commit a transaction                                    |
-| `ROLLBACK`    | `13`      | x               |                 |                |                                                                                                     | rollback a transaction                                  |
-| `SUCCESS`     | `70`      |                 | x               |                | `metadata::Map`                                                                                     | request succeeded                                       |
-| `IGNORED`     | `7E`      |                 | x               |                |                                                                                                     | request was ignored                                     |
-| `FAILURE`     | `7F`      |                 | x               |                | `metadata::Map`                                                                                     | request failed                                          |
-| `RECORD`      | `71`      |                 |                 | x              | `data::List`                                                                                        | data values                                             |
-
-
-**Server Signals**
-
-Jump ahead is that the signal will imediatly be available before any messages are processed in the message queue.
-
-| Server Signal   | Jump Ahead | Description            |
-|:---------------:|:----------:|------------------------|
-| `<INTERRUPT>`   | x          | an interrupt signal    |
-| `<DISCONNECT>`  |            | a disconnect signal    |
-
-
-### 3.1 `HELLO`
-
-The `HELLO` message request the connection to be authorized for use with the remote database.
-
-The server **must** be in the `CONNECTED` state to be able to process a `HELLO` message.
-For any other states, receipt of an `HELLO` request **must** be considered a protocol violation and lead to connection closure.
-
-Clients should send `HELLO` message to the server immediately after connection and process the corresponding response before using that connection in any other way.
-
-If authentication fails, the server **must** respond with a `FAILURE` message and immediately close the connection.
-
-Clients wishing to retry initialization should establish a new connection.
-
-**Signature:** `01`
-
-**Fields:**
-
-```
-extra::Map(
-  user_agent::String,
-  scheme::String,
-  principal::String,
-  credentials::String,
-)
-```
-
-  - The `user_agent` should conform to `"name/version"` for example `"my-client/1.2.3"`.
-  - The `scheme` is the authentication scheme. Predefined schemes are “none”, “basic”, “kerberos”
-
-**Detail Messages:**
-
-No detail messages should be returned.
-
-**Valid Summary Messages:**
-
-* `SUCCESS`
-* `FAILURE`
-
-
-#### Synopsis
-
-```
-HELLO {user_agent::String, scheme::String, principal::String, credentials::String)
-```
-
-Example:
-
-```
-HELLO {"user_agent": "example-agent/4.0.0", "scheme": "basic", "principal": "user-id-1", "credentials": "user-password"}
-```
-
-
-#### Server Response `SUCCESS`
-
-A `SUCCESS` message response indicates that the client is permitted to exchange further messages.
-Servers can include metadata that describes details of the server environment and/or the connection.
-
-The following fields are defined for inclusion in the `SUCCESS` metadata.
-
-  - `server::String` (server agent string, example `"Neo4j/4.0.0"`)
-  - `connection_id::String` (unique identifier of the bolt connection used on the server side, example: `"bolt-61"`)
-
-Example:
-
-```
-SUCCESS {"server": "Neo4j/4.0.0"}
-```
-
-
-#### Server Response `FAILURE`
-
-A `FAILURE` message response indicates that the client is not permitted to exchange further messages.
-Servers may choose to include metadata describing the nature of the failure but **must** immediately close the connection after the failure has been sent.
-
-Example:
-
-```
-FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
-```
-
-
-### 3.2 `GOODBYE`
-
-### 3.3 `RESET`
-
-### 3.4 `RUN`
-
-### 3.5 `DISCARD`
-
-### 3.6 `PULL`
-
-### 3.7 `BEGIN`
-
-### 3.8 `COMMIT`
-
-### 3.9 `ROLLBACK`
-
-### 3.10 `SUCCESS`
-
-### 3.11 `IGNORED`
-
-### 3.12 `FAILURE`
-
-### 3.13 `RECORD`
-
-
-## Version 4.1
-
-### 1. Changes
-
-* `BEGIN` message now requires the field address.
-
-### 2. New
-
-### 3. Messages
-
-
-| Message       | Signature | Request Message | Summary Message | Detail Message | Fields                                                                                              | Description                                             |
-|---------------|:---------:|:---------------:|:---------------:|:--------------:|-----------------------------------------------------------------------------------------------------|---------------------------------------------------------|
-| `HELLO`       | `01`      | x               |                 |                | `extra::Map( user_agent::String, scheme::String, principal::String, credentials::String)`           | initialize connection                                   |
-| `GOODBYE`     | `02`      | x               |                 |                |                                                                                                     | close the connection, triggers a `<DISCONNECT>` signal  |
-| `RESET`       | `0F`      | x               |                 |                |                                                                                                     | reset the connection, triggers a `<INTERRUPT>` signal   |
-| `RUN`         | `10`      | x               |                 |                | `query::String`, `parameters::Map`                                                                  | execute a query                                         |
-| `DISCARD`     | `2F`      | x               |                 |                | `n::Integer`, `qid::Integer`                                                                        | discard records                                         |
-| `PULL`        | `3F`      | x               |                 |                | `n::Integer`, `qid::Integer`                                                                        | fetch records                                           |
-| `BEGIN`       | `11`      | x               |                 |                | \<missing\>                                                                                         | begin a new transaction                                 |
-| `COMMIT`      | `12`      | x               |                 |                |                                                                                                     | commit a transaction                                    |
-| `ROLLBACK`    | `13`      | x               |                 |                |                                                                                                     | rollback a transaction                                  |
-| `SUCCESS`     | `70`      |                 | x               |                | `metadata::Map`                                                                                     | request succeeded                                       |
-| `IGNORED`     | `7E`      |                 | x               |                |                                                                                                     | request was ignored                                     |
-| `FAILURE`     | `7F`      |                 | x               |                | `metadata::Map`                                                                                     | request failed                                          |
-| `RECORD`      | `71`      |                 |                 | x              | `data::List`                                                                                        | data values                                             |
-
-
-**Server Signals**
-
-Jump ahead is that the signal will imediatly be available before any messages are processed in the message queue.
-
-| Server Signal   | Jump Ahead | Description            |
-|:---------------:|:----------:|------------------------|
-| `<INTERRUPT>`   | x          | an interrupt signal    |
-| `<DISCONNECT>`  |            | a disconnect signal    |
-
-
-
-# Version 3
-
-## 1. Changes
-
-* `INIT` message renamed to `HELLO`.
-* `ACK_FAILUER` message has been removed.
-
-## 2. New
-
-* `BEGIN` message.
-* `COMMIT` message.
-* `ROLLBACK` message.
-
-## 3. Messages
-
-| Message       | Signature | Request Message | Summary Message | Detail Message | Fields                                  | Description               |
-|---------------|:---------:|:---------------:|:---------------:|:--------------:|-----------------------------------------|---------------------------|
-| `HELLO`       | `01`      | x               |                 |                | `user_agent::String`, `auth_token::Map` | initialize connection     |
-| `GOODBYE`     | `02`      | x               |                 |                | triggers a `<DISCONNECT>` signal        | close the connection      |
-| `RESET`       | `0F`      | x               |                 |                | triggers a `<INTERRUPT>` signal         | reset the connection      |
-| `RUN`         | `10`      | x               |                 |                | `query::String`, `parameters::Map`      | execute a query           |
-| `DISCARD_ALL` | `2F`      | x               |                 |                |                                         | discard all records       |
-| `PULL_ALL`    | `3F`      | x               |                 |                |                                         | fetch all records         |
-| `BEGIN`       | `11`      | x               |                 |                | \<missing\>                             | begin a new transaction   |
-| `COMMIT`      | `12`      | x               |                 |                |                                         | commit a transaction      |
-| `ROLLBACK`    | `13`      | x               |                 |                |                                         | rollback a transaction    |
-| `SUCCESS`     | `70`      |                 | x               |                | `metadata::Map`                         | request succeeded         |
-| `IGNORED`     | `7E`      |                 | x               |                |                                         | request was ignored       |
-| `FAILURE`     | `7F`      |                 | x               |                | `metadata::Map`                         | request failed            |
-| `RECORD`      | `71`      |                 |                 | x              | `data::List`                            | data values               |
-
-
-### 3.1 Server Signals
-
-Jump ahead is that the signal will imediatly be available before any messages are processed in the message queue.
-
-| Server Signal   | Jump Ahead | Description            |
-|:---------------:|:----------:|------------------------|
-| `<INTERRUPT>`   | x          | an interrupt signal    |
-| `<DISCONNECT>`  |            | a disconnect signal    |
-
-
-# Version 2
-
-## 1. Changes
-
-No changes.
-
-
 # Version 1
 
 ## 1. Overview
 
 This section describes version 1 of the Bolt messaging protocol.
-The messaging protocol is used for the message exchanges that take place on a connection following a successful Bolt handshake.
+
+The message specification describes the message exchanges that take place on a connection following a successful Bolt handshake.
+
 For details of establishing a connection and performing a handshake, see [Bolt Protocol Handshake Specification](bolt-protocol-handshake-specification.md).
 
 
@@ -320,7 +79,7 @@ This is used to signal message boundaries to a receiving parties, allowing block
 This also allows for unknown message types to be received and handled without breaking the messaging chain.
 
 
-### 3.3. Messages
+## 4. Messages
 
 * Request Message, the client sends a message.
 * Summary Message, the server will always respond with one summary message.
@@ -340,7 +99,7 @@ This also allows for unknown message types to be received and handled without br
 | `RECORD`      | `71`      |                 |                 | x              | `data::List`                            | data values                    |
 
 
-#### 3.3.1 `INIT`
+### 4.1. `INIT`
 
 `INIT` is a request for the connection to be authorized for use with the remote database. 
 
@@ -360,7 +119,7 @@ The auth token should be used by the server to determine whether the client is p
 If this authentication fails, the server **must** respond with a `FAILURE` message and immediately close the connection.
 Clients wishing to retry initialization should establish a new connection.
 
-##### Synopsis
+#### Synopsis
 
 ```
 INIT "user_agent" {metadata}
@@ -379,7 +138,7 @@ INIT "example-agent-1" {"scheme": "basic", "principal": "neo4j", "credentials": 
 ```
 
 
-##### Server Response `SUCCESS`
+#### Server Response `SUCCESS`
 
 A `SUCCESS` message response indicates that the client is permitted to exchange further messages.
 Servers can include metadata that describes details of the server environment and/or the connection.
@@ -395,7 +154,7 @@ SUCCESS {"server": "Neo4j/3.4.0"}
 ```
 
 
-##### Server Response `IGNORED`
+#### Server Response `IGNORED`
 
 The `IGNORED` message response indicates that the server ignored the `INIT` message.
 
@@ -406,7 +165,7 @@ IGNORED
 ```
 
 
-##### Server Response `FAILURE`
+#### Server Response `FAILURE`
 
 A `FAILURE` message response indicates that the client is not permitted to exchange further messages.
 Servers may choose to include metadata describing the nature of the failure but **must** immediately close the connection after the failure has been sent.
@@ -417,7 +176,7 @@ Example:
 FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 ```
 
-#### 3.3.2 `RUN`
+### 4.2. `RUN`
 
 A `RUN` message submits a new query for execution, the result of which will be consumed by a subsequent message, such as `PULL_ALL`.
 
@@ -446,7 +205,7 @@ This document does not specify how the server should handle an incoming query.
 The parameters generally contain variable fields for a database query or remote procedure call.
 This document does not specify how the server should handle incoming parameters.
 
-##### Synopsis
+#### Synopsis
 
 ```
 RUN "query" {parameters}
@@ -458,7 +217,7 @@ Example:
 RUN "RETURN $a AS x" {"a": 1}
 ```
 
-##### Server Response `SUCCESS`
+#### Server Response `SUCCESS`
 
 If a `RUN` request has been successfully received and is considered valid by the server, the server should respond with a `SUCCESS` message and enter the *STREAMING* state.
 The server may attach metadata to the message to provide header detail for the results that follow.
@@ -476,7 +235,7 @@ Example:
 SUCCESS {"fields": ["x"], "result_available_after": 123}
 ```
 
-##### Server Response `IGNORED`
+#### Server Response `IGNORED`
 
 A server that receives a `RUN` request while `FAILED` state or `INTERRUPTED` state should respond with an `IGNORED` message and discard the request without processing it.
 No state change should occur.
@@ -487,7 +246,7 @@ Example:
 IGNORED
 ```
 
-##### Server Response `FAILURE`
+#### Server Response `FAILURE`
 
 If a `RUN` message cannot be processed successfully or is invalid, the server should respond with a `FAILURE` message and enter the `FAILED` state.
 The server may attach metadata to the message to provide more detail on the nature of the failure.
@@ -498,7 +257,7 @@ Example:
 FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 ```
 
-#### 3.3.3 `DISCARD_ALL`
+### 4.3. `DISCARD_ALL`
 
 The `DISCARD_ALL` message issues a request to discard the outstanding result and return to a `READY` state.
 
@@ -520,7 +279,7 @@ The server **must** be in a `STREAMING` state to be able to successfully process
 If the server is in a `FAILED` state or `INTERRUPTED` state, the request will be `IGNORED`.
 For any other states, receipt of a `DISCARD_ALL` request will be considered a protocol violation and will lead to connection closure.
 
-##### Synopsis
+#### Synopsis
 
 ```
 DISCARD_ALL
@@ -533,7 +292,7 @@ Example:
 DISCARD_ALL
 ```
 
-##### Server Response `SUCCESS`
+#### Server Response `SUCCESS`
 
 If a `DISCARD_ALL` request has been successfully received, the server should respond with a `SUCCESS` message and enter the `READY` state.
 The server may attach metadata to the message to provide footer detail for the discarded results.
@@ -549,7 +308,7 @@ Example:
 SUCCESS {"bookmark": "example_bookmark_identifier", "result_consumed_after": 123}
 ```
 
-##### Server Response `IGNORED`
+#### Server Response `IGNORED`
 
 A server that receives a `DISCARD_ALL` request while in `FAILED` state or `INTERRUPTED` state, should respond with an `IGNORED` message and discard the request without processing it.
 
@@ -561,7 +320,7 @@ Example:
 IGNORED
 ```
 
-##### Server Response `FAILURE`
+#### Server Response `FAILURE`
 
 If a `DISCARD_ALL` message request cannot be processed successfully, the server should respond with a `FAILURE` message and enter the `FAILED` state.
 The server may attach metadata to the message to provide more detail on the nature of the failure.
@@ -573,7 +332,7 @@ FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 ```
 
 
-#### 3.3.4 `PULL_ALL`
+### 4.4. `PULL_ALL`
 
 The `PULL_ALL` message issues a request to stream the outstanding result back to the client, before returning to a `READY` state.
 
@@ -586,9 +345,13 @@ Zero or more detail messages may be returned.
 
 **Signature:** `3F`
 
-**Fields:** 0
+**Fields:**
 
-**Detail Messages:** zero or more `RECORD`
+No fields
+
+**Detail Messages:**
+
+zero or more `RECORD`
 
 **Valid Summary Messages:**
 
@@ -600,7 +363,7 @@ The server **must** be in a `STREAMING` state to be able to successfully process
 If the server is in a `FAILED` or `INTERRUPTED` state, the request will be IGNORED.
 For any other states, receipt of a `PULL_ALL` request will be considered a protocol violation and will lead to connection closure.
 
-##### Synopsis
+#### Synopsis
 
 ```
 PULL_ALL
@@ -612,7 +375,7 @@ Example:
 PULL_ALL
 ```
 
-##### Server Response `RECORD`
+#### Server Response `RECORD`
 
 Zero or more `RECORD` messages may be returned in response to a `PULL_ALL` prior to the trailing summary message.
 
@@ -631,7 +394,7 @@ RECORD [1, 2, 3]
 ```
 
 
-##### Server Response `SUCCESS`
+#### Server Response `SUCCESS`
 
 Following any relevant detail messages, and assuming the `PULL_ALL` request has been successfully processed, the server should respond with a `SUCCESS` message and enter the `READY` state.
 
@@ -648,7 +411,7 @@ Example:
 SUCCESS {"bookmark": "example_bookmark_identifier", "result_consumed_after": 123}
 ```
 
-##### Server Response `IGNORED`
+#### Server Response `IGNORED`
 
 A server that receives a `PULL_ALL` request while `FAILED` or `INTERRUPTED` should respond with an `IGNORED` message and discard the request without processing it.
 No state change should occur.
@@ -659,7 +422,7 @@ Example:
 IGNORED
 ```
 
-##### Server Response `FAILURE`
+#### Server Response `FAILURE`
 
 If a `PULL_ALL` request cannot be processed successfully, the server should respond with a `FAILURE` message and enter the `FAILED` state.
 The server may attach metadata to the message to provide more detail on the nature of the failure.
@@ -674,7 +437,7 @@ FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 ```
 
 
-#### 3.3.5 `ACK_FAILURE`
+### 4.5. `ACK_FAILURE`
 
 `ACK_FAILURE` signals to the server that the client has acknowledged a previous failure and should return to a `READY` state.
 
@@ -692,7 +455,7 @@ FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 The server **must** be in a `FAILED` state to be able to successfully process an `ACK_FAILURE` request.
 For any other states, receipt of an `ACK_FAILURE` request will be considered a protocol violation and will lead to connection closure.
 
-##### Synopsis
+#### Synopsis
 
 ```
 ACK_FAILURE
@@ -704,7 +467,7 @@ Example:
 ACK_FAILURE
 ```
 
-##### Server Response `SUCCESS`
+#### Server Response `SUCCESS`
 
 If an `ACK_FAILURE` request has been successfully received, the server should respond with a `SUCCESS` message and enter the `READY` state.
 
@@ -716,7 +479,7 @@ Example:
 SUCCESS {}
 ```
 
-##### Server Response `FAILURE`
+#### Server Response `FAILURE`
 
 If an `ACK_FAILURE` request is received while not in the `FAILED` state, the server should respond with a `FAILURE` message and immediately close the connection.
 
@@ -729,7 +492,7 @@ FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 ```
 
 
-#### 3.3.6 `RESET`
+### 4.6. `RESET`
 
 The `RESET` message requests that the connection should be set back to its initial `READY` state, as if an `INIT` had just successfully completed.
 
@@ -744,7 +507,7 @@ This essentially means that the `INTERRUPTED` state exists only transitionally b
 The `INTERRUPTED` state is therefore the only state to automatically resolve without any further input from the client and whose entry does not generate a response message.
 
 
-##### Synopsis
+#### Synopsis
 
 ```
 RESET
@@ -756,7 +519,7 @@ Example:
 RESET
 ```
 
-##### Server Response `SUCCESS`
+#### Server Response `SUCCESS`
 
 If a `RESET` message request has been successfully received, the server should respond with a `SUCCESS` message and enter the `READY` state.
 
@@ -767,7 +530,7 @@ Example:
 SUCCESS {}
 ```
 
-##### Server Response `FAILURE`
+#### Server Response `FAILURE`
 
 If `RESET` message is received before the server enters a `READY` state, it should trigger a `FAILURE` followed by immediate closure of the connection.
 Clients receiving a `FAILURE` in response to `RESET` should treat that connection as `DEFUNCT` and dispose of it.
