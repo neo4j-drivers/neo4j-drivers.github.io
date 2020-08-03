@@ -11,9 +11,7 @@ Such entries exist for completeness.
 PackStream is a binary [presentation](https://en.wikipedia.org/wiki/Presentation_layer) format for the exchange of richly-typed data.
 It provides a syntax layer for the Bolt messaging protocol.
 
-- **Version 1**, corresponds to the first releases of the PackStream specification.
-
-[PackStream Specification](packstream/packstream-specification.md)
+- [**Version 1**](packstream/packstream-specification.md), corresponds to the first releases of the PackStream specification.
 
 
 ### Jolt
@@ -23,9 +21,7 @@ This introduces readability at the expense of a slightly higher byte count.
 
 Jolt is intended primarily for use over an HTTP connection and can be useful within network environments that have a requirement for the automatic inspection of traffic.  
 
-- **Version 1**, corresponds to the first releases of the Jolt specification.
-
-[Jolt Specification](jolt/jolt-specification.md)
+- [**Version 1**](jolt/jolt-specification.md), corresponds to the first releases of the Jolt specification.
 
 
 ## Bolt
@@ -50,13 +46,11 @@ The handshake itself is not versioned.
 
 ### Bolt Protocol Message Specification
 
-* **Version 1**, corresponds to the first releases of the message specification. Uses PackStream Version 1.
-* **Version 2**, incorporates no changes to the message specification.
-* **Version 3**, incorporates an updated message specification.
-* **Version 4.0**, incorporates an updated message specification. Uses PackStream Version 2.
-* **Version 4.1**, incorporates an updated message specification.
-
-[Bolt Protocol Message Specification](bolt/bolt-protocol-message-specification.md)
+* [**Version 1**](bolt/bolt-protocol-message-specification-1.md), corresponds to the first releases of the message specification. Uses **PackStream Version 1**.
+* [**Version 2**](bolt/bolt-protocol-message-specification-2.md), incorporates no changes to the message specification.
+* [**Version 3**](bolt/bolt-protocol-message-specification-3.md), incorporates an updated message specification.
+* [**Version 4.0**](bolt/bolt-protocol-message-specification-4.md), incorporates an updated message specification.
+* [**Version 4.1**](bolt/bolt-protocol-message-specification-4.md), incorporates an updated message specification.
 
 
 ## Bolt Protocol Server State Specification
