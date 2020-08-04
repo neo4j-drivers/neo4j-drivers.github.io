@@ -1,21 +1,13 @@
 title: Neo4j Drivers
 description: >
     <p>
-    These are the official pages of the Neo4j Drivers Team.
-    Tools and components for driver authors can be found here, as well as specifications for the Bolt protocol and related technologies.
-    </p>
-    <p>
     <small>
-    Copyright &copy; 2002-2020 <a href="https://neo4j.com">Neo4j, Inc.</a>.
+    Copyright &copy; 2002-2020 <a href="https://neo4j.com" style="color:inherit;">Neo4j, Inc.</a>
     </small>
     </p>
     <p>
     <small>
-    <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">
-    <img alt="Creative Commons Licence" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/80x15.png" />
-    </a>
-    <br />
-    These works are licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+    These works are licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/" style="color:inherit;">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
     </small>
     </p>
 
