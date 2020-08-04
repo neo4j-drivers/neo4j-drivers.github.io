@@ -1,35 +1,30 @@
 # PackStream Specification
 
 * [Version 1](#version1)
-* [Version 2](#version2)
 
-
-## Version 2
-
-\<missing\>
-
-
-## Version 1
+# Version 1
 
 PackStream is a general purpose data serialisation format, originally inspired by (but incompatible with) [MessagePack](http://msgpack.org).
-The format provides a type system that is fully compatible with the [universal type system](type-system.md) used by [Neo4j](http://neo4j.com).
+
+The format provides a type system that is fully compatible with the [types supported by Cypher](https://neo4j.com/docs/cypher-manual/current/syntax/values/).
 
 PackStream offers a number of core data types, many supported by multiple binary representations, as well as a flexible extension mechanism.
+
 The core data types are as follows:
 
-| Data Type   | Description
-|-------------|----------------------
-| `Null`      | missing or empty value
-| `Boolean`   | true or false
-| `Integer`   | signed 64-bit integer
-| `Float`     | 64-bit floating point number
-| `Bytes`     | byte array
-| `String`    | unicode text (UTF-8)
-| `List`      | ordered collection of values
-| `Map`       | keyed collection of values
-| `Structure` | composite value with a type signature
+| Data Type   | Description                                   |
+|-------------|-----------------------------------------------|
+| `Null`      | missing or empty value                        |
+| `Boolean`   | **true** or **false**                         |
+| `Integer`   | signed 64-bit integer                         |
+| `Float`     | 64-bit floating point number                  |
+| `Bytes`     | byte array                                    |
+| `String`    | unicode text, **UTF-8**                       |
+| `List`      | ordered collection of values                  |
+| `Map`       | keyed collection of values                    |
+| `Structure` | composite value with a type signature         |
 
-NOTE: Neither unsigned integers nor 32-bit floating point numbers are included.
+**NOTE:** Neither unsigned integers nor 32-bit floating point numbers are included.
 This is a deliberate design decision to allow broader compatibility across client languages.
 
 
@@ -70,18 +65,25 @@ This means that the most significant part of the value is written to the network
 
 ## Null
 
+**Marker:** `C0`
+
 Null is always encoded using the single marker byte `C0`.
 
 
 ## Boolean
 
-Boolean values are encoded within a single marker byte, using `C3` to denote true and `C2`
-to denote false.
+**Marker, false:** `C2`
+
+**Marker, true:** `C3`
+
+
+Boolean values are encoded within a single marker byte, using `C3` to denote true and `C2` to denote false.
 
 
 ## Integer
 
 Integer values occupy either 1, 2, 3, 5 or 9 bytes depending on magnitude.
+
 The available representations are:
 
 | Representation   | Size (bytes) | Description
@@ -92,13 +94,30 @@ The available representations are:
 | `INT_32`         | 5            | marker byte followed by signed 32-bit integer
 | `INT_64`         | 9            | marker byte followed by signed 64-bit integer
 
+
+The available encodings are illustrated below and each shows a valid representation for the **decimal value 42**:
+
+
+| Representation   | Size (bytes) | Decimal Value 42
+|------------------|--------------|----------------------------------------------
+| `TINY_INT`       | 1            | `2A`
+| `INT_8`          | 2            | `C8 2A`
+| `INT_16`         | 3            | `C9 00 2A`
+| `INT_32`         | 5            | `CA 00 00 00 2A`
+| `INT_64`         | 9            | `CB 00 00 00 00 00 00 00 2A`
+
+
 Some marker bytes can be used to carry the value of a small integer as well as its type.
+
 These markers can be identified by a zero high-order bit (for positive values) or by a high-order nibble containing only ones (for negative values).
-Specifically, values between 0x00 and 0x7F inclusive can be directly translated to and from positive integers with the same value.
-Similarly, values between 0xF0 and 0xFF inclusive can do the same for negative numbers between -16 and -1.
+
+Specifically, values between `00` and `7F` inclusive can be directly translated to and from positive integers with the same value.
+
+Similarly, values between `F0` and `FF` inclusive can do the same for negative numbers between -16 and -1.
 
 Note that while it is possible to encode small numbers in wider formats, it is generally recommended to use the most compact representation possible.
-The following table shows the optimal representation for every possible integer in the signed 64-bit range:
+
+The following table shows the **optimal representation** for every possible integer in the signed 64-bit range:
 
 | Range Minimum              |  Range Maximum             | Optimal Representation
 |----------------------------|----------------------------|------------------------
@@ -114,6 +133,21 @@ The following table shows the optimal representation for every possible integer 
 
 ## Float
 
+**Marker:** `C1`
+
+Floats are double-precision floating-point values, generally used for representing fractions and decimals.
+
+Floats are encoded as a single `C1` marker byte followed by 8 bytes which are formatted according to the IEEE 754 floating-point "double format" bit layout in big-endian order.
+
++ Bit 63 (the bit that is selected by the mask `0x8000000000000000`) represents the sign of the number.
++ Bits 62-52 (the bits that are selected by the mask `0x7ff0000000000000`) represent the exponent.
++ Bits 51-0 (the bits that are selected by the mask `0x000fffffffffffff`) represent the significand (sometimes called the mantissa) of the number.
+
+The value **1.23 in decimal** can be represented as:
+
+```
+C1 3F F3 AE 14 7A E1 47 AE
+```
 
 ## Bytes
 
