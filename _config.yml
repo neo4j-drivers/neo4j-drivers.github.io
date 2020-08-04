@@ -6,7 +6,7 @@ description: >
     </p>
     <p>
     <small>
-    Copyright &copy; 2002-2018 <a href="https://neo4j.com">Neo4j Sweden AB</a>.
+    Copyright &copy; 2002-2020 <a href="https://neo4j.com">Neo4j, Inc.</a>.
     </small>
     </p>
     <p>
@@ -24,4 +24,4 @@ show_downloads: false
 
 github_username: neo4j-drivers
 
-theme: jekyll-theme-minimal
+theme: jekyll-theme-cayman
