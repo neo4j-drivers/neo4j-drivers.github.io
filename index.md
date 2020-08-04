@@ -53,7 +53,7 @@ The handshake itself is not versioned.
 * [**Version 4.1**](bolt/bolt-protocol-message-specification-4.md), incorporates an updated message specification.
 
 
-## Bolt Protocol Server State Specification
+### Bolt Protocol Server State Specification
 
 For the server, each connection using the Bolt Protocol will occupy one of several states throughout its lifetime.
 
@@ -66,14 +66,11 @@ This state is used to determine what actions may be undertaken by the client.
 * [**Version 4.1**](bolt/bolt-protocol-server-state-specification-4.md)
 
 
-### Bolt Protocol Type System Specification
+### Bolt Protocol Type System Extension Specification
 
-* **Version 1**, corresponds to the first releases of the type system specification.
-* **Version 2**, incorporates an updated type system specification.
-* **Version 3**, incorporates an updated type system specification.
-* **Version 4.0**, incorporates an updated type system specification.
+The type system extension specifies types via the PackStream type extension mechanism.  
 
-[Bolt Protocol Type System Extensions](types/bolt-type-system-extensions-v1.md)
+* [**Version 1**](bolt/bolt-protocol-type-system-extension-1.md), corresponds to the first releases of the type system extension specification.
 
 
 ### Bolt Protocol and Neo4j Compatibility
