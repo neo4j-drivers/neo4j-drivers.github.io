@@ -85,18 +85,18 @@ This also allows for unknown message types to be received and handled without br
 * Summary Message, the server will always respond with one summary message.
 * Detail Message, the server will always repond with zero or more detail messages before sending a summary message.
 
-| Message       | Signature | Request Message | Summary Message | Detail Message | Fields                                  | Description                    |
-|---------------|:---------:|:---------------:|:---------------:|:--------------:|-----------------------------------------|--------------------------------|
-| `INIT`        | `01`      | x               |                 |                | `user_agent::String`, `auth_token::Map` | initialize connection          |
-| `ACK_FAILURE` | `0E`      | x               |                 |                |                                         | acknowledge a failure response |
-| `RESET`       | `0F`      | x               |                 |                | triggers a `<INTERRUPT>` signal         | reset connection               |
-| `RUN`         | `10`      | x               |                 |                | `query::String`, `parameters::Map`      | execute a query                |
-| `DISCARD_ALL` | `2F`      | x               |                 |                |                                         | discard all records            |
-| `PULL_ALL`    | `3F`      | x               |                 |                |                                         | fetch all records              |
-| `SUCCESS`     | `70`      |                 | x               |                | `metadata::Map`                         | request succeeded              |
-| `IGNORED`     | `7E`      |                 | x               |                |                                         | request was ignored            |
-| `FAILURE`     | `7F`      |                 | x               |                | `metadata::Map`                         | request failed                 |
-| `RECORD`      | `71`      |                 |                 | x              | `data::List`                            | data values                    |
+| Message       | Signature | Request Message | Summary Message | Detail Message | Fields                                  | Description                                                      |
+|---------------|:---------:|:---------------:|:---------------:|:--------------:|-----------------------------------------|------------------------------------------------------------------|
+| `INIT`        | `01`      | x               |                 |                | `user_agent::String`, `auth_token::Map` | initialize connection                                            |
+| `ACK_FAILURE` | `0E`      | x               |                 |                |                                         | acknowledge a failure response                                   |
+| `RESET`       | `0F`      | x               |                 |                |                                         | reset connection. triggers a `<INTERRUPT>` signal                |
+| `RUN`         | `10`      | x               |                 |                | `query::String`, `parameters::Map`      | execute a query                                                  |
+| `DISCARD_ALL` | `2F`      | x               |                 |                |                                         | discard all records                                              |
+| `PULL_ALL`    | `3F`      | x               |                 |                |                                         | fetch all records                                                |
+| `SUCCESS`     | `70`      |                 | x               |                | `metadata::Map`                         | request succeeded                                                |
+| `IGNORED`     | `7E`      |                 | x               |                |                                         | request was ignored                                              |
+| `FAILURE`     | `7F`      |                 | x               |                | `metadata::Map`                         | request failed                                                   |
+| `RECORD`      | `71`      |                 |                 | x              | `data::List`                            | data values                                                      |
 
 
 ### 4.1. `INIT`

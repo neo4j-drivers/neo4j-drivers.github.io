@@ -37,16 +37,16 @@ Added extra metadata field to RUN and BEGIN
 | `HELLO`       | `01`      | x               |                 |                | `extra::Map( user_agent::String, scheme::String, principal::String, credentials::String)`                         | initialize connection                                   |
 | `GOODBYE`     | `02`      | x               |                 |                |                                                                                                                   | close the connection, triggers a `<DISCONNECT>` signal  |
 | `RESET`       | `0F`      | x               |                 |                |                                                                                                                   | reset the connection, triggers a `<INTERRUPT>` signal   |
-| `RUN`         | `10`      | x               |                 |                | `query::String`, `parameters::Map`, `extra::Map`                                                                                | execute a query                                         |
+| `RUN`         | `10`      | x               |                 |                | `query::String`, `parameters::Map`, `extra::Map`                                                                  | execute a query                                         |
 | `DISCARD_ALL` | `2F`      | x               |                 |                |                                                                                                                   | discard all records                                     |
 | `PULL_ALL`    | `3F`      | x               |                 |                |                                                                                                                   | fetch all records                                       |
 | `BEGIN`       | `11`      | x               |                 |                | `extra::Map( bookmarks::List<String>, tx_timeout::Integer, tx_metadata::Map<String, Value>, mode::String)`        | begin a new transaction                                 |
 | `COMMIT`      | `12`      | x               |                 |                |                                                                                                                   | commit a transaction                                    |
 | `ROLLBACK`    | `13`      | x               |                 |                |                                                                                                                   | rollback a transaction                                  |
-| `SUCCESS`     | `70`      |                 | x               |                | `metadata::Map`                                                                                                   | request succeeded                                       |
+| `SUCCESS`     | `70`      |                 | x               |                | `metadata::Map<String, Value>`                                                                                    | request succeeded                                       |
 | `IGNORED`     | `7E`      |                 | x               |                |                                                                                                                   | request was ignored                                     |
-| `FAILURE`     | `7F`      |                 | x               |                | `metadata::Map`                                                                                                   | request failed                                          |
-| `RECORD`      | `71`      |                 |                 | x              | `data::List`                                                                                                      | data values                                             |
+| `FAILURE`     | `7F`      |                 | x               |                | `metadata::Map( code::String, message::String )`                                                                  | request failed                                          |
+| `RECORD`      | `71`      |                 |                 | x              | `data::List<Value>`                                                                                               | data values                                             |
 
 
 
@@ -74,7 +74,23 @@ Jump ahead is that the signal will imediatly be available before any messages ar
 C: 60 60 B0 17
 C: 00 00 00 03 00 00 00 00 00 00 00 00 00 00 00 00
 S: 00 00 00 03
-C: HELLO {"user_agent": "test", "scheme": "basic", "principal": "test", "credentials": "test"}
-S: SUCCESS {"server": "Neo4j/3.5.0", "connection_id": "123e4567-e89b-12d3-a456-426655440000"}
+C: HELLO {"user_agent": "example/3.0.0", "scheme": "basic", "principal": "user", "credentials": "password"}
+S: SUCCESS {"server": "Neo4j/3.5.0", "connection_id": "example-connection-id:1"}
+C: GOODBYE
+```
+
+## Example 2
+
+```
+C: 60 60 B0 17
+C: 00 00 00 03 00 00 00 00 00 00 00 00 00 00 00 00
+S: 00 00 00 03
+C: HELLO {"user_agent": "example/3.0.0", "scheme": "basic", "principal": "user", "credentials": "password"}
+S: SUCCESS {"server": "Neo4j/3.5.0", "connection_id": "example-connection-id:1"}
+C: RUN "RETURN $x AS example" {"x": 123} {"mode": "r"}
+S: SUCCESS {"fields": ["example"]}
+C: PULL {"n": -1}
+S: RECORD [123]
+S: SUCCESS {"bookmark": "example-bookmark:1", "t_last": 300, "type": "r"}
 C: GOODBYE
 ```

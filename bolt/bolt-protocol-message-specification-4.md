@@ -11,13 +11,10 @@
 
 # Version 4.0
 
-## 1. Changes
+## 1. Deltas
 
 * `DISCARD_ALL` message renamed to `DISCARD` and introduced new fields.
 * `PULL_ALL` message renamed to `PULL` and introduced new fields.
-
-## 2. New
-
 * The `BEGIN` message now have a field `db` to specify a database name.
 * The `RUN` message now have a field `db` to specify a database name.
 * **Explicit transaction** (`BEGIN`+`RUN`) can now get a server response with a `SUCCESS` and metadata key `qid` (query identification).
@@ -26,6 +23,21 @@
 * The `PULL` message can now fetch an arbitrary number of records. New fields `n` and `qid`.
 * The `PULL` message can now get a server response with a `SUCCESS` and metadata key `has_more`. 
 
+
+
+## 2. Overview of Major Version Changes
+
+The handshake have been re-specified to support Major and Minor versions.
+
+Queries within an **explicit transaction** can be consumed out of order with the new behaviour of `PULL` and `DISCARD`.
+
+```
+PULL {"n": ?, "qid": ?}
+```
+
+```
+DISCARD {"n": ?, "qid": ?}
+```
 
 ## 3. Messages
 
@@ -827,13 +839,16 @@ RECORD [{"point": [1, 2]}, "example_data", 123]
 
 # Version 4.1
 
-## 1. Changes
-
-* The `BEGIN` message fields have change. 
-
-## 2. New
+## 1. Deltas
 
 * The `BEGIN` message now requires the sub field `routing::Map( address::String, )`.
+* New `NOOP` message (empty chunk).
+
+## 2. Overview
+
+Bolt handshake should now timeout (off by default) on the server side.
+
+The initial address that the client knows the server by is sent with the `HELLO` message to help with routing information.
 
 
 ## 3. Messages
@@ -854,6 +869,7 @@ RECORD [{"point": [1, 2]}, "example_data", 123]
 | `IGNORED`     | `7E`      |                 | x               |                |                                                                                                                                                               | request was ignored                                     |
 | `FAILURE`     | `7F`      |                 | x               |                | `metadata::Map( code::String, message::String )`                                                                                                              | request failed                                          |
 | `RECORD`      | `71`      |                 |                 | x              | `data::List<Value>`                                                                                                                                           | data values                                             |
+| `NOOP`        | `00`      |                 |                 | x              |                                                                                                                                                               | empty chunk that should just be ignored                 |
 
 **Server Signals**
 
@@ -877,8 +893,8 @@ Jump ahead is that the signal will imediatly be available before any messages ar
 ```
 C: 60 60 B0 17
 C: 00 00 00 04 00 00 00 00 00 00 00 00 00 00 00 00
-S: 00 00 00 04 00
-C: HELLO {"user_agent": "test", "scheme": "basic", "principal": "test", "credentials": "test"}
+S: 00 00 00 04
+C: HELLO {"user_agent": "example/4.0.0", "scheme": "basic", "principal": "user", "credentials": "password"}
 S: SUCCESS {"server": "Neo4j/4.0.0", "connection_id": "example-connection-id:1"}
 C: GOODBYE
 ```
@@ -889,8 +905,8 @@ C: GOODBYE
 ```
 C: 60 60 B0 17
 C: 00 00 00 04 00 00 00 00 00 00 00 00 00 00 00 00
-S: 00 00 00 04 00
-C: HELLO {"user_agent": "test/4.0.0", "scheme": "basic", "principal": "test", "credentials": "test"}
+S: 00 00 00 04
+C: HELLO {"user_agent": "example/4.0.0", "scheme": "basic", "principal": "user", "credentials": "password"}
 S: SUCCESS {"server": "Neo4j/4.0.0", "connection_id": "example-connection-id:1"}
 C: RUN "RETURN $x AS example" {"x": 123} {"mode": "r", "db": "example_database"}
 S: SUCCESS {"fields": ["example"]}
