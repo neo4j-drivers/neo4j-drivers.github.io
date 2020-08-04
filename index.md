@@ -59,10 +59,11 @@ For the server, each connection using the Bolt Protocol will occupy one of sever
 
 This state is used to determine what actions may be undertaken by the client.
 
-* **Version 1**, corresponds to the first releases of the type system specification.
-* **Version 3**, incorporates new states.
-
-See, [Bolt Protocol Server State Specification](bolt-protocol-server-state-specification.md)
+* [**Version 1**](bolt/bolt-protocol-server-state-specification-1.md)
+* [**Version 2**](bolt/bolt-protocol-server-state-specification-2.md)
+* [**Version 3**](bolt/bolt-protocol-server-state-specification-3.md)
+* [**Version 4.0**](bolt/bolt-protocol-server-state-specification-4.md)
+* [**Version 4.1**](bolt/bolt-protocol-server-state-specification-4.md)
 
 
 ### Bolt Protocol Type System Specification
