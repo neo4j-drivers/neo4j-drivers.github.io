@@ -766,7 +766,7 @@ LocalTime::Structure(
 
 **tag byte:** `45`
 
-**Number of fields:** 1
+**Number of fields:** 4
 
 A temporal amount. This captures the difference in time between two instants.
 It only captures the amount of time between two instants, it does not capture a start time and end time.
