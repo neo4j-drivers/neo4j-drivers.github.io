@@ -8,7 +8,7 @@ The sections below contain links to current, historic, and proposed future speci
 PackStream is a binary [presentation](https://en.wikipedia.org/wiki/Presentation_layer) format for the exchange of richly-typed data.
 It provides a syntax layer for the Bolt messaging protocol.
 
-- [**Version 1**](packstream/packstream-specification.md), corresponds to the first releases of the PackStream specification.
+- [**Version 1**](packstream/packstream-specification-1.md), corresponds to the first releases of the PackStream specification.
 
 
 ## Bolt
