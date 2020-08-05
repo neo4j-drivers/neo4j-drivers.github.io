@@ -2,9 +2,6 @@
 
 The sections below contain links to current, historic, and proposed future specifications. 
 
-Unlinked entries in the lists below generally represent known future artifacts that have not yet been designed or current or historic artifacts that have no specification available.
-Such entries exist for completeness.
-
 
 ## PackStream
 
@@ -12,16 +9,6 @@ PackStream is a binary [presentation](https://en.wikipedia.org/wiki/Presentation
 It provides a syntax layer for the Bolt messaging protocol.
 
 - [**Version 1**](packstream/packstream-specification.md), corresponds to the first releases of the PackStream specification.
-
-
-### Jolt
-
-Jolt is a proposed PackStream spin-off that provides identical data exchange capabilities to PackStream within a pure [JSON](http://json.org/) context.
-This introduces readability at the expense of a slightly higher byte count.
-
-Jolt is intended primarily for use over an HTTP connection and can be useful within network environments that have a requirement for the automatic inspection of traffic.  
-
-- [**Version 1**](jolt/jolt-specification.md), corresponds to the first releases of the Jolt specification.
 
 
 ## Bolt
@@ -66,13 +53,6 @@ This state is used to determine what actions may be undertaken by the client.
 * [**Version 4.1**](bolt/bolt-protocol-server-state-specification-4.md)
 
 
-### Bolt Protocol Type System Extension Specification
-
-The type system extension specifies types via the PackStream type extension mechanism.  
-
-* [**Version 1**](bolt/bolt-protocol-type-system-extension-1.md), corresponds to the first releases of the type system extension specification.
-
-
 ### Bolt Protocol and Neo4j Compatibility
 
 * Neo4j 3.0 to 3.3 supports Bolt Version 1
@@ -82,20 +62,13 @@ The type system extension specifies types via the PackStream type extension mech
 * Neo4j 4.1 supports Bolt Version 4.1 (4.0, 3)
 
 
-## Neo4j Driver API
+[//]: ## Neo4j Driver API
 
-The official Neo4j drivers export a uniform API.
+[//]: The official Neo4j drivers export a uniform API.
 
-This allows driver concepts and naming to be shared across ecosystems, making transition between languages and multi-language support easier and more consistent.
+[//]: This allows driver concepts and naming to be shared across ecosystems, making transition between languages and multi-language support easier and more consistent.
 
-[Driver API Specification](driver_api/driver-api-specification.md)
-
-
-## Connectors
-
-Connectors are low-level libraries that provide Bolt messaging and routing capabilities.
-
-[Seabolt](connectors/seabolt.md) (C Connector)
+[//]: [Driver API Specification](driver\_api/driver-api-specification.md)
 
 
 ## Neo4j Drivers
