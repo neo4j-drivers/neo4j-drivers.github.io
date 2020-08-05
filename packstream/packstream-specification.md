@@ -82,6 +82,45 @@ Boolean values are encoded within a single marker byte, using `C3` to denote tru
 
 ## Integer
 
+**Markers, TINY_INT:**
+
+| Marker  | Decimal Number |
+|---------|---------------:|
+| `F0`    | -16            |
+| `F1`    | -15            |
+| `F2`    | -14            |
+| `F3`    | -13            |
+| `F4`    | -12            |
+| `F5`    | -11            |
+| `F6`    | -10            |
+| `F7`    | -9             |
+| `F8`    | -8             |
+| `F9`    | -7             |
+| `FA`    | -6             |
+| `FB`    | -5             |
+| `FC`    | -4             |
+| `FD`    | -3             |
+| `FE`    | -2             |
+| `FF`    | -1             |
+| `00`    | 0              |
+| `01`    | 1              |
+| `02`    | 2              |
+| ...     | ...            |
+| ...     | ...            |
+| ...     | ...            |
+| `7E`    | 126            |
+| `7F`    | 127            |
+
+
+**Marker, INT_8:** `C8`
+
+**Marker, INT_16:** `C9`
+
+**Marker, INT_32:** `CA`
+
+**Marker, INT_64:** `CB`
+
+
 Integer values occupy either 1, 2, 3, 5 or 9 bytes depending on magnitude.
 
 The available representations are:
@@ -89,10 +128,10 @@ The available representations are:
 | Representation   | Size (bytes) | Description
 |------------------|--------------|----------------------------------------------
 | `TINY_INT`       | 1            | marker byte only
-| `INT_8`          | 2            | marker byte followed by signed 8-bit integer
-| `INT_16`         | 3            | marker byte followed by signed 16-bit integer
-| `INT_32`         | 5            | marker byte followed by signed 32-bit integer
-| `INT_64`         | 9            | marker byte followed by signed 64-bit integer
+| `INT_8`          | 2            | marker byte `C8` followed by signed 8-bit integer
+| `INT_16`         | 3            | marker byte `C9` followed by signed 16-bit integer
+| `INT_32`         | 5            | marker byte `CA` followed by signed 32-bit integer
+| `INT_64`         | 9            | marker byte `CB` followed by signed 64-bit integer
 
 
 The available encodings are illustrated below and each shows a valid representation for the **decimal value 42**:
@@ -151,8 +190,86 @@ C1 3F F3 AE 14 7A E1 47 AE
 
 ## Bytes
 
+Bytes are arrays of byte values.
+
+These are used to transmit raw binary data and the size represents the number of bytes contained.
+
+Unlike other values, there is no separate encoding for byte arrays containing fewer than 16 bytes.
+
+| Marker | Size                               | Maximum Size        |
+|--------|------------------------------------|---------------------|
+| `CC`   | 8-bit big-endian unsigned integer  | 255 bytes           |
+| `CD`   | 16-bit big-endian unsigned integer | 65 535 bytes        |
+| `CE`   | 32-bit big-endian signed integer   | 2 147 483 648 bytes |
+
+One of the markers `CC`, `CD` or `CE` should be used, depending on scale.
+
+This marker is followed by the size and bytes themselves.
+
+Example 1:
+
+Empty byte array `b[]`
+
+```
+CC 00
+```
+
+Example 2:
+
+Byte array containing three values 1, 2 and 3; `b[1, 2, 3]`
+
+```
+CC 03 01 02 03
+```
 
 ## String
+
+**Markers:**
+
+| Marker  | Size           |
+|---------|----------------|
+| `80`    | 0              |
+| `81`    | 1              |
+| `82`    | 2              |
+| `83`    | 3              |
+| `84`    | 4              |
+| `85`    | 5              |
+| `86`    | 6              |
+| `87`    | 7              |
+| `88`    | 8              |
+| `89`    | 9              |
+| `8A`    | 10             |
+| `8B`    | 11             |
+| `8C`    | 12             |
+| `8D`    | 13             |
+| `8E`    | 14             |
+| `8F`    | 15             |
+
+| Marker  | Size                                | Maximum number of bytes |
+|---------|-------------------------------------|-------------------------|
+| `D0`    | 8-bit big-endian unsigned integer   | 255 bytes               |
+| `D1`    | 16-bit big-endian unsigned integer  | 65 535 bytes            |
+| `D2     | 32-bit big-endian signed integer    | 2 147 483 648 bytes     |
+
+
+Text data is represented as **UTF-8** encoded bytes.
+
+**Note:** The sizes used in string representations are the byte counts of the UTF-8 encoded data, not the character count of the original text.
+
+For encoded text containing fewer than 16 bytes, including empty strings, the marker byte should contain the high-order nibble '8' (binary 1000) followed by a low-order nibble containing the size. The encoded data then immediately follows the marker.
+
+For encoded text containing 16 bytes or more, the marker `D0`, `D1` or `D2` should be used, depending on scale.
+This marker is followed by the size and the UTF-8 encoded data.
+
+
+Examples follow below:
+
+| Value                                       | Encoding                                                                               |
+|---------------------------------------------|----------------------------------------------------------------------------------------|
+| `String("")`                                | `80`                                                                                   |
+| `String("A")`                               | `81 41`                                                                                |
+| `String("ABCDEFGHIJKLMNOPQRSTUVWXYZ")       | `D0 1A 41 42 43 44 45 46 47 48 49 4A 4B 4C 4D 4E 4F 50 51 52 53 54 55 56 57 58 59 5A`  |
+| `String("Größenmaßstäbe")`                  | `D0 12 47 72 C3 B6 C3 9F 65 6E 6D 61 C3 9F 73 74 C3 A4 62 65`                          |
 
 
 ## List
