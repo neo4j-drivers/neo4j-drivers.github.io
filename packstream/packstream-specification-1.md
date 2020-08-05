@@ -480,3 +480,206 @@ Case 2:
 
 
 ## Structure
+
+
+A structure is a composite value, comprised of fields and a unique type code.
+
+Structure encodings consist, beyond the marker, of a single byte, the **tag byte**, followed by a sequence of up to 15 fields, each an individual value.
+
+The size of a structure is measured as the number of fields and not the total byte size.
+
+This count does not include the tag.
+
+The markers used to denote a structure are described in the table below:
+
+| Marker | Size (fields)                               | Maximum size |
+|--------|---------------------------------------------|--------------|
+| `B0`   | contained within low-order nibble of marker | 0 fields     |
+| `B1`   | contained within low-order nibble of marker | 1 field      |
+| `B2`   | contained within low-order nibble of marker | 2 fields     |
+| `B3`   | contained within low-order nibble of marker | 3 fields     |
+| `B4`   | contained within low-order nibble of marker | 4 fields     |
+| `B5`   | contained within low-order nibble of marker | 5 fields     |
+| `B6`   | contained within low-order nibble of marker | 6 fields     |
+| `B7`   | contained within low-order nibble of marker | 7 fields     |
+| `B8`   | contained within low-order nibble of marker | 8 fields     |
+| `B9`   | contained within low-order nibble of marker | 9 fields     |
+| `BA`   | contained within low-order nibble of marker | 10 fields    |
+| `BB`   | contained within low-order nibble of marker | 11 fields    |
+| `BC`   | contained within low-order nibble of marker | 12 fields    |
+| `BD`   | contained within low-order nibble of marker | 13 fields    |
+| `BE`   | contained within low-order nibble of marker | 14 fields    |
+| `BF`   | contained within low-order nibble of marker | 15 fields    |
+
+
+For structures containing fewer than 16 fields, the marker byte should contain the high-order nibble 'B' (binary 1011) followed by a low-order nibble containing the size.
+
+The marker is immediately followed by the **tag byte** and the field values in that order.
+
+The **tag byte** is used to identify the type or class of the structure.
+
+The **tag byte** may hold any value between 0 and +127.
+
+
+| Structure Name        | Code | tag byte | Description                                                                                                                                                           |
+|-----------------------|------|----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `Node`                | 'N'  | `4E`     | snapshot of a node within a graph database                                                                                                                            |
+| `Relationship`        | 'R'  | `52`     | snapshot of a relationship within a graph database                                                                                                                    |
+| `UnboundRelationship` | 'r'  | `72`     | relationship detail without start or end node information                                                                                                             |
+| `Path`                | 'P'  | `50`     | alternating sequence of nodes and relationships                                                                                                                       |
+| `DateTime`            | 'F'  | `46`     | a date-time with a time-zone in the ISO-8601 calendar system, such as "2007-12-03T10:15:30+01:00 Europe/Paris", the time-zone is specified in minutes offset from UTC |
+| `DateTime`            | 'f'  | `66`     | a date-time with a time-zone in the ISO-8601 calendar system, such as "2007-12-03T10:15:30+01:00 Europe/Paris", the time-zone is specified with a **zone id**         |
+| `LocalDateTime`       | 'd'  | `64`     | a date-time without a time-zone in the ISO-8601 calendar system, such as "2007-12-03T10:15:30"                                                                        |
+| `Date`                | 'D'  | `44`     | a date without a time-zone in the ISO-8601 calendar system, such as "2007-12-03"                                                                                      |
+| `Time`                | 'T'  | `54`     | a time with an offset from UTC/Greenwich in the ISO-8601 calendar system, such as "10:15:30+01:00"                                                                    |
+| `LocalTime`           | 't'  | `74`     | a time without a time-zone in the ISO-8601 calendar system, such as "10:15:30"                                                                                        |
+| `Duration`            | 'E'  | `45`     | a temporal amount.                                                                                                                                                    |
+| `Point2D`             | 'X'  | `58`     | represents a single location in 2-dimensional space.                                                                                                                  |
+| `Point3D`             | 'Y'  | `59`     | represents a single location in 3-dimensional space.                                                                                                                  |
+
+### Node - Structure
+
+**tag byte:** `4E`
+
+**Number of fields:** 3
+
+```
+Node::Structure(
+    id::Integer
+    labels::List<String>
+    properties::Dictionary<String, Value>
+)
+```
+
+Example:
+
+```
+Node(
+  id = 3
+  labels = ["Example", "Node"]
+  properties = {"name": "example"}
+)
+```
+
+```
+B3 4E
+...
+```
+
+### Relationship - Structure
+
+**tag byte:** `52`
+
+**Number of fields:** 5
+
+Relationship::Structure(
+    id::Integer
+    startNodeId::Integer
+    endNodeId::Integer
+    type::String
+    properties::Dictionary<String, Value>
+)
+
+Example:
+
+```
+Relationship(
+    id = 11
+    startNodeId = 2
+    endNodeId = 3
+    type = "KNOWS"
+    properties = {"name": "example"}
+)
+```
+
+```
+B5 52
+...
+```
+
+### UnboundRelationship - Structure
+
+**tag byte:** `72`
+
+**Number of fields:** 3
+
+A relationship without information of start and end node id. It is used internally for Path serialization. 
+
+UnboundRelationship::Structure(
+    id::Integer
+    type::String
+    properties::Dictionary<String, Value>
+)
+
+Example:
+
+```
+UnboundRelationship(
+    id = 17
+    type = "KNOWS"
+    properties = {"name": "example"}
+)
+```
+
+```
+B3 72
+...
+```
+
+### Path - Structure
+
+**tag byte:** `50`
+
+**Number of fields:** 3
+
+Path::Structure(
+    nodes::List<Node>
+    rels::List<UnboundRelationship>
+    ids::List<Integer>
+)
+
+- The `rels` field is a list of unbound relationships.
+- The `ids` is a list of relationship id and node id to represent the path.
+
+
+### DateTime - with offset - Structure
+
+**tag byte:** `46`
+
+**Number of fields:** 3
+
+An instant capturing the date, the time, and the time zone.
+
+The time zone information is specified with a zone offset.
+
+DateTime::Structure(
+    seconds::Integer
+    nanoseconds::Integer
+    tz_offset_minutes::Integer
+)
+
+- The `seconds` are in whole seconds since Unix epoch.
+- The `tz_offset_minutes` specifies the offset in minutes from UTC.
+
+Bolt Representation with zone id:
+
+
+### DateTime - zone id - Structure
+
+**tag byte:** `66`
+
+**Number of fields:** 3
+
+An instant capturing the date, the time, and the time zone.
+
+The time zone information is specified with a zone identification number.
+
+DateTime::Structure(
+    seconds::Integer
+    nanoseconds::Integer
+    tz_id::Integer
+)
+
+- The `seconds` are in whole seconds since Unix epoch.
+
+
