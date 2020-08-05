@@ -605,11 +605,13 @@ B5 52
 
 A relationship without information of start and end node id. It is used internally for Path serialization. 
 
+```
 UnboundRelationship::Structure(
     id::Integer
     type::String
     properties::Dictionary<String, Value>
 )
+```
 
 Example:
 
@@ -632,11 +634,13 @@ B3 72
 
 **Number of fields:** 3
 
+```
 Path::Structure(
     nodes::List<Node>
     rels::List<UnboundRelationship>
     ids::List<Integer>
 )
+```
 
 - The `rels` field is a list of unbound relationships.
 - The `ids` is a list of relationship id and node id to represent the path.
@@ -652,13 +656,15 @@ An instant capturing the date, the time, and the time zone.
 
 The time zone information is specified with a zone offset.
 
+```
 DateTime::Structure(
     seconds::Integer
     nanoseconds::Integer
     tz_offset_minutes::Integer
 )
+```
 
-- The `seconds` are in whole seconds since Unix epoch.
+- The `seconds` are seconds since the Unix epoch.
 - The `tz_offset_minutes` specifies the offset in minutes from UTC.
 
 Bolt Representation with zone id:
@@ -674,12 +680,142 @@ An instant capturing the date, the time, and the time zone.
 
 The time zone information is specified with a zone identification number.
 
+```
 DateTime::Structure(
     seconds::Integer
     nanoseconds::Integer
     tz_id::Integer
 )
+```
 
-- The `seconds` are in whole seconds since Unix epoch.
+- The `seconds` are seconds since the Unix epoch.
 
+
+### LocalDateTime - Structure
+
+**tag byte:** `64`
+
+**Number of fields:** 2
+
+An instant capturing the date and the time, but not the time zone.
+
+```
+LocalDateTime::Structure(
+    seconds::Integer
+    nanoseconds::Integer
+)
+```
+
+- The `seconds` are seconds since the Unix epoch.
+
+
+### Date - Structure
+
+**tag byte:** `44`
+
+**Number of fields:** 1
+
+An instant capturing the date, but not the time, nor the time zone.
+
+```
+Date::Structure(
+    days::Integer
+)
+```
+
+- The `days` are days since the Unix epoch.
+
+
+### Time - Structure
+
+An instant capturing the time of day, and the timezone, but not the date.
+
+**tag byte:** `54`
+
+**Number of fields:** 2
+
+```
+Time::Structure(
+    nanoseconds::Integer
+    tz_offset_seconds::Integer
+)
+```
+
+- The `nanoseconds` are nanosecond since midnight.
+- The `tz_offset_seconds` are an offset in seconds from UTC.
+
+
+### LocalTime - Structure
+
+**tag byte:** `74`
+
+**Number of fields:** 1
+
+An instant capturing the time of day, but not the date, nor the time zone.
+
+```
+LocalTime::Structure(
+    nanoseconds::Integer
+)
+```
+
+- The `nanoseconds` are nanosecond since midnight.
+
+
+### Duration - Structure
+
+**tag byte:** `45`
+
+**Number of fields:** 1
+
+A temporal amount. This captures the difference in time between two instants.
+It only captures the amount of time between two instants, it does not capture a start time and end time.
+A unit capturing the start time and end time would be a Time Interval and is out of scope for this proposal.
+
+A Duration can be negative.
+
+```
+Duration::Structure(
+    months::Integer
+    days::Integer
+    seconds::Integer
+    nanoseconds::Integer
+)
+```
+
+### Point2D - Structure
+
+**tag byte:** `58`
+
+**Number of fields:** 3
+
+Represents a single location in 2-dimensional space.
+
+```
+Point2D::Structure(
+    srid::Integer
+    x::Float
+    y::Float
+)
+```
+
+- The `srid` is the spatial reference identification number.
+
+
+### Point3D - Structure
+
+**tag byte:** `59`
+
+**Number of fields:** 4
+
+Represents a single location in space.
+
+Point3D::Structure(
+    srid::Integer
+    x::Float
+    y::Float
+    z::Float
+)
+
+- The `srid` is the spatial reference identification number.
 
