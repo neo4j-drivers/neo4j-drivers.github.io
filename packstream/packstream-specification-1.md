@@ -21,7 +21,7 @@ The core data types are as follows:
 | `Bytes`     | byte array                                    |
 | `String`    | unicode text, **UTF-8**                       |
 | `List`      | ordered collection of values                  |
-| `Map`       | keyed collection of values                    |
+| `Dictionary`| key value, ordered collection                 |
 | `Structure` | composite value with a type signature         |
 
 **NOTE:** Neither unsigned integers nor 32-bit floating point numbers are included.
@@ -275,8 +275,208 @@ Examples follow below:
 
 ## List
 
+Lists are heterogeneous sequences of values and therefore permit a mixture of types within the same list.
+The size of a list denotes the number of items within that list, rather than the total packed byte size.
 
-## Map
+The markers used to denote a list are described in the table below:
+
+
+| Marker | Size (items)                            | Maximum size          |
+|--------|-----------------------------------------|-----------------------|
+| `90`   | the low-order nibble of marker          | 0 items               |
+| `91`   | the low-order nibble of marker          | 1 items               |
+| `92`   | the low-order nibble of marker          | 2 items               |
+| `93`   | the low-order nibble of marker          | 3 items               |
+| `94`   | the low-order nibble of marker          | 4 items               |
+| `95`   | the low-order nibble of marker          | 5 items               |
+| `96`   | the low-order nibble of marker          | 6 items               |
+| `97`   | the low-order nibble of marker          | 7 items               |
+| `98`   | the low-order nibble of marker          | 8 items               |
+| `99`   | the low-order nibble of marker          | 9 items               |
+| `9A`   | the low-order nibble of marker          | 10 items              |
+| `9B`   | the low-order nibble of marker          | 11 items              |
+| `9C`   | the low-order nibble of marker          | 12 items              |
+| `9D`   | the low-order nibble of marker          | 13 items              |
+| `9E`   | the low-order nibble of marker          | 14 items              |
+| `9F`   | the low-order nibble of marker          | 15 items              |
+| `D4`   | 8-bit big-endian unsigned integer       | 255 items             |
+| `D5`   | 16-bit big-endian unsigned integer      | 65 535 items          |
+| `D6`   | 32-bit big-endian signed integer        | 2 147 483 648 items   |
+
+
+For lists containing fewer than 16 items, including empty lists, the marker byte should contain the high-order nibble '9' (binary 1001) followed by a low-order nibble containing the size.
+The items within the list are then serialised in order immediately after the marker.
+
+For lists containing 16 items or more, the marker `D4`, `D5` or `D6` should be used, depending on scale.
+This marker is followed by the size and list items, serialized in order.
+
+
+Example 1:
+
+``` 
+[]
+```
+
+```
+90
+```
+
+
+Example 2:
+
+```
+[Integer(1), Integer(2), Integer(3)]
+```
+
+```
+93 01 02 03
+```
+
+
+Example 3:
+
+```
+[
+  Integer(1),
+  Float(2.0),
+  String("three")
+]
+```
+
+```
+93
+01
+C1 40 00 00 00 00 00 00 00
+85 74 68 72 65 65
+```
+
+Example 4:
+
+```
+[
+    Integer(1),
+    Integer(2),
+    ...
+    Integer(40)
+]
+```
+
+```
+D4 28
+01 02 03 04 05 06 07 08 09 0A
+0B 0C 0D 0E 0F 10 11 12 13 14
+15 16 17 18 19 1A 1B 1C 1D 1E
+1F 20 21 22 23 24 25 26 27 28
+```
+
+
+## Dictionary
+
+A Dictionary is a list containing key-value entries.
+
+* Ordered.
+
+* Keys must be a String.
+
+* Can contain multiple instances of the same key.
+
+* Permit a mixture of types.
+
+The size of a Dictionary denotes the number of key-value entries within that Dictionary, not the total packed byte size.
+
+The markers used to denote a map are described in the table below:
+
+
+| Marker | Size (key-value entries)                     | Maximum size             |
+|--------|----------------------------------------------|--------------------------|
+| `A0`   | contained within low-order nibble of marker  | 0                        |
+| `A1`   | contained within low-order nibble of marker  | 1                        |
+| `A2`   | contained within low-order nibble of marker  | 2                        |
+| `A3`   | contained within low-order nibble of marker  | 3                        |
+| `A4`   | contained within low-order nibble of marker  | 4                        |
+| `A5`   | contained within low-order nibble of marker  | 5                        |
+| `A6`   | contained within low-order nibble of marker  | 6                        |
+| `A7`   | contained within low-order nibble of marker  | 7                        |
+| `A8`   | contained within low-order nibble of marker  | 8                        |
+| `A9`   | contained within low-order nibble of marker  | 9                        |
+| `AA`   | contained within low-order nibble of marker  | 10                       |
+| `AB`   | contained within low-order nibble of marker  | 11                       |
+| `AC`   | contained within low-order nibble of marker  | 12                       |
+| `AD`   | contained within low-order nibble of marker  | 13                       |
+| `AE`   | contained within low-order nibble of marker  | 14                       |
+| `AF`   | contained within low-order nibble of marker  | 15                       |
+| `D8`   | 8-bit big-endian unsigned integer            | 255 entries              |
+| `D9`   | 16-bit big-endian unsigned integer           | 65 535 entries           |
+| `DA`   | 32-bit big-endian signed integer             | 2 147 483 648 entries    |
+
+
+For a Dictionary containing fewer than 16 key-value entries, including empty maps,
+the marker byte should contain the high-order nibble 'A' (binary 1010) followed by a low-order nibble containing the size.
+
+The entries within the map are then serialised in [key, value, key, value] order immediately after the marker. Keys are always String values.
+
+For maps containing 16 key-value entries or more, the marker `D8`, `D9` or `DA` should be used, depending on scale.
+This marker is followed by the size and the key-value entries.
+
+Example 1:
+
+```
+{}
+```
+
+```
+A0
+```
+
+Example 2:
+
+```
+{"one": "eins"}
+```
+
+```
+A1 83 6F 6E 65 84 65 69 6E 73
+```
+
+Example 3:
+
+```
+{"A": 1, "B": 2 ... "Z": 26}
+```
+
+```
+D8 1A
+81 41 01 81 42 02 81 43 03 81 44 04
+81 45 05 81 46 06 81 47 07 81 48 08
+81 49 09 81 4A 0A 81 4B 0B 81 4C 0C
+81 4D 0D 81 4E 0E 81 4F 0F 81 50 10
+81 51 11 81 52 12 81 53 13 81 54 14
+81 55 15 81 56 16 81 57 17 81 58 18
+81 59 19 81 5A 1A
+```
+
+
+Example:
+
+```
+[("key_1", 1), ("key_2", 2), ("key_1": 3)]
+```
+
+When unpacked if there are multiple instances of the same key, the last seen value for that key should be used.
+
+**TODO:** We need to be specified what index of that key should be used. See **Case 1** and **Case 2**.
+
+Case 1:
+
+```
+[("key_1", 1), ("key_2", 2), ("key_1": 3)] -> [("key_2", 2), ("key_1": 3)]
+```
+
+Case 2:
+
+```
+[("key_1", 1), ("key_2", 2), ("key_1": 3)] -> [("key_1": 3), ("key_2", 2)]
+```
 
 
 ## Structure
