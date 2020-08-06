@@ -70,15 +70,16 @@ Protocol errors are fatal and should immediately transition the server state to 
 ## 3. Message Exchange
 
 Messages are exchanged in a request-response pattern between client and server.
+
 Each request consists of exactly one message and each response consists of zero or more detail messages followed by exactly one summary message.
 The presence or absence of detail messages in a response is directly related to the type of request message that has been sent.
 In other words, some request message types elicit a response that may contain detail messages, others do not.
 
-Messages may also be pipelined.
+Messages may also be pipelined. In other words, clients may send multiple requests eagerly without first waiting for responses.
 
-In other words, clients may send multiple requests eagerly without first waiting for responses.
 When a failure occurs in this scenario, servers **must** ignore all subsequent requests until the client has explicitly acknowledged receipt of the failure.
 This prevents inadvertent execution of queries that may not be valid.
+
 More details of this process can be found in the sections below.
 
 
@@ -86,7 +87,7 @@ More details of this process can be found in the sections below.
 
 Messages and their contents are serialized into network streams using [PackStream Specification Version 1](../packstream/packstream-specification-1.md).
 
-Each message is represented as a PackStream structure with a fixed number of fields.
+**Each message is represented as a PackStream structure**, that contains a fixed number of fields.
 
 The message type is denoted by the structure signature, a single byte value.
 
@@ -99,17 +100,48 @@ A layer of chunking is also applied to message transmissions as a way to more pr
 
 The chunking process allows the message to be broken into one or more pieces, each of an arbitrary size, and for those pieces to be transmitted within separate chunks.
 
-Each chunk consists of a two-byte header, detailing the chunk size in bytes followed by the chunk data itself.
+Each chunk consists of a **two-byte header**, detailing the chunk size in bytes followed by the chunk data itself.
 Chunk headers are 16-bit unsigned integers, meaning that the maximum theoretical chunk size permitted is 65,535 bytes.
 
 Each encoded message **must** be terminated with a chunk of zero size, i.e. `[00 00]`.
 This is used to signal message boundaries to a receiving parties, allowing blocks of data to be fully received without requiring that the message is parsed immediately.
 This also allows for unknown message types to be received and handled without breaking the messaging chain.
 
+The Bolt protocol encodes each message using a chunked transfer encoding.
+
+* Each message is transferred as one or more chunks of data.
+* Each chunk starts with a two-byte header, an unsigned big-endian 16-bit integer, representing the size of the chunk not including the header.
+* A message can be divided across multiple chunks, allowing client and server alike to transfer large messages without having to determine the length of the entire message in advance.
+* Chunking applies on each message individually.
+* One chunk cannot contain more than one message.
+* Each message ends with two bytes with the value `00 00`, these are not counted towards the chunk size. (Or you can think they are individual chunks of size 0)
+
+
+This section provides some examples to illustrate how Bolt chunks messages.
+
+Example: **A message in one chunk**
+
+Message data containing 16 bytes,
+
+```
+00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
+```
+
+The chunk,
+
+```
+00 10 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 00 00
+```
+
+chunk header: `00 10`
+
+end marker: `00 00`
+
 
 ### Pipelining
 
-TODO
+The client may send multiple requests eagerly without first waiting for responses.
+
 
 ## Messages - Version 4.0
 
