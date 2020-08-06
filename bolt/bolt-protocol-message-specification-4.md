@@ -89,7 +89,7 @@ Messages and their contents are serialized into network streams using [PackStrea
 
 **Each message is represented as a PackStream structure**, that contains a fixed number of fields.
 
-The message type is denoted by the structure signature, a single byte value.
+The message type is denoted by the PackStream structure **tag byte** and each message is defined in the Bolt protocol.
 
 **Serialization is specified with PackStream Version 1.**
 
@@ -136,6 +136,54 @@ The chunk,
 chunk header: `00 10`
 
 end marker: `00 00`
+
+
+Example: **A message split in two chunks**
+
+Message data containig 20 bytes:
+
+```
+00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 01 02 03 04
+```
+
+chunk 1,
+chunk 2,
+
+```
+00 10 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
+00 04 01 02 03 04 00 00
+```
+
+chunk 1 header: `00 10`
+
+chunk 1 end marker: no end marker, still message data
+
+chunk 2 header: `00 04`
+
+chunk 2 end marker: `00 00`
+
+
+Example: **Two messages**
+
+
+Message 1 data containing 16 bytes:
+
+```
+00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
+```
+
+Message 2 data containing 8 bytes:
+
+```
+0F 0E 0D 0C 0B 0A 09 08
+```
+
+The two messages encoded with chunking,
+
+```
+00 10 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 00 00
+00 08 0F 0E 0D 0C 0B 0A 09 08 00 00
+```
 
 
 ### Pipelining
