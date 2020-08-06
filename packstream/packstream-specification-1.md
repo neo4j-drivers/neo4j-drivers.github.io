@@ -21,7 +21,7 @@ The core data types are as follows:
 | `Bytes`     | byte array                                    |
 | `String`    | unicode text, **UTF-8**                       |
 | `List`      | ordered collection of values                  |
-| `Dictionary`| key value, ordered collection                 |
+| `Dictionary`| ordered collection of key-value entries       |
 | `Structure` | composite value with a type signature         |
 
 **NOTE:** Neither unsigned integers nor 32-bit floating point numbers are included.
@@ -30,7 +30,8 @@ This is a deliberate design decision to allow broader compatibility across clien
 
 ## General Representation
 
-Every serialised PackStream value begins with a _marker byte_.
+Every serialised PackStream value begins with a **marker byte**.
+
 The marker contains data type information as well as direct or indirect size information for types that require it.
 How that size information is encoded varies by marker type.
 
