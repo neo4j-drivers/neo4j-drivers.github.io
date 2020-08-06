@@ -24,7 +24,7 @@ For the server, each connection using the Bolt Protocol will occupy one of sever
 
 This state is used to determine what actions may be undertaken by the client.
 
-See, [Bolt Protocol Server State Specification](bolt-protocol-server-state-specification.md)
+See, [Bolt Protocol Server State Specification Version 1](bolt-protocol-server-state-specification-1.md)
 
 
 ### 2.1. Server Signals

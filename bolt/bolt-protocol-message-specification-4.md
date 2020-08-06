@@ -11,7 +11,9 @@
 
 # Version 4.0
 
-## 1. Deltas
+## Deltas
+
+The changes compared to Bolt protocol version 3 are listed below:
 
 * `DISCARD_ALL` message renamed to `DISCARD` and introduced new fields.
 * `PULL_ALL` message renamed to `PULL` and introduced new fields.
@@ -25,7 +27,7 @@
 
 
 
-## 2. Overview of Major Version Changes
+## Overview of Major Version Changes
 
 The handshake have been re-specified to support Major and Minor versions.
 
@@ -39,7 +41,77 @@ PULL {"n": ?, "qid": ?}
 DISCARD {"n": ?, "qid": ?}
 ```
 
-## 3. Messages
+
+## Bolt Protocol Server State Specification
+
+For the server, each connection using the Bolt Protocol will occupy one of several states throughout its lifetime.
+
+This state is used to determine what actions may be undertaken by the client.
+
+See, [Bolt Protocol Server State Specification Version 4](bolt-protocol-server-state-specification-4.md)
+
+
+### 2.1. Server Signals
+
+Jump ahead is that the signal will imediatly be available before any messages are processed in the message queue.
+
+| Server Signal   | Jump Ahead | Description            |
+|:---------------:|:----------:|------------------------|
+| `<INTERRUPT>`   | x          | an interrupt signal    |
+| `<DISCONNECT>`  |            | a disconnect signal    |
+
+
+### 2.2. Protocol Errors
+
+If a server or client receives a message type that is unexpected, according to the transitions described in this document, it must treat that as a protocol error.
+Protocol errors are fatal and should immediately transition the server state to `DEFUNCT`, closing any open connections.
+
+
+## 3. Message Exchange
+
+Messages are exchanged in a request-response pattern between client and server.
+Each request consists of exactly one message and each response consists of zero or more detail messages followed by exactly one summary message.
+The presence or absence of detail messages in a response is directly related to the type of request message that has been sent.
+In other words, some request message types elicit a response that may contain detail messages, others do not.
+
+Messages may also be pipelined.
+
+In other words, clients may send multiple requests eagerly without first waiting for responses.
+When a failure occurs in this scenario, servers **must** ignore all subsequent requests until the client has explicitly acknowledged receipt of the failure.
+This prevents inadvertent execution of queries that may not be valid.
+More details of this process can be found in the sections below.
+
+
+### Serialization
+
+Messages and their contents are serialized into network streams using [PackStream Specification Version 1](../packstream/packstream-specification-1.md).
+
+Each message is represented as a PackStream structure with a fixed number of fields.
+
+The message type is denoted by the structure signature, a single byte value.
+
+**Serialization is specified with PackStream Version 1.**
+
+
+### Chunking
+
+A layer of chunking is also applied to message transmissions as a way to more predictably manage packets of data.
+
+The chunking process allows the message to be broken into one or more pieces, each of an arbitrary size, and for those pieces to be transmitted within separate chunks.
+
+Each chunk consists of a two-byte header, detailing the chunk size in bytes followed by the chunk data itself.
+Chunk headers are 16-bit unsigned integers, meaning that the maximum theoretical chunk size permitted is 65,535 bytes.
+
+Each encoded message **must** be terminated with a chunk of zero size, i.e. `[00 00]`.
+This is used to signal message boundaries to a receiving parties, allowing blocks of data to be fully received without requiring that the message is parsed immediately.
+This also allows for unknown message types to be received and handled without breaking the messaging chain.
+
+
+### Pipelining
+
+TODO
+
+## Messages - Version 4.0
 
 | Message       | Signature | Request Message | Summary Message | Detail Message | Fields                                                                                                                                                        | Description                                             |
 |---------------|:---------:|:---------------:|:---------------:|:--------------:|---------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
@@ -58,17 +130,8 @@ DISCARD {"n": ?, "qid": ?}
 | `RECORD`      | `71`      |                 |                 | x              | `data::List<Value>`                                                                                                                                           | data values                                             |
 
 
-**Server Signals**
 
-Jump ahead is that the signal will imediatly be available before any messages are processed in the message queue.
-
-| Server Signal   | Jump Ahead | Description            |
-|:---------------:|:----------:|------------------------|
-| `<INTERRUPT>`   | x          | an interrupt signal    |
-| `<DISCONNECT>`  |            | a disconnect signal    |
-
-
-### 3.1. `HELLO`
+### `HELLO` - Message
 
 The `HELLO` message request the connection to be authorized for use with the remote database.
 
@@ -149,7 +212,7 @@ FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 ```
 
 
-### 3.2. `GOODBYE`
+### `GOODBYE` - Message
 
 The `GOODBYE` message notifies the server that the connection is terminating gracefully.
 
@@ -185,7 +248,7 @@ Example:
 GOODBYE
 ```
 
-### 3.3. `RESET`
+### `RESET` - Message
 
 The `RESET` message requests that the connection should be set back to its initial state, as if a `HELLO` message had just been successfully completed.
 
@@ -220,7 +283,7 @@ Example:
 RESET
 ```
 
-### 3.4. `RUN`
+### `RUN` - Message
 
 The `RUN` message requests that a Cypher query is executed with a set of parameters and additional extra data.
 
@@ -332,7 +395,7 @@ Example:
 FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 ```
 
-### 3.5. `DISCARD`
+### `DISCARD` - Message
 
 The `DISCARD` message requests that the remainder of the result stream should be thrown away.
 
@@ -421,7 +484,7 @@ FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 ```
 
 
-### 3.6. `PULL`
+### `PULL` - Message
 
 The `PULL` message requests that the remainder of the result stream should be thrown away.
 
@@ -515,7 +578,7 @@ FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 ```
 
 
-### 3.7. `BEGIN`
+### `BEGIN` - Message
 
 The `BEGIN` message request the creation of a new **explicit transaction**.
 
@@ -600,7 +663,7 @@ FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 ```
 
 
-### 3.8. `COMMIT`
+### `COMMIT` - Message
 
 The `COMMIT` message request that the **explicit transaction** is done.
 
@@ -663,7 +726,7 @@ Example:
 FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 ```
 
-### 3.9. `ROLLBACK`
+### `ROLLBACK` - Message
 
 The `ROLLBACK` message requests that the **explicit transaction** rolls back.
 
@@ -722,7 +785,7 @@ Example:
 FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 ```
 
-### 3.10. `SUCCESS` - summary message
+### `SUCCESS` - Summary Message
 
 The `SUCCESS` message indicates that the corresponding request has succeeded as intended.
 
@@ -751,7 +814,7 @@ SUCCESS {"example": "see specific message for server response metadata"}
 ```
 
 
-### 3.11. `IGNORED` - summary message
+### `IGNORED` - Summary Message
 
 The `IGNORED` message indicates that the corresponding request has not been carried out.
 
@@ -773,7 +836,7 @@ Example:
 IGNORED
 ```
 
-### 3.12. `FAILURE` - summary message
+### `FAILURE` - Summary Message
 
 
 **Signature:** `7F`
@@ -804,7 +867,7 @@ FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 ```
 
 
-### 3.13. `RECORD` - detail message
+### `RECORD` - Detail Message
 
 A `RECORD` message carries a sequence of values corresponding to a single entry in a result.
 
@@ -841,8 +904,11 @@ RECORD [{"point": [1, 2]}, "example_data", 123]
 
 ## 1. Deltas
 
-* The `BEGIN` message now requires the sub field `routing::Map( address::String, )`.
-* New `NOOP` message (empty chunk).
+The changes compared to Bolt protocol version 4.0 are listed below:
+
+* The `BEGIN` message now requires the sub field `routing::Dictionary( address::String, )`.
+* Support for `NOOP` chunk (empty chunk). Both server and client should support this.
+
 
 ## 2. Overview
 
@@ -850,35 +916,27 @@ Bolt handshake should now timeout (off by default) on the server side.
 
 The initial address that the client knows the server by is sent with the `HELLO` message to help with routing information.
 
+The `NOOP` chunk is used to send an empty chunk and the purpose is to be able to support a keep alive behaviour on the connection.
 
-## 3. Messages
+
+## 3. Messages - Version 4.1
 
 
-| Message       | Signature | Request Message | Summary Message | Detail Message | Fields                                                                                                                                                        | Description                                             |
-|---------------|:---------:|:---------------:|:---------------:|:--------------:|---------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
-| `HELLO`       | `01`      | x               |                 |                | `extra::Map( user_agent::String, scheme::String, principal::String, credentials::String, routing::Map(address::String) )`                                     | initialize connection                                   |
-| `GOODBYE`     | `02`      | x               |                 |                |                                                                                                                                                               | close the connection, triggers a `<DISCONNECT>` signal  |
-| `RESET`       | `0F`      | x               |                 |                |                                                                                                                                                               | reset the connection, triggers a `<INTERRUPT>` signal   |
-| `RUN`         | `10`      | x               |                 |                | `query::String`, `parameters::Map`, `extra::Map( bookmarks::List<String>, tx_timeout::Integer, tx_metadata::Map<String, Value>, mode::String, db:String )`    | execute a query                                         |
-| `DISCARD`     | `2F`      | x               |                 |                | `extra::Map( n::Integer`, `qid::Integer )`                                                                                                                    | discard records                                         |
-| `PULL`        | `3F`      | x               |                 |                | `extra::Map( n::Integer`, `qid::Integer )`                                                                                                                    | fetch records                                           |
-| `BEGIN`       | `11`      | x               |                 |                | `extra::Map( bookmarks::List<String>, tx_timeout::Integer, tx_metadata::Map<String, Value>, mode::String, db::String )`                                       | begin a new transaction                                 |
-| `COMMIT`      | `12`      | x               |                 |                |                                                                                                                                                               | commit a transaction                                    |
-| `ROLLBACK`    | `13`      | x               |                 |                |                                                                                                                                                               | rollback a transaction                                  |
-| `SUCCESS`     | `70`      |                 | x               |                | `metadata::Map<String, Value>`                                                                                                                                | request succeeded                                       |
-| `IGNORED`     | `7E`      |                 | x               |                |                                                                                                                                                               | request was ignored                                     |
-| `FAILURE`     | `7F`      |                 | x               |                | `metadata::Map( code::String, message::String )`                                                                                                              | request failed                                          |
-| `RECORD`      | `71`      |                 |                 | x              | `data::List<Value>`                                                                                                                                           | data values                                             |
-| `NOOP`        | `00`      |                 |                 | x              |                                                                                                                                                               | empty chunk that should just be ignored                 |
-
-**Server Signals**
-
-Jump ahead is that the signal will imediatly be available before any messages are processed in the message queue.
-
-| Server Signal   | Jump Ahead | Description            |
-|:---------------:|:----------:|------------------------|
-| `<INTERRUPT>`   | x          | an interrupt signal    |
-| `<DISCONNECT>`  |            | a disconnect signal    |
+| Message       | Signature | Request Message | Summary Message | Detail Message | Fields                                                                                                                                                           | Description                                             |
+|---------------|:---------:|:---------------:|:---------------:|:--------------:|------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
+| `HELLO`       | `01`      | x               |                 |                | `extra::Dictionary( user_agent::String, scheme::String, principal::String, credentials::String, routing::Dictionary(address::String) )`                          | initialize connection                                   |
+| `GOODBYE`     | `02`      | x               |                 |                |                                                                                                                                                                  | close the connection, triggers a `<DISCONNECT>` signal  |
+| `RESET`       | `0F`      | x               |                 |                |                                                                                                                                                                  | reset the connection, triggers a `<INTERRUPT>` signal   |
+| `RUN`         | `10`      | x               |                 |                | `query::String`, `parameters::Dictionary`, `extra::Dictionary( bookmarks::List<String>, tx_timeout::Integer, tx_metadata::Dictionary, mode::String, db:String )` | execute a query                                         |
+| `DISCARD`     | `2F`      | x               |                 |                | `extra::Dictionary( n::Integer`, `qid::Integer )`                                                                                                                | discard records                                         |
+| `PULL`        | `3F`      | x               |                 |                | `extra::Dictionary( n::Integer`, `qid::Integer )`                                                                                                                | fetch records                                           |
+| `BEGIN`       | `11`      | x               |                 |                | `extra::Dictionary( bookmarks::List<String>, tx_timeout::Integer, tx_metadata::Dictionary, mode::String, db::String )`                                           | begin a new transaction                                 |
+| `COMMIT`      | `12`      | x               |                 |                |                                                                                                                                                                  | commit a transaction                                    |
+| `ROLLBACK`    | `13`      | x               |                 |                |                                                                                                                                                                  | rollback a transaction                                  |
+| `SUCCESS`     | `70`      |                 | x               |                | `metadata::Dictionary`                                                                                                                                           | request succeeded                                       |
+| `IGNORED`     | `7E`      |                 | x               |                |                                                                                                                                                                  | request was ignored                                     |
+| `FAILURE`     | `7F`      |                 | x               |                | `metadata::Dictionary( code::String, message::String )`                                                                                                          | request failed                                          |
+| `RECORD`      | `71`      |                 |                 | x              | `data::List`                                                                                                                                                     | data values                                             |
 
 
 
