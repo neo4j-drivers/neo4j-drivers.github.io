@@ -193,21 +193,21 @@ The client may send multiple requests eagerly without first waiting for response
 
 ## Messages - Version 4.0
 
-| Message       | Signature | Request Message | Summary Message | Detail Message | Fields                                                                                                                                                        | Description                                             |
-|---------------|:---------:|:---------------:|:---------------:|:--------------:|---------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
-| `HELLO`       | `01`      | x               |                 |                | `extra::Map( user_agent::String, scheme::String, principal::String, credentials::String )`                                                                    | initialize connection                                   |
-| `GOODBYE`     | `02`      | x               |                 |                |                                                                                                                                                               | close the connection, triggers a `<DISCONNECT>` signal  |
-| `RESET`       | `0F`      | x               |                 |                |                                                                                                                                                               | reset the connection, triggers a `<INTERRUPT>` signal   |
-| `RUN`         | `10`      | x               |                 |                | `query::String`, `parameters::Map`, `extra::Map( bookmarks::List<String>, tx_timeout::Integer, tx_metadata::Map<String, Value>, mode::String, db:String )`    | execute a query                                         |
-| `DISCARD`     | `2F`      | x               |                 |                | `extra::Map( n::Integer`, `qid::Integer )`                                                                                                                    | discard records                                         |
-| `PULL`        | `3F`      | x               |                 |                | `extra::Map( n::Integer`, `qid::Integer )`                                                                                                                    | fetch records                                           |
-| `BEGIN`       | `11`      | x               |                 |                | `extra::Map( bookmarks::List<String>, tx_timeout::Integer, tx_metadata::Map<String, Value>, mode::String, db::String )`                                       | begin a new transaction                                 |
-| `COMMIT`      | `12`      | x               |                 |                |                                                                                                                                                               | commit a transaction                                    |
-| `ROLLBACK`    | `13`      | x               |                 |                |                                                                                                                                                               | rollback a transaction                                  |
-| `SUCCESS`     | `70`      |                 | x               |                | `metadata::Map<String, Value>`                                                                                                                                | request succeeded                                       |
-| `IGNORED`     | `7E`      |                 | x               |                |                                                                                                                                                               | request was ignored                                     |
-| `FAILURE`     | `7F`      |                 | x               |                | `metadata::Map( code::String, message::String )`                                                                                                              | request failed                                          |
-| `RECORD`      | `71`      |                 |                 | x              | `data::List<Value>`                                                                                                                                           | data values                                             |
+| Message       | Signature | Request Message | Summary Message | Detail Message | Fields                                                                                                                                                         | Description                                             |
+|---------------|:---------:|:---------------:|:---------------:|:--------------:|----------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
+| `HELLO`       | `01`      | x               |                 |                | `extra::Dictionary(user_agent::String, scheme::String, principal::String, credentials::String)`                                                                | initialize connection                                   |
+| `GOODBYE`     | `02`      | x               |                 |                |                                                                                                                                                                | close the connection, triggers a `<DISCONNECT>` signal  |
+| `RESET`       | `0F`      | x               |                 |                |                                                                                                                                                                | reset the connection, triggers a `<INTERRUPT>` signal   |
+| `RUN`         | `10`      | x               |                 |                | `query::String`, `parameters::Dictionary`, `extra::Dictionary(bookmarks::List<String>, tx_timeout::Integer, tx_metadata::Dictionary, mode::String, db:String)` | execute a query                                         |
+| `DISCARD`     | `2F`      | x               |                 |                | `extra::Dictionary(n::Integer`, `qid::Integer)`                                                                                                                | discard records                                         |
+| `PULL`        | `3F`      | x               |                 |                | `extra::Dictionary(n::Integer`, `qid::Integer)`                                                                                                                | fetch records                                           |
+| `BEGIN`       | `11`      | x               |                 |                | `extra::Dictionary(bookmarks::List<String>, tx_timeout::Integer, tx_metadata::Dictionary, mode::String, db::String)`                                           | begin a new transaction                                 |
+| `COMMIT`      | `12`      | x               |                 |                |                                                                                                                                                                | commit a transaction                                    |
+| `ROLLBACK`    | `13`      | x               |                 |                |                                                                                                                                                                | rollback a transaction                                  |
+| `SUCCESS`     | `70`      |                 | x               |                | `metadata::Dictionary`                                                                                                                                         | request succeeded                                       |
+| `IGNORED`     | `7E`      |                 | x               |                |                                                                                                                                                                | request was ignored                                     |
+| `FAILURE`     | `7F`      |                 | x               |                | `metadata::Dictionary(code::String, message::String)`                                                                                                          | request failed                                          |
+| `RECORD`      | `71`      |                 |                 | x              | `data::List<Value>`                                                                                                                                            | data values                                             |
 
 
 
@@ -229,7 +229,7 @@ Clients wishing to retry initialization should establish a new connection.
 **Fields:**
 
 ```
-extra::Map(
+extra::Dictionary(
   user_agent::String,
   scheme::String,
   principal::String,
@@ -237,7 +237,7 @@ extra::Map(
 )
 ```
 
-  - The `user_agent` should conform to `"name/version"` for example `"my-client/1.2.3"`.
+  - The `user_agent` should conform to `"name/version"` for example `"my-client/1.2.3"`. (see, https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent)
   - The `scheme` is the authentication scheme. Predefined schemes are “none”, “basic”, “kerberos”
 
 **Detail Messages:**
@@ -375,18 +375,18 @@ This message could both be used for running an explicit transaction or an autoco
 
 ```
 query::String
-paramaters::Map<String, Value>
-extra::Map(
+paramaters::Dictionary
+extra::Dictionary(
   bookmarks::List<String>,
   tx_timeout::Integer,
-  tx_metadata::Map<String, Value>,
+  tx_metadata::Dictionary,
   mode::String,
   db:String,
 )
 ```
 
   - The `query` can be a Cypher syntax or a procedure call.
-  - The `parameters` is a map of parameters to be used in the `query` string.
+  - The `parameters` is a dictionary of parameters to be used in the `query` string.
 
   An **explicit transaction** (`BEGIN`+`RUN`) does not carry any data in the extra `extra` field.
 
@@ -394,7 +394,7 @@ extra::Map(
 
   - The `bookmarks` is a list of strings containg some kind of bookmark identification e.g [“neo4j-bookmark-transaction:1”, “neo4j-bookmark-transaction:2”]
   - The `tx_timeout` is an integer in that specifies a transaction timeout in ms.
-  - The `tx_metadata` is a map that can contain some metadata information, mainly used for logging.
+  - The `tx_metadata` is a dictionary that can contain some metadata information, mainly used for logging.
   - The `mode` specifies what kind of server the `RUN` message is targeting. For write access use `"w"` and for read access use `"r"`. Defaults to write access if no mode is sent.
   - The `db` specifies the database name for multi-database to select where the transaction takes place. If no `db` is sent or empty string it implies that it is the default database.
 
@@ -484,7 +484,7 @@ The `DISCARD` message requests that the remainder of the result stream should be
 **Fields:**
 
 ```
-extra::Map{
+extra::Dictionary{
   n::Integer,
   qid::Integer,
 }
@@ -573,7 +573,7 @@ The `PULL` message requests that the remainder of the result stream should be th
 **Fields:**
 
 ```
-extra::Map{
+extra::Dictionary{
   n::Integer,
   qid::Integer,
 }
@@ -621,10 +621,10 @@ The following fields are defined for inclusion in the `SUCCESS` metadata.
   - `bookmark::String`, the bookmark after committing this transaction. **autocommit transaction only**.
   - `t_last::Integer`, the time, specified in ms, which the last record in the result stream is consumed after.
   - `type::String`, the type of the statement, e.g. “r” for read-only statement, “w” for write-only statement, “rw” for read-and-write, and “s” for schema only.
-  - `stats::Map<String, Value>`, counter information, such as db-hits etc.
-  - `plan::Map<String, Value>`, plan result.
-  - `profile::Map<String, Value>`, profile result.
-  - `notifications::Map<String, Value>`, any notification generated during execution of this statement.
+  - `stats::Dictionary`, counter information, such as db-hits etc.
+  - `plan::Dictionary`, plan result.
+  - `profile::Dictionary`, profile result.
+  - `notifications::Dictionary`, any notification generated during execution of this statement.
   - `db::String`, the database name where the query was executed.
 
 Example 1:
@@ -672,10 +672,10 @@ The **explicit transaction** is closed with either the `COMMIT` message or `ROLL
 **Fields:**
 
 ```
-extra::Map(
+extra::Dictionary(
   `bookmarks::List<String>`,
   `tx_timeout::Integer`,
-  `tx_metadata::Map<String, Value>`
+  `tx_metadata::Dictionary`
   `mode::String`,
   `db::String`
 )
@@ -683,7 +683,7 @@ extra::Map(
 
   - The `bookmarks` is a list of strings containg some kind of bookmark identification e.g [“neo4j-bookmark-transaction:1”, “neo4j-bookmark-transaction:2”]
   - The `tx_timeout` is an integer in that specifies a transaction timeout in ms.
-  - The `tx_metadata` is a map that can contain some metadata information, mainly used for logging.
+  - The `tx_metadata` is a dictionary that can contain some metadata information, mainly used for logging.
   - The `mode` specifies what kind of server the `RUN` message is targeting. For write access use `"w"` and for read access use `"r"`. Defaults to write access if no mode is sent.
   - The `db` specifies the database name for multi-database to select where the transaction takes place. If no `db` is sent or empty string it implies that it is the default database.
 
@@ -878,7 +878,7 @@ Metadata keys are described in the section of this document relating to the mess
 **Fields:**
 
 ```
-metadata::Map<String, Value>
+metadata::Dictionary
 ```
 
 #### Synopsis
@@ -924,7 +924,7 @@ IGNORED
 **Fields:**
 
 ```
-metadata::Map(
+metadata::Dictionary(
   code::String,
   message::String,
 )
@@ -995,6 +995,7 @@ The changes compared to Bolt protocol version 4.0 are listed below:
 Bolt handshake should now timeout (off by default) on the server side.
 
 The initial address that the client knows the server by is sent with the `HELLO` message to help with routing information.
+See (Appendix - Example 3)[example-3]
 
 The `NOOP` chunk is used to send an empty chunk and the purpose is to be able to support a keep alive behaviour on the connection.
 
@@ -1032,7 +1033,7 @@ The `NOOP` chunk is used to send an empty chunk and the purpose is to be able to
 C: 60 60 B0 17
 C: 00 00 00 04 00 00 00 00 00 00 00 00 00 00 00 00
 S: 00 00 00 04
-C: HELLO {"user_agent": "example/4.0.0", "scheme": "basic", "principal": "user", "credentials": "password"}
+C: HELLO {"user_agent": "Example/4.0.0", "scheme": "basic", "principal": "user", "credentials": "password"}
 S: SUCCESS {"server": "Neo4j/4.0.0", "connection_id": "example-connection-id:1"}
 C: GOODBYE
 ```
@@ -1044,8 +1045,25 @@ C: GOODBYE
 C: 60 60 B0 17
 C: 00 00 00 04 00 00 00 00 00 00 00 00 00 00 00 00
 S: 00 00 00 04
-C: HELLO {"user_agent": "example/4.0.0", "scheme": "basic", "principal": "user", "credentials": "password"}
+C: HELLO {"user_agent": "Example/4.0.0", "scheme": "basic", "principal": "user", "credentials": "password"}
 S: SUCCESS {"server": "Neo4j/4.0.0", "connection_id": "example-connection-id:1"}
+C: RUN "RETURN $x AS example" {"x": 123} {"mode": "r", "db": "example_database"}
+S: SUCCESS {"fields": ["example"]}
+C: PULL {"n": -1}
+S: RECORD [123]
+S: SUCCESS {"bookmark": "example-bookmark:1", "t_last": 300, "type": "r", "db": "example_database"}
+C: GOODBYE
+```
+
+
+## Example 3
+
+```
+C: 60 60 B0 17
+C: 00 00 01 04 00 00 00 00 00 00 00 00 00 00 00 00
+S: 00 00 01 04
+C: HELLO {"user_agent": "Example/4.1.0", "scheme": "basic", "principal": "user", "credentials": "password", "routing": {"address": "x.example.com"}}
+S: SUCCESS {"server": "Neo4j/4.1.0", "connection_id": "example-connection-id:1"}
 C: RUN "RETURN $x AS example" {"x": 123} {"mode": "r", "db": "example_database"}
 S: SUCCESS {"fields": ["example"]}
 C: PULL {"n": -1}
