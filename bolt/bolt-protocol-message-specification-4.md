@@ -995,9 +995,32 @@ The changes compared to Bolt protocol version 4.0 are listed below:
 Bolt handshake should now timeout (off by default) on the server side.
 
 The initial address that the client knows the server by is sent with the `HELLO` message to help with routing information.
-See (Appendix - Example 3)[example-3]
+See [Appendix - Example 3](#example-3).
 
-The `NOOP` chunk is used to send an empty chunk and the purpose is to be able to support a keep alive behaviour on the connection.
+The `NOOP` chunk (empty chunk) is used to send an empty chunk and the purpose is to be able to support a keep alive behaviour on the connection.
+
+Example: **Two messages with a NOOP in between**
+
+
+Message 1 data containing 16 bytes:
+
+```
+00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
+```
+
+Message 2 data containing 8 bytes:
+
+```
+0F 0E 0D 0C 0B 0A 09 08
+```
+
+The two messages encoded with chunking and a `NOOP` (empty chunk) in between.
+
+```
+00 10 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 00 00
+00 00
+00 08 0F 0E 0D 0C 0B 0A 09 08 00 00
+```
 
 
 ## Messages - Version 4.1
