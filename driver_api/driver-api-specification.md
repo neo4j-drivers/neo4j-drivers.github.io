@@ -44,3 +44,20 @@
 * DriverExceptions
 
 
+## URI Schemes
+
+* `bolt`
+* `neo4j`
+
+## Client Side Routing
+
+Each Neo4j core instance in a cluster supports `routing` and `reading`.
+
+Only one Neo4j core in a cluster can be selected to support `writing` operations. This selection can rotate over time.
+
+The client should support a `routing table`.
+
+
+## Client Side Logging
+
+
