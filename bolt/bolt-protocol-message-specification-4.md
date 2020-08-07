@@ -51,7 +51,7 @@ This state is used to determine what actions may be undertaken by the client.
 See, [Bolt Protocol Server State Specification Version 4](bolt-protocol-server-state-specification-4.md)
 
 
-### 2.1. Server Signals
+### Server Signals
 
 Jump ahead is that the signal will imediatly be available before any messages are processed in the message queue.
 
@@ -61,13 +61,13 @@ Jump ahead is that the signal will imediatly be available before any messages ar
 | `<DISCONNECT>`  |            | a disconnect signal    |
 
 
-### 2.2. Protocol Errors
+### Protocol Errors
 
 If a server or client receives a message type that is unexpected, according to the transitions described in this document, it must treat that as a protocol error.
 Protocol errors are fatal and should immediately transition the server state to `DEFUNCT`, closing any open connections.
 
 
-## 3. Message Exchange
+## Message Exchange
 
 Messages are exchanged in a request-response pattern between client and server.
 
@@ -101,9 +101,9 @@ A layer of chunking is also applied to message transmissions as a way to more pr
 The chunking process allows the message to be broken into one or more pieces, each of an arbitrary size, and for those pieces to be transmitted within separate chunks.
 
 Each chunk consists of a **two-byte header**, detailing the chunk size in bytes followed by the chunk data itself.
-Chunk headers are 16-bit unsigned integers, meaning that the maximum theoretical chunk size permitted is 65,535 bytes.
+Chunk headers are **16-bit unsigned integers**, meaning that the maximum theoretical chunk size permitted is 65,535 bytes.
 
-Each encoded message **must** be terminated with a chunk of zero size, i.e. `[00 00]`.
+Each encoded message **must** be terminated with a chunk of zero size, i.e. `00 00`.
 This is used to signal message boundaries to a receiving parties, allowing blocks of data to be fully received without requiring that the message is parsed immediately.
 This also allows for unknown message types to be received and handled without breaking the messaging chain.
 
@@ -982,7 +982,7 @@ RECORD [{"point": [1, 2]}, "example_data", 123]
 
 # Version 4.1
 
-## 1. Deltas
+## Deltas
 
 The changes compared to Bolt protocol version 4.0 are listed below:
 
@@ -990,7 +990,7 @@ The changes compared to Bolt protocol version 4.0 are listed below:
 * Support for `NOOP` chunk (empty chunk). Both server and client should support this.
 
 
-## 2. Overview
+## Overview
 
 Bolt handshake should now timeout (off by default) on the server side.
 
@@ -1000,7 +1000,7 @@ See (Appendix - Example 3)[example-3]
 The `NOOP` chunk is used to send an empty chunk and the purpose is to be able to support a keep alive behaviour on the connection.
 
 
-## 3. Messages - Version 4.1
+## Messages - Version 4.1
 
 
 | Message       | Signature | Request Message | Summary Message | Detail Message | Fields                                                                                                                                                           | Description                                             |
