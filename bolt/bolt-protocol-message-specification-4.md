@@ -237,8 +237,8 @@ extra::Dictionary(
 )
 ```
 
-  - The `user_agent` should conform to `"name/version"` for example `"my-client/1.2.3"`. (see, https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent)
-  - The `scheme` is the authentication scheme. Predefined schemes are “none”, “basic”, “kerberos”
+  - The `user_agent` should conform to `"Name/Version"` for example `"Example/4.0.0"`. (see, [developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent))
+  - The `scheme` is the authentication scheme. Predefined schemes are `“none”`, `“basic”`, `“kerberos”`.
 
 **Detail Messages:**
 
