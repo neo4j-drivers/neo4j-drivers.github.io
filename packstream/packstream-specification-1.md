@@ -159,16 +159,16 @@ Note that while it is possible to encode small numbers in wider formats, it is g
 
 The following table shows the **optimal representation** for every possible integer in the signed 64-bit range:
 
-| Range Minimum              |  Range Maximum             | Optimal Representation
-|----------------------------|----------------------------|------------------------
-| -9 223 372 036 854 775 808 |             -2 147 483 649 | `INT_64`
-|             -2 147 483 648 |                    -32 769 | `INT_32`
-|                    -32 768 |                       -129 | `INT_16`
-|                       -128 |                        -17 | `INT_8`
-|                        -16 |                       +127 | `TINY_INT`
-|                       +128 |                    +32 767 | `INT_16`
-|                    +32 768 |             +2 147 483 647 | `INT_32`
-|             +2 147 483 648 | +9 223 372 036 854 775 807 | `INT_64`
+| Range Minimum              |  Range Maximum             | Optimal Representation |
+|----------------------------|----------------------------|------------------------|
+| -9 223 372 036 854 775 808 |             -2 147 483 649 | `INT_64`               |
+|             -2 147 483 648 |                    -32 769 | `INT_32`               |
+|                    -32 768 |                       -129 | `INT_16`               |
+|                       -128 |                        -17 | `INT_8`                |
+|                        -16 |                       +127 | `TINY_INT`             |
+|                       +128 |                    +32 767 | `INT_16`               |
+|                    +32 768 |             +2 147 483 647 | `INT_32`               |
+|             +2 147 483 648 | +9 223 372 036 854 775 807 | `INT_64`               |
 
 
 ## Float
@@ -456,27 +456,12 @@ D8 1A
 81 59 19 81 5A 1A
 ```
 
+When unpacked if there are multiple instances of the same key, the last seen value for that key should be used.
 
 Example:
 
 ```
-[("key_1", 1), ("key_2", 2), ("key_1": 3)]
-```
-
-When unpacked if there are multiple instances of the same key, the last seen value for that key should be used.
-
-**TODO:** We need to be specified what index of that key should be used. See **Case 1** and **Case 2**.
-
-Case 1:
-
-```
-[("key_1", 1), ("key_2", 2), ("key_1": 3)] -> [("key_2", 2), ("key_1": 3)]
-```
-
-Case 2:
-
-```
-[("key_1", 1), ("key_2", 2), ("key_1": 3)] -> [("key_1": 3), ("key_2", 2)]
+[("key_1", 1), ("key_2", 2), ("key_1", 3)] -> {"key_1": 3, "key_2": 2}
 ```
 
 
