@@ -41,6 +41,9 @@ PULL {"n": ?, "qid": ?}
 DISCARD {"n": ?, "qid": ?}
 ```
 
+The `qid` is included in the `SUCCESS` response of a `RUN` message within an **explicit transaction** (`BEGIN`+`RUN`).
+See [Appendix - Example 4](#example-4).
+
 
 ## Bolt Protocol Server State Specification
 
@@ -1093,4 +1096,27 @@ C: PULL {"n": -1}
 S: RECORD [123]
 S: SUCCESS {"bookmark": "example-bookmark:1", "t_last": 300, "type": "r", "db": "example_database"}
 C: GOODBYE
+```
+
+
+## Example 4
+
+```
+C: 60 60 B0 17
+C: 00 00 00 04 00 00 00 00 00 00 00 00 00 00 00 00
+S: 00 00 00 04
+C: HELLO {"user_agent": "Example/4.0.0", "scheme": "basic", "principal": "test", "credentials": "test"}
+S: SUCCESS {"server": "Neo4j/4.0.0", "connection_id": "example-connection-id:1"}
+C: BEGIN {"mode": "r", "db": "example_database", "tx_metadata": {"foo": "bar"}, "tx_timeout": 300}
+S: SUCCESS {}
+C: RUN "UNWIND [1,2,3,4] AS x RETURN x" {} {}
+S: SUCCESS {"fields": ["x"], "qid": 0}
+C: PULL {"n": 2}
+S: RECORD [1]
+S: RECORD [2]
+S: SUCCESS {"has_more": true}
+C: DISCARD {"n": -1, "qid": 0}
+S: SUCCESS {"type": "r", "db": "test"}
+C: COMMIT
+S: SUCCESS {"bookmark": "neo4j:bookmark-test-1"}
 ```
