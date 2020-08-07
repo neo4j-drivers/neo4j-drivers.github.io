@@ -1,11 +1,367 @@
 # Bolt Protocol Server State Specification - Version 4
 
-* [**Version 4.1**](#version-41)
 * [**Version 4.0**](#version-40)
-
+* [**Version 4.1**](#version-41)
 
 # Version 4.0
 
+## Deltas
+
+Compared to version 3 the `RUN`, `PULL` and `DISCARD` now can re-enter `STREAMING` or `TX_STREAMING`.
+
+## Server States
+
+Each **connection** maintained by a Bolt server will occupy one of several states throughout its lifetime.
+
+This state is used to determine what actions may be undertaken by the client.
+
+| State             | Logic State    | Description                                                                              |
+|-------------------|:--------------:|------------------------------------------------------------------------------------------|
+| `DISCONNECTED`    | x              | no socket connection                                                                     |
+| `CONNECTED`       | x              | protocol handshake has been completed successfully                                       |
+| `DEFUNCT`         | x              | the socket connection has been permanently closed                                        |
+| `READY`           |                | ready to accept a `RUN` message                                                          |
+| `STREAMING`       |                | a result is available for streaming from the server                                      |
+| `TX_READY`        |                | **explicit transaction**, ready to accept a `RUN` message                                |
+| `TX_STREAMING`    |                | **explicit transaction**, a result is available for streaming from the server            |
+| `FAILED`          |                | a connection is in a temporarily unusable state                                          |
+| `INTERUPTED`      |                |                                                                                          |
+
+
+## Server State `DISCONNECTED`
+
+No **socket connection** has yet been established.
+This is the initial state and exists only in a logical sense prior to the socket being opened.
+
+### Transitions from `DISCONNECTED`
+
+- handshake completed successfully to `CONNECTED`
+- handshake did not complete successfully to `DEFUNCT`
+
+
+## Server State `CONNECTED`
+
+After a new **protocol connection** has been established and handshake has been completed successfully, the server enters the `CONNECTED` state.
+The connection has not yet been authenticated and permits only one transition, through successful initialization, into the `READY` state.
+
+### Transitions from `CONNECTED`
+
+- `INIT` to `READY` or `DEFUNCT`
+- `<DISCONNECT>` to `DEFUNCT`
+- `GOODBYE` to `CONNECTED`
+
+#### `<DISCONNECT>` Signal State Transitions
+
+| Initial State | Final State   | Response |
+|---------------|---------------|----------|
+| `CONNECTED`   | `DEFUNCT`     | *n/a*    |
+
+#### `HELLO` Message State Transitions
+
+| Initial State | Final State | Response     |
+|---------------|-------------|--------------|
+| `CONNECTED`   | `READY`     | `SUCCESS {}` |
+| `CONNECTED`   | `DEFUNCT`   | `FAILURE {}` |
+
+
+## Server State `DEFUNCT`
+
+This is not strictly a connection state, but is instead a logical state that exists after a connection has been closed.
+
+When `DEFUNCT`, a connection is permanently not usable.
+
+This may arise due to a graceful shutdown or can occur after an unrecoverable error or protocol violation.
+
+Clients and servers should clear up any resources associated with a connection on entering this state, including closing any open sockets.
+
+This is a terminal state on which no further transitions may be carried out.
+
+The `<DISCONNECT>` signal will set the connection in the `DEFUNCT` server state.
+
+
+## Server State `READY`
+
+### Transitions from `READY`
+
+- `<INTERRUPT>` to `INTERRUPTED`
+- `<DISCONNECT>` to `DEFUNCT`
+- `RUN` to `STREAMING` or `FAILED`
+- `BEGIN` to `TX_READY` or `FAILED`
+
+#### `<INTERRUPT>` Signal State Transitions
+
+| Initial State | Final State   | Response |
+|---------------|---------------|----------|
+| `READY`       | `INTERRUPTED` | *n/a*    |
+
+#### `<DISCONNECT>` Signal State Transitions
+
+| Initial State | Final State   | Response |
+|---------------|---------------|----------|
+| `READY`       | `DEFUNCT`     | *n/a*    |
+
+
+#### `RUN` Message State Transitions
+
+| Initial State | Final State   | Response     |
+|---------------|---------------|--------------|
+| `READY`       | `STREAMING`   | `SUCCESS {}` |
+| `READY`       | `FAILED`      | `FAILURE {}` |
+
+
+#### `BEGIN` Message State Transitions
+
+| Initial State | Final State   | Response     |
+|---------------|---------------|--------------|
+| `READY`       | `TX_READY`    | `SUCCESS {}` |
+| `READY`       | `FAILED`      | `FAILURE {}` |
+
+
+## Server State `STREAMING`
+
+When `STREAMING`, a result is available for streaming from server to client.
+
+This result must be fully consumed or discarded by a client before the server can re-enter the `READY` state and allow any further queries to be executed.
+
+### Transitions from `STREAMING`
+
+- `<INTERRUPT>` to `INTERRUPTED`
+- `<DISCONNECT>` to `DEFUNCT`
+- `PULL` to `READY`, `FAILED` or `STREAMING`
+- `DISCARD` to `READY`, `FAILED` or `STREAMING`
+
+
+#### `<INTERRUPT>` Signal State Transitions
+
+| Initial State | Final State   | Response |
+|---------------|---------------|----------|
+| `STREAMING`   | `INTERRUPTED` | *n/a*    |
+
+#### `<DISCONNECT>` Signal State Transitions
+
+| Initial State | Final State   | Response |
+|---------------|---------------|----------|
+| `STREAMING`   | `DEFUNCT`     | *n/a*    |
+
+#### `DISCARD` Message State Transitions
+
+| Initial State | Final State   | Response                     |
+|---------------|---------------|------------------------------|
+| `STREAMING`   | `READY`       | `SUCCESS {}`                 |
+| `STREAMING`   | `FAILED`      | `FAILURE {}`                 |
+| `STREAMING`   | `STREAMING`   | `SUCCESS {"has_more": True}` |
+
+#### `PULL` Message State Transitions
+
+| Initial State | Final State   | Response                                      |
+|---------------|---------------|-----------------------------------------------|
+| `STREAMING`   | `READY`       | \[`RECORD` ...\] `SUCCESS {}`                 |
+| `STREAMING`   | `FAILED`      | \[`RECORD` ...\] `FAILURE {}`                 |
+| `STREAMING`   | `STREAMING`   | \[`RECORD` ...\] `SUCCESS {"has_more": True}` |
+
+
+## Server State `TX_READY`
+
+### Transitions from `TX_READY`
+
+- `<INTERRUPT>` to `INTERRUPTED`
+- `<DISCONNECT>` to `DEFUNCT`
+- `RUN` to `TX_STREAMING` or `FAILED`
+- `COMMIT` to `READY` or `FAILED`
+- `ROLLBACK` to `READY` or `FAILED`
+
+#### `<INTERRUPT>` Signal State Transitions
+
+| Initial State | Final State   | Response |
+|---------------|---------------|----------|
+| `TX_READY`    | `INTERRUPTED` | *n/a*    |
+
+#### `<DISCONNECT>` Signal State Transitions
+
+| Initial State | Final State   | Response |
+|---------------|---------------|----------|
+| `TX_READY`    | `DEFUNCT`     | *n/a*    |
+
+#### `RUN` Message State Transitions
+
+| Initial State | Final State      | Response                       |
+|---------------|------------------|--------------------------------|
+| `TX_READY`    | `TX_STREAMING`   | `SUCCESS {"qid": id::Integer}` |
+| `TX_READY`    | `FAILED`         | `FAILURE {}`                   |
+
+#### `COMMIT` Message State Transitions
+
+| Initial State | Final State      | Response     |
+|---------------|------------------|--------------|
+| `TX_READY`    | `READY`          | `SUCCESS {}` |
+| `TX_READY`    | `FAILED`         | `FAILURE {}` |
+
+#### `ROLLBACK` Message State Transitions
+
+| Initial State | Final State      | Response     |
+|---------------|------------------|--------------|
+| `TX_READY`    | `READY`          | `SUCCESS {}` |
+| `TX_READY`    | `FAILED`         | `FAILURE {}` |
+
+
+## Server State `TX_STREAMING`
+
+When `TX_STREAMING`, a result is available for streaming from server to client.
+
+This result must be fully consumed or discarded by a client before the server can transition to the `TX_READY` state.
+
+### Transitions from `TX_STREAMING`
+
+- `<INTERRUPT>` to `INTERRUPTED`
+- `<DISCONNECT>` to `DEFUNCT`
+- `RUN` to `FAILED` or `TX_STREAMING`
+- `PULL` to `TX_READY`, `FAILED` or `TX_STREAMING`
+- `DISCARD` to `TX_READY`, `FAILED` or `TX_STREAMING`
+
+
+#### `<INTERRUPT>` Signal State Transitions
+
+| Initial State    | Final State   | Response |
+|------------------|---------------|----------|
+| `TX_STREAMING`   | `INTERRUPTED` | *n/a*    |
+
+#### `<DISCONNECT>` Signal State Transitions
+
+| Initial State    | Final State   | Response |
+|------------------|---------------|----------|
+| `TX_STREAMING`   | `DEFUNCT`     | *n/a*    |
+
+#### `RUN` Message State Transitions
+
+| Initial State    | Final State      | Response                       |
+|------------------|------------------|--------------------------------|
+| `TX_STREAMING`   | `TX_STREAMING`   | `SUCCESS {"qid": id::Integer}` |
+| `TX_STREAMING`   | `FAILED`         | `FAILURE {}`                   |
+
+#### `DISCARD` Message State Transitions
+
+| Initial State    | Final State      | Response                     |
+|------------------|------------------|------------------------------|
+| `TX_STREAMING`   | `TX_READY`       | `SUCCESS {}`                 |
+| `TX_STREAMING`   | `FAILED`         | `FAILURE {}`                 |
+| `TX_STREAMING`   | `TX_STREAMING`   | `SUCCESS {"has_more": True}` |
+
+#### `PULL` Message State Transitions
+
+| Initial State    | Final State      | Response                                      |
+|------------------|------------------|-----------------------------------------------|
+| `TX_STREAMING`   | `TX_READY`       | \[`RECORD` ...\] `SUCCESS {}`                 |
+| `TX_STREAMING`   | `FAILED`         | \[`RECORD` ...\] `FAILURE {}`                 |
+| `TX_STREAMING`   | `TX_STREAMING`   | \[`RECORD` ...\] `SUCCESS {"has_more": True}` |
+
+
+## Server State `FAILED`
+
+When `FAILED`, a connection is in a temporarily unusable state.
+
+This is generally as the result of encountering a recoverable error.
+
+This mode ensures that only one failure can exist at a time, preventing cascading issues from batches of work.
+
+
+### Transitions from `FAILED`
+
+- `<INTERRUPT>` to `INTERRUPTED`
+- `<DISCONNECT>` to `DEFUNCT`
+
+
+#### `<INTERRUPT>` Signal State Transitions
+
+| Initial State | Final State   | Response |
+|---------------|---------------|----------|
+| `FAILED`      | `INTERRUPTED` | *n/a*    |
+
+#### `<DISCONNECT>` Signal State Transitions
+
+| Initial State | Final State   | Response |
+|---------------|---------------|----------|
+| `FAILED`      | `DEFUNCT`     | *n/a*    |
+
+
+## Server State `INTERRUPTED`
+
+This state occurs between the server receiving the jump-ahead `<INTERRUPT>` and the queued `RESET` message, (the `RESET` message triggers an `<INTERRUPT>`).
+
+Most incoming messages are ignored when the server are in an `INTERRUPTED` state, with the exception of the `RESET` that allows transition back to `READY`.
+
+The `<INTERRUPT>` signal will set the connection in the `INTERRUPTED` server state.
+
+
+### Transitions from `INTERRUPTED`
+
+- `<INTERRUPT>` to `INTERRUPTED`
+- `<DISCONNECT>` to `DEFUNCT`
+- `RUN` to `INTERRUPTED`
+- `DISCARD` to `INTERRUPTED`
+- `PULL` to `INTERRUPTED`
+- `BEGIN` to `INTERRUPTED`
+- `COMMIT` to `INTERRUPTED`
+- `ROLLBACK` to `INTERRUPTED`
+- `RESET` to `READY` or `DEFUNCT`
+
+
+#### `<INTERRUPT>` Signal State Transitions
+
+| Initial State | Final State   | Response |
+|---------------|---------------|----------|
+| `INTERRUPTED` | `INTERRUPTED` | *n/a*    |
+
+#### `<DISCONNECT>` Signal State Transitions
+
+| Initial State | Final State   | Response |
+|---------------|---------------|----------|
+| `INTERRUPTED` | `DEFUNCT`     | *n/a*    |
+
+#### `RUN` Message State Transitions
+
+| Initial State | Final State   | Response     |
+|---------------|---------------|--------------|
+| `INTERRUPTED` | `INTERRUPTED` | `IGNORED`    |
+
+#### `DISCARD` Message State Transitions
+
+| Initial State | Final State   | Response     |
+|---------------|---------------|--------------|
+| `INTERRUPTED` | `INTERRUPTED` | `IGNORED`    |
+
+#### `PULL` Message State Transitions
+
+| Initial State | Final State   | Response     |
+|---------------|---------------|--------------|
+| `INTERRUPTED` | `INTERRUPTED` | `IGNORED`    |
+
+#### `BEGIN` Message State Transitions
+
+| Initial State | Final State   | Response     |
+|---------------|---------------|--------------|
+| `INTERRUPTED` | `INTERRUPTED` | `IGNORED`    |
+
+#### `COMMIT` Message State Transitions
+
+| Initial State | Final State   | Response     |
+|---------------|---------------|--------------|
+| `INTERRUPTED` | `INTERRUPTED` | `IGNORED`    |
+
+#### `ROLLBACK` Message State Transitions
+
+| Initial State | Final State   | Response     |
+|---------------|---------------|--------------|
+| `INTERRUPTED` | `INTERRUPTED` | `IGNORED`    |
+
+#### `RESET` Message State Transitions
+
+| Initial State | Final State   | Response     |
+|---------------|---------------|--------------|
+| `INTERRUPTED` | `READY`       | `SUCCESS {}` |
+| `INTERRUPTED` | `DEFUNCT`     | `FAILURE {}` |
+
 
 # Version 4.1
+
+No changes compared to version 4.0.
 
