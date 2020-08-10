@@ -44,22 +44,32 @@ The handshake itself is not versioned.
 
 For the server, each connection using the Bolt Protocol will occupy one of several states throughout its lifetime.
 
-This state is used to determine what actions may be undertaken by the client.
+This state is used to determine what actions may be undertaken by the client. Each server state specification corresponds to a message specification with the same version.
 
-* [**Version 1**](bolt/bolt-protocol-server-state-specification-1.md)
-* [**Version 2**](bolt/bolt-protocol-server-state-specification-2.md)
-* [**Version 3**](bolt/bolt-protocol-server-state-specification-3.md)
-* [**Version 4.0**](bolt/bolt-protocol-server-state-specification-4.md)
-* [**Version 4.1**](bolt/bolt-protocol-server-state-specification-4.md)
+* [**Version 1**](bolt/bolt-protocol-server-state-specification-1.md), first version that defines the server states.
+* [**Version 2**](bolt/bolt-protocol-server-state-specification-2.md), incorporates no changes to the server state specification.
+* [**Version 3**](bolt/bolt-protocol-server-state-specification-3.md), incorporates major changes to the server state specification.
+* [**Version 4.0**](bolt/bolt-protocol-server-state-specification-4.md), incorporates some changes to the server state specification.
+* [**Version 4.1**](bolt/bolt-protocol-server-state-specification-4.md), incorporates no changes to the server state specification.
 
 
-### Bolt Protocol and Neo4j Compatibility
+## Bolt Protocol and Neo4j Compatibility
 
-* Neo4j 3.0 to 3.3 supports Bolt Version 1
-* Neo4j 3.4 supports Bolt Version 2
-* Neo4j 3.5 supports Bolt Version 3
-* Neo4j 4.0 supports Bolt Version 4.0 (3)
-* Neo4j 4.1 supports Bolt Version 4.1 (4.0, 3)
+
+| Neo4j Version | Bolt `1` | Bolt `2` | Bolt `3` | Bolt `4.0` | Bolt `4.1` | Bolt `4.2`  |
+|:-------------:|:--------:|:--------:|:--------:|:----------:|:----------:|:-----------:|
+| `3.0`         | `x`      |          |          |            |            |             |
+| `3.1`         | `x`      |          |          |            |            |             |
+| `3.2`         | `x`      |          |          |            |            |             |
+| `3.3`         | `x`      |          |          |            |            |             |
+| `3.4`         | `(x)`    | `x`      |          |            |            |             |
+| `3.5`         |          | `(x)`    | `x`      |            |            |             |
+| `4.0`         |          |          | `(x)`    | `x`        |            |             |
+| `4.1`         |          |          | `(x)`    | `(x)`      | `x`        |             |
+| `4.2`         |          |          | `(x)`    | `(x)`      | `(x)`      | `x`         |
+
+
+The `(x)` denotes that support could be removed in next version of Neo4j.
 
 
 [//]: ## Neo4j Driver API
