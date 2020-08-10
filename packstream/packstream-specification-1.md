@@ -171,6 +171,24 @@ The following table shows the **optimal representation** for every possible inte
 |             +2 147 483 648 | +9 223 372 036 854 775 807 | `INT_64`               |
 
 
+
+Example 1:
+
+Value: `-9223372036854775808` (The minimum)
+
+```
+CB 80 00 00 00 00 00 00 00
+```
+
+Example 2:
+
+Value: `9223372036854775807` (The maximum)
+
+```
+CB 7F FF FF FF FF FF FF FF
+```
+
+
 ## Float
 
 **Marker:** `C1`
