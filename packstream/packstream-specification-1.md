@@ -297,7 +297,7 @@ For longer strings,
 |---------|-------------------------------------|-------------------------|
 | `D0`    | 8-bit big-endian unsigned integer   | 255 bytes               |
 | `D1`    | 16-bit big-endian unsigned integer  | 65 535 bytes            |
-| `D2     | 32-bit big-endian signed integer    | 2 147 483 648 bytes     |
+| `D2`    | 32-bit big-endian signed integer    | 2 147 483 648 bytes     |
 
 
 Text data is represented as **UTF-8** encoded bytes.
