@@ -8,4 +8,4 @@
 
 There is no changes compared to the Bolt protocol message specification version 1.
 
-See, [**Bolt Protocol Server State Specification - Version 1**](bolt/bolt-protocol-server-state-specification-1.md)
+See, [**Bolt Protocol Server State Specification - Version 1**](/bolt-protocol-server-state-specification-1.md)
