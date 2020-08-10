@@ -28,7 +28,7 @@ The handshake itself is not versioned.
 * **Version 1**, corresponds to the first releases of the handshake specification.
 * **Version 4.0**, incorporates an updated handshake specification. Now supports Major and Minor versions.
 
-[Bolt Protocol Handshake Specification](bolt/bolt-protocol-handshake-specification.md)
+[**Bolt Protocol Handshake Specification**](bolt/bolt-protocol-handshake-specification.md)
 
 
 ### Bolt Protocol Message Specification
