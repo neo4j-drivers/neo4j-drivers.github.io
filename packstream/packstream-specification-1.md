@@ -12,20 +12,39 @@ PackStream offers a number of core data types, many supported by multiple binary
 
 The core data types are as follows:
 
-| Data Type   | Description                                   |
-|-------------|-----------------------------------------------|
-| `Null`      | missing or empty value                        |
-| `Boolean`   | **true** or **false**                         |
-| `Integer`   | signed 64-bit integer                         |
-| `Float`     | 64-bit floating point number                  |
-| `Bytes`     | byte array                                    |
-| `String`    | unicode text, **UTF-8**                       |
-| `List`      | ordered collection of values                  |
-| `Dictionary`| ordered collection of key-value entries       |
-| `Structure` | composite value with a type signature         |
+| Data Type                   | Description                                   |
+|-----------------------------|-----------------------------------------------|
+| [`Null`](#null)             | missing or empty value                        |
+| [`Boolean`](#boolean)       | **true** or **false**                         |
+| [`Integer`](#integer)       | signed 64-bit integer                         |
+| [`Float`](#float)           | 64-bit floating point number                  |
+| [`Bytes`](#bytes)           | byte array                                    |
+| [`String`](#string)         | unicode text, **UTF-8**                       |
+| [`List`](#list)             | ordered collection of values                  |
+| [`Dictionary`](#dictionary) | ordered collection of key-value entries       |
+| [`Structure`](#structure)   | composite value with a type signature         |
 
 **NOTE:** Neither unsigned integers nor 32-bit floating point numbers are included.
 This is a deliberate design decision to allow broader compatibility across client languages.
+
+
+The PackStream specified structures:
+
+| Structure Name                                               | Description                                                                                                                                                           |
+|--------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`Node`](#node---structure)                                  | snapshot of a node within a graph database                                                                                                                            |
+| [`Relationship`](#relationship---structure)                  | snapshot of a relationship within a graph database                                                                                                                    |
+| [`UnboundRelationship`](#unboundrelationship---structure)    | relationship detail without start or end node information                                                                                                             |
+| [`Path`](#path---structure)                                  | alternating sequence of nodes and relationships                                                                                                                       |
+| [`Date`](#date---structure)                                  | a date without a time-zone in the ISO-8601 calendar system, such as "2007-12-03"                                                                                      |
+| [`Time`](#time---structure)                                  | a time with an offset from UTC/Greenwich in the ISO-8601 calendar system, such as "10:15:30+01:00"                                                                    |
+| [`LocalTime`](#localtime---structure)                        | a time without a time-zone in the ISO-8601 calendar system, such as "10:15:30"                                                                                        |
+| [`DateTime`](#datetime---structure)                          | a date-time with a time-zone in the ISO-8601 calendar system, such as "2007-12-03T10:15:30+01:00 Europe/Paris", the time-zone is specified in minutes offset from UTC |
+| [`DateTimeZoneId`](#datetimezoneid---structure)              | a date-time with a time-zone in the ISO-8601 calendar system, such as "2007-12-03T10:15:30+01:00 Europe/Paris", the time-zone is specified with a **zone id**         |
+| [`LocalDateTime`](#localdatetime---structure)                | a date-time without a time-zone in the ISO-8601 calendar system, such as "2007-12-03T10:15:30"                                                                        |
+| [`Duration`](#duration---structure)                          | a temporal amount                                                                                                                                                     |
+| [`Point2D`](#point2d---structure)                            | represents a single location in 2-dimensional space                                                                                                                   |
+| [`Point3D`](#point3d---structure)                            | represents a single location in 3-dimensional space                                                                                                                   |
 
 
 ## General Representation
@@ -525,21 +544,22 @@ The **tag byte** is used to identify the type or class of the structure.
 The **tag byte** may hold any value between 0 and +127.
 
 
-| Structure Name        | Code | tag byte | Description                                                                                                                                                           |
-|-----------------------|------|----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `Node`                | 'N'  | `4E`     | snapshot of a node within a graph database                                                                                                                            |
-| `Relationship`        | 'R'  | `52`     | snapshot of a relationship within a graph database                                                                                                                    |
-| `UnboundRelationship` | 'r'  | `72`     | relationship detail without start or end node information                                                                                                             |
-| `Path`                | 'P'  | `50`     | alternating sequence of nodes and relationships                                                                                                                       |
-| `DateTime`            | 'F'  | `46`     | a date-time with a time-zone in the ISO-8601 calendar system, such as "2007-12-03T10:15:30+01:00 Europe/Paris", the time-zone is specified in minutes offset from UTC |
-| `DateTime`            | 'f'  | `66`     | a date-time with a time-zone in the ISO-8601 calendar system, such as "2007-12-03T10:15:30+01:00 Europe/Paris", the time-zone is specified with a **zone id**         |
-| `LocalDateTime`       | 'd'  | `64`     | a date-time without a time-zone in the ISO-8601 calendar system, such as "2007-12-03T10:15:30"                                                                        |
-| `Date`                | 'D'  | `44`     | a date without a time-zone in the ISO-8601 calendar system, such as "2007-12-03"                                                                                      |
-| `Time`                | 'T'  | `54`     | a time with an offset from UTC/Greenwich in the ISO-8601 calendar system, such as "10:15:30+01:00"                                                                    |
-| `LocalTime`           | 't'  | `74`     | a time without a time-zone in the ISO-8601 calendar system, such as "10:15:30"                                                                                        |
-| `Duration`            | 'E'  | `45`     | a temporal amount.                                                                                                                                                    |
-| `Point2D`             | 'X'  | `58`     | represents a single location in 2-dimensional space.                                                                                                                  |
-| `Point3D`             | 'Y'  | `59`     | represents a single location in 3-dimensional space.                                                                                                                  |
+| Structure Name                                            | Code | tag byte | Description                                                                                                                                                           |
+|-----------------------------------------------------------|------|----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`Node`](#node---structure)                               | 'N'  | `4E`     | snapshot of a node within a graph database                                                                                                                            |
+| [`Relationship`](#relationship---structure)               | 'R'  | `52`     | snapshot of a relationship within a graph database                                                                                                                    |
+| [`UnboundRelationship`](#unboundrelationship---structure) | 'r'  | `72`     | relationship detail without start or end node information                                                                                                             |
+| [`Path`](#path---structure)                               | 'P'  | `50`     | alternating sequence of nodes and relationships                                                                                                                       |
+| [`Date`](#date---structure)                               | 'D'  | `44`     | a date without a time-zone in the ISO-8601 calendar system, such as "2007-12-03"                                                                                      |
+| [`Time`](#time---structure)                               | 'T'  | `54`     | a time with an offset from UTC/Greenwich in the ISO-8601 calendar system, such as "10:15:30+01:00"                                                                    |
+| [`LocalTime`](#localtime---structure)                     | 't'  | `74`     | a time without a time-zone in the ISO-8601 calendar system, such as "10:15:30"                                                                                        |
+| [`DateTime`](#datetime---structure)                       | 'F'  | `46`     | a date-time with a time-zone in the ISO-8601 calendar system, such as "2007-12-03T10:15:30+01:00 Europe/Paris", the time-zone is specified in minutes offset from UTC |
+| [`DateTimeZoneId`](#datetimezoneid---structure)           | 'f'  | `66`     | a date-time with a time-zone in the ISO-8601 calendar system, such as "2007-12-03T10:15:30+01:00 Europe/Paris", the time-zone is specified with a **zone id**         |
+| [`LocalDateTime`](#localdatetime---structure)             | 'd'  | `64`     | a date-time without a time-zone in the ISO-8601 calendar system, such as "2007-12-03T10:15:30"                                                                        |
+| [`Duration`](#duration---structure)                       | 'E'  | `45`     | a temporal amount                                                                                                                                                     |
+| [`Point2D`](#point3d---structure)                         | 'X'  | `58`     | represents a single location in 2-dimensional space                                                                                                                   |
+| [`Point3D`](#point3d---structure)                         | 'Y'  | `59`     | represents a single location in 3-dimensional space                                                                                                                   |
+
 
 ### Node - Structure
 
@@ -649,70 +669,6 @@ Path::Structure(
 - The `rels` field is a list of unbound relationships.
 - The `ids` is a list of relationship id and node id to represent the path.
 
-
-### DateTime - with offset - Structure
-
-**tag byte:** `46`
-
-**Number of fields:** 3
-
-An instant capturing the date, the time, and the time zone.
-
-The time zone information is specified with a zone offset.
-
-```
-DateTime::Structure(
-    seconds::Integer
-    nanoseconds::Integer
-    tz_offset_minutes::Integer
-)
-```
-
-- The `seconds` are seconds since the Unix epoch.
-- The `tz_offset_minutes` specifies the offset in minutes from UTC.
-
-Bolt Representation with zone id:
-
-
-### DateTime - zone id - Structure
-
-**tag byte:** `66`
-
-**Number of fields:** 3
-
-An instant capturing the date, the time, and the time zone.
-
-The time zone information is specified with a zone identification number.
-
-```
-DateTime::Structure(
-    seconds::Integer
-    nanoseconds::Integer
-    tz_id::Integer
-)
-```
-
-- The `seconds` are seconds since the Unix epoch.
-
-
-### LocalDateTime - Structure
-
-**tag byte:** `64`
-
-**Number of fields:** 2
-
-An instant capturing the date and the time, but not the time zone.
-
-```
-LocalDateTime::Structure(
-    seconds::Integer
-    nanoseconds::Integer
-)
-```
-
-- The `seconds` are seconds since the Unix epoch.
-
-
 ### Date - Structure
 
 **tag byte:** `44`
@@ -765,6 +721,67 @@ LocalTime::Structure(
 
 - The `nanoseconds` are nanosecond since midnight.
 
+### DateTime - Structure
+
+**tag byte:** `46`
+
+**Number of fields:** 3
+
+An instant capturing the date, the time, and the time zone.
+
+The time zone information is specified with a zone offset.
+
+```
+DateTime::Structure(
+    seconds::Integer
+    nanoseconds::Integer
+    tz_offset_minutes::Integer
+)
+```
+
+- The `seconds` are seconds since the Unix epoch.
+- The `tz_offset_minutes` specifies the offset in minutes from UTC.
+
+Bolt Representation with zone id:
+
+
+### DateTimeZoneId - Structure
+
+**tag byte:** `66`
+
+**Number of fields:** 3
+
+An instant capturing the date, the time, and the time zone.
+
+The time zone information is specified with a **zone identification number**.
+
+```
+DateTime::Structure(
+    seconds::Integer
+    nanoseconds::Integer
+    tz_id::Integer
+)
+```
+
+- The `seconds` are seconds since the Unix epoch.
+
+
+### LocalDateTime - Structure
+
+**tag byte:** `64`
+
+**Number of fields:** 2
+
+An instant capturing the date and the time, but not the time zone.
+
+```
+LocalDateTime::Structure(
+    seconds::Integer
+    nanoseconds::Integer
+)
+```
+
+- The `seconds` are seconds since the Unix epoch.
 
 ### Duration - Structure
 
