@@ -406,6 +406,9 @@ SUCCESS {}
 #### Server Response `FAILURE`
 
 If `RESET` message is received before the server enters a `READY` state, it should trigger a `FAILURE` followed by immediate closure of the connection.
+
+The server may attach metadata to the message to provide more detail on the nature of the failure.
+
 Clients receiving a `FAILURE` in response to `RESET` should treat that connection as `DEFUNCT` and dispose of it.
 
 Example:
@@ -492,6 +495,7 @@ IGNORED
 #### Server Response `FAILURE`
 
 If a `RUN` message cannot be processed successfully or is invalid, the server should respond with a `FAILURE` message and enter the `FAILED` state.
+
 The server may attach metadata to the message to provide more detail on the nature of the failure.
 
 Example:
@@ -542,6 +546,7 @@ DISCARD_ALL
 #### Server Response `SUCCESS`
 
 If a `DISCARD_ALL` request has been successfully received, the server should respond with a `SUCCESS` message and enter the `READY` state.
+
 The server may attach metadata to the message to provide footer detail for the discarded results.
 
 The following fields are defined for inclusion in the metadata.
@@ -570,6 +575,7 @@ IGNORED
 #### Server Response `FAILURE`
 
 If a `DISCARD_ALL` message request cannot be processed successfully, the server should respond with a `FAILURE` message and enter the `FAILED` state.
+
 The server may attach metadata to the message to provide more detail on the nature of the failure.
 
 Example:
