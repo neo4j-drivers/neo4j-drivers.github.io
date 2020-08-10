@@ -15,7 +15,7 @@ This section describes version 1 of the Bolt messaging protocol.
 
 The message specification describes the message exchanges that take place on a connection following a successful Bolt handshake.
 
-For details of establishing a connection and performing a handshake, see [Bolt Protocol Handshake Specification](bolt-protocol-handshake-specification.md).
+For details of establishing a connection and performing a handshake, see [**Bolt Protocol Handshake Specification**](bolt-protocol-handshake-specification.md).
 
 
 ## Bolt Protocol Server State Specification
@@ -24,7 +24,7 @@ For the server, each connection using the Bolt Protocol will occupy one of sever
 
 This state is used to determine what actions may be undertaken by the client.
 
-See, [Bolt Protocol Server State Specification Version 1](bolt-protocol-server-state-specification-1.md)
+See, [**Bolt Protocol Server State Specification Version 1**](bolt-protocol-server-state-specification-1.md)
 
 
 ### Server Signals
@@ -59,7 +59,7 @@ More details of this process can be found in the sections below.
 
 ### Serialization
 
-Messages and their contents are serialized into network streams using [PackStream Specification Version 1](../packstream/packstream-specification-1.md).
+Messages and their contents are serialized into network streams using [**PackStream Specification Version 1**](../packstream/packstream-specification-1.md).
 
 **Each message is represented as a PackStream structure**, that contains a fixed number of fields.
 
