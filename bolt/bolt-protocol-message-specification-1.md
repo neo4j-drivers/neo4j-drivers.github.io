@@ -9,7 +9,7 @@
 
 # Version 1
 
-## 1. Overview
+## Overview
 
 This section describes version 1 of the Bolt messaging protocol.
 
@@ -18,7 +18,7 @@ The message specification describes the message exchanges that take place on a c
 For details of establishing a connection and performing a handshake, see [Bolt Protocol Handshake Specification](bolt-protocol-handshake-specification.md).
 
 
-## 2. Bolt Protocol Server State Specification
+## Bolt Protocol Server State Specification
 
 For the server, each connection using the Bolt Protocol will occupy one of several states throughout its lifetime.
 
@@ -27,23 +27,23 @@ This state is used to determine what actions may be undertaken by the client.
 See, [Bolt Protocol Server State Specification Version 1](bolt-protocol-server-state-specification-1.md)
 
 
-### 2.1. Server Signals
+### Server Signals
 
 Jump ahead is that the signal will imediatly be available before any messages are processed in the message queue.
 
 | Server Signal   | Jump Ahead | Description            |
-|:---------------:|:----------:|------------------------|
-| `<INTERRUPT>`   | x          | an interrupt signal    |
+|:----------------|:----------:|------------------------|
+| `<INTERRUPT>`   | x          | a interrupt signal     |
 | `<DISCONNECT>`  |            | a disconnect signal    |
 
 
-### 2.2. Protocol Errors
+### Protocol Errors
 
 If a server or client receives a message type that is unexpected, according to the transitions described in this document, it must treat that as a protocol error.
 Protocol errors are fatal and should immediately transition the server state to `DEFUNCT`, closing any open connections.
 
 
-## 3. Message Exchange
+## Message Exchange
 
 Messages are exchanged in a request-response pattern between client and server.
 Each request consists of exactly one message and each response consists of zero or more detail messages followed by exactly one summary message.
@@ -57,55 +57,145 @@ This prevents inadvertent execution of queries that may not be valid.
 More details of this process can be found in the sections below.
 
 
-### 3.1. Serialization
+### Serialization
 
-Messages and their contents are serialized into network streams using [PackStream Specification](../packstream/packstream-specification.md).
-Each message is represented as a PackStream structure with a fixed number of fields.
-The message type is denoted by the structure signature, a single byte value.
+Messages and their contents are serialized into network streams using [PackStream Specification Version 1](../packstream/packstream-specification-1.md).
+
+**Each message is represented as a PackStream structure**, that contains a fixed number of fields.
+
+The message type is denoted by the PackStream structure **tag byte** and each message is defined in the Bolt protocol.
 
 **Serialization is specified with PackStream Version 1.**
 
 
-### 3.2. Chunking
+### Chunking
 
 A layer of chunking is also applied to message transmissions as a way to more predictably manage packets of data.
+
 The chunking process allows the message to be broken into one or more pieces, each of an arbitrary size, and for those pieces to be transmitted within separate chunks.
 
-Each chunk consists of a two-byte header, detailing the chunk size in bytes followed by the chunk data itself.
-Chunk headers are 16-bit unsigned integers, meaning that the maximum theoretical chunk size permitted is 65,535 bytes.
+Each chunk consists of a **two-byte header**, detailing the chunk size in bytes followed by the chunk data itself.
+Chunk headers are **16-bit unsigned integers**, meaning that the maximum theoretical chunk size permitted is 65,535 bytes.
 
-Each encoded message **must** be terminated with a chunk of zero size, i.e. `[00 00]`.
+Each encoded message **must** be terminated with a chunk of zero size, i.e.
+
+```
+00 00
+```
+
 This is used to signal message boundaries to a receiving parties, allowing blocks of data to be fully received without requiring that the message is parsed immediately.
 This also allows for unknown message types to be received and handled without breaking the messaging chain.
 
+The Bolt protocol encodes each message using a chunked transfer encoding.
 
-## 4. Messages
-
-* Request Message, the client sends a message.
-* Summary Message, the server will always respond with one summary message.
-* Detail Message, the server will always repond with zero or more detail messages before sending a summary message.
-
-| Message       | Signature | Request Message | Summary Message | Detail Message | Fields                                  | Description                                                      |
-|---------------|:---------:|:---------------:|:---------------:|:--------------:|-----------------------------------------|------------------------------------------------------------------|
-| `INIT`        | `01`      | x               |                 |                | `user_agent::String`, `auth_token::Map` | initialize connection                                            |
-| `ACK_FAILURE` | `0E`      | x               |                 |                |                                         | acknowledge a failure response                                   |
-| `RESET`       | `0F`      | x               |                 |                |                                         | reset connection. triggers a `<INTERRUPT>` signal                |
-| `RUN`         | `10`      | x               |                 |                | `query::String`, `parameters::Map`      | execute a query                                                  |
-| `DISCARD_ALL` | `2F`      | x               |                 |                |                                         | discard all records                                              |
-| `PULL_ALL`    | `3F`      | x               |                 |                |                                         | fetch all records                                                |
-| `SUCCESS`     | `70`      |                 | x               |                | `metadata::Map`                         | request succeeded                                                |
-| `IGNORED`     | `7E`      |                 | x               |                |                                         | request was ignored                                              |
-| `FAILURE`     | `7F`      |                 | x               |                | `metadata::Map`                         | request failed                                                   |
-| `RECORD`      | `71`      |                 |                 | x              | `data::List`                            | data values                                                      |
+* Each message is transferred as one or more chunks of data.
+* Each chunk starts with a two-byte header, an unsigned big-endian 16-bit integer, representing the size of the chunk not including the header.
+* A message can be divided across multiple chunks, allowing client and server alike to transfer large messages without having to determine the length of the entire message in advance.
+* Chunking applies on each message individually.
+* One chunk cannot contain more than one message.
+* Each message ends with two bytes with the value `00 00`, these are not counted towards the chunk size. (Or you can think they are individual chunks of size 0)
 
 
-### 4.1. `INIT`
+This section provides some examples to illustrate how Bolt chunks messages.
 
-`INIT` is a request for the connection to be authorized for use with the remote database. 
+Example: **A message in one chunk**
 
-The `INIT` message uses the structure signature `01` and passes two fields: *user agent* (string) and *auth token* (map).
-No detail messages should be returned.
-Valid summary messages are `SUCCESS` and `FAILURE`.
+Message data containing 16 bytes,
+
+```
+00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
+```
+
+The chunk,
+
+```
+00 10 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 00 00
+```
+
+chunk header: `00 10`
+
+end marker: `00 00`
+
+
+Example: **A message split in two chunks**
+
+Message data containig 20 bytes:
+
+```
+00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 01 02 03 04
+```
+
+chunk 1,
+chunk 2,
+
+```
+00 10 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
+00 04 01 02 03 04 00 00
+```
+
+chunk 1 header: `00 10`
+
+chunk 1 end marker: no end marker, still message data
+
+chunk 2 header: `00 04`
+
+chunk 2 end marker: `00 00`
+
+
+Example: **Two messages**
+
+
+Message 1 data containing 16 bytes:
+
+```
+00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
+```
+
+Message 2 data containing 8 bytes:
+
+```
+0F 0E 0D 0C 0B 0A 09 08
+```
+
+The two messages encoded with chunking,
+
+```
+00 10 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 00 00
+00 08 0F 0E 0D 0C 0B 0A 09 08 00 00
+```
+
+
+### Pipelining
+
+The client may send multiple requests eagerly without first waiting for responses.
+
+
+## Messages
+
+* **Request Message**, the client sends a message.
+* **Summary Message**, the server will always respond with one summary message if the connection is still open.
+* **Detail Message**, the server will always repond with zero or more detail messages before sending a summary message.
+
+
+| Message                                         | Signature | Request Message | Summary Message | Detail Message | Fields                                                                                                          | Description                                                      |
+|-------------------------------------------------|:---------:|:---------------:|:---------------:|:--------------:|-----------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------|
+| [`INIT`](#request-message---init)               | `01`      | x               |                 |                | `user_agent::String`, `auth_token::Dictionary(scheme::String, principal::String, credentials::String)`          | initialize connection                                            |
+| [`ACK_FAILURE`](#request-message---ack_failure) | `0E`      | x               |                 |                |                                                                                                                 | acknowledge a failure response                                   |
+| [`RESET`](#request-message---reset)             | `0F`      | x               |                 |                |                                                                                                                 | reset the connection, triggers a `<INTERRUPT>` signal            |
+| [`RUN`](#request-message---run)                 | `10`      | x               |                 |                | `query::String`, `parameters::Dictionary`                                                                       | execute a query                                                  |
+| [`DISCARD_ALL`](#request-message---discard_all) | `2F`      | x               |                 |                |                                                                                                                 | discard all records                                              |
+| [`PULL_ALL`](#request-message---pull_all)       | `3F`      | x               |                 |                |                                                                                                                 | fetch all records                                                |
+| [`SUCCESS`](#summary-message---success)         | `70`      |                 | x               |                | `metadata::Dictionary`                                                                                          | request succeeded                                                |
+| [`IGNORED`](#summary-message---ignored)         | `7E`      |                 | x               |                |                                                                                                                 | request was ignored                                              |
+| [`FAILURE`](#summary-message---failure)         | `7F`      |                 | x               |                | `metadata::Dictionary(code::String, message::String)`                                                           | request failed                                                   |
+| [`RECORD`](#detail-message---record)            | `71`      |                 |                 | x              | `data::List`                                                                                                    | data values                                                      |
+
+
+### Request Message - `INIT`
+
+The `INIT` message is a request for the connection to be authorized for use with the remote database.
+
+The `INIT` message uses the structure signature `01` and passes two fields: `user agent` (String) and `auth_token` (Dictionary).
 
 The server **must** be in the `CONNECTED` state to be able to process an `INIT` request.
 For any other states, receipt of an `INIT` request **must** be considered a protocol violation and lead to connection closure.
@@ -113,28 +203,48 @@ For any other states, receipt of an `INIT` request **must** be considered a prot
 Clients should send `INIT` requests to the network immediately after connection and process the corresponding response before using that connection in any other way.
 
 A receiving server may choose to register or otherwise log the user agent but may also ignore it if preferred.
-User agents should use the form `"name/version"`, for example `"my-client/1.2.3"`.
 
 The auth token should be used by the server to determine whether the client is permitted to exchange further messages.
 If this authentication fails, the server **must** respond with a `FAILURE` message and immediately close the connection.
 Clients wishing to retry initialization should establish a new connection.
 
+**Signature:** `01`
+
+**Fields:**
+
+```
+user_agent::String,
+auth_token::Dictionary(
+  scheme::String,
+  principal::String,
+  credentials::String,
+)
+```
+
+  - The `user_agent` should conform to `"Name/Version"` for example `"Example/1.0.0"`. (see, [developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent))
+  - The `scheme` is the authentication scheme. Predefined schemes are `“none”`, `“basic”`.
+
+
+**Detail Messages:**
+
+No detail messages should be returned.
+
+**Valid Summary Messages:**
+
+* `SUCCESS`
+* `FAILURE`
+
+
 #### Synopsis
 
 ```
-INIT "user_agent" {metadata}
+INIT "user_agent" {auth_token}
 ```
-
-The following fields are defined for inclusion in the auth token.
-
-- `scheme` (e.g. `"basic"`)
-- `principal` (e.g. `"neo4j"`)
-- `credentials` (e.g. `"password"`)
 
 Example:
 
 ```
-INIT "example-agent-1" {"scheme": "basic", "principal": "neo4j", "credentials": "password"}
+INIT "Example/1.0.0" {"scheme": "basic", "principal": "neo4j", "credentials": "password"}
 ```
 
 
@@ -154,20 +264,10 @@ SUCCESS {"server": "Neo4j/3.4.0"}
 ```
 
 
-#### Server Response `IGNORED`
-
-The `IGNORED` message response indicates that the server ignored the `INIT` message.
-
-Example:
-
-```
-IGNORED
-```
-
-
 #### Server Response `FAILURE`
 
 A `FAILURE` message response indicates that the client is not permitted to exchange further messages.
+
 Servers may choose to include metadata describing the nature of the failure but **must** immediately close the connection after the failure has been sent.
 
 Example:
@@ -176,7 +276,132 @@ Example:
 FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 ```
 
-### 4.2. `RUN`
+
+### Request Message - `ACK_FAILURE`
+
+`ACK_FAILURE` signals to the server that the client has acknowledged a previous failure and should return to a `READY` state.
+
+**Signature:** `0E`
+
+**Fields:**
+
+No fields.
+
+**Detail Messages:**
+
+No detail messages should be returned.
+
+**Valid Summary Messages:**
+
+* `SUCCESS`
+* `FAILURE`
+
+The server **must** be in a `FAILED` state to be able to successfully process an `ACK_FAILURE` request.
+For any other states, receipt of an `ACK_FAILURE` request will be considered a protocol violation and will lead to connection closure.
+
+#### Synopsis
+
+```
+ACK_FAILURE
+```
+
+Example:
+
+```
+ACK_FAILURE
+```
+
+#### Server Response `SUCCESS`
+
+If an `ACK_FAILURE` request has been successfully received, the server should respond with a `SUCCESS` message and enter the `READY` state.
+
+The server may attach metadata to the `SUCCESS` message.
+
+Example:
+
+```
+SUCCESS {}
+```
+
+#### Server Response `FAILURE`
+
+If an `ACK_FAILURE` request is received while not in the `FAILED` state, the server should respond with a `FAILURE` message and immediately close the connection.
+
+The server may attach metadata to the message to provide more detail on the nature of the failure.
+
+Example:
+
+```
+FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
+```
+
+
+### Request Message - `RESET`
+
+The `RESET` message requests that the connection should be set back to its initial `READY` state, as if an `INIT` had just successfully completed.
+
+The `RESET` message is unique in that, on arrival at the server, it splits into two separate signals.
+
+Firstly, an `<INTERRUPT>` **signal jumps ahead in the message queue**, stopping any unit of work that happens to be executing, and putting the state machine into an `INTERRUPTED` state.
+
+Secondly, the `RESET` queues along with all other incoming messages and is used to put the state machine back to `READY` when its turn for processing arrives.
+
+This essentially means that the `INTERRUPTED` state exists only transitionally between the arrival of a `RESET` in the message queue and the later processing of that `RESET` in its proper position.
+
+The `INTERRUPTED` state is therefore the only state to automatically resolve without any further input from the client and whose entry does not generate a response message.
+
+**Signature:** `0F`
+
+**Fields:**
+
+No fields.
+
+**Detail Messages:**
+
+No detail messages should be returned.
+
+**Valid Summary Messages:**
+
+* `SUCCESS`
+* `FAILURE`
+
+
+#### Synopsis
+
+```
+RESET
+```
+
+Example:
+
+```
+RESET
+```
+
+#### Server Response `SUCCESS`
+
+If a `RESET` message request has been successfully received, the server should respond with a `SUCCESS` message and enter the `READY` state.
+
+
+Example:
+
+```
+SUCCESS {}
+```
+
+#### Server Response `FAILURE`
+
+If `RESET` message is received before the server enters a `READY` state, it should trigger a `FAILURE` followed by immediate closure of the connection.
+Clients receiving a `FAILURE` in response to `RESET` should treat that connection as `DEFUNCT` and dispose of it.
+
+Example:
+
+```
+FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
+```
+
+
+### Request Message - `RUN`
 
 A `RUN` message submits a new query for execution, the result of which will be consumed by a subsequent message, such as `PULL_ALL`.
 
@@ -184,10 +409,14 @@ A `RUN` message submits a new query for execution, the result of which will be c
 
 **Fields:**
 
-* query::String
-* parameters::Map
+```
+query::String,
+parameters::Dictionary
+```
 
-**Detail Messages:** 0
+**Detail Messages:**
+
+No detail messages should be returned.
 
 **Valid Summary Messages:**
 
@@ -257,7 +486,7 @@ Example:
 FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 ```
 
-### 4.3. `DISCARD_ALL`
+### Request Message - `DISCARD_ALL`
 
 The `DISCARD_ALL` message issues a request to discard the outstanding result and return to a `READY` state.
 
@@ -265,9 +494,13 @@ A receiving server should not abort the request but continue to process it witho
 
 **Signature:** `2F`
 
-**Fields:** 0
+**Fields:**
 
-**Detail Messages:** 0
+No fields
+
+**Detail Messages:**
+
+No detail messages should be returned.
 
 **Valid Summary Messages:**
 
@@ -332,7 +565,7 @@ FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 ```
 
 
-### 4.4. `PULL_ALL`
+### Request Message - `PULL_ALL`
 
 The `PULL_ALL` message issues a request to stream the outstanding result back to the client, before returning to a `READY` state.
 
@@ -437,53 +670,80 @@ FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 ```
 
 
-### 4.5. `ACK_FAILURE`
+### Summary Message - `SUCCESS`
 
-`ACK_FAILURE` signals to the server that the client has acknowledged a previous failure and should return to a `READY` state.
+The `SUCCESS` message indicates that the corresponding request has succeeded as intended.
 
-**Signature:** `0E`
+It may contain metadata relating to the outcome.
+
+Metadata keys are described in the section of this document relating to the message that began the exchange.
+
+**Signature:** `70`
 
 **Fields:**
 
-**Detail Messages:**
-
-**Valid Summary Messages:**
-
-* `SUCCESS`
-* `FAILURE`
-
-The server **must** be in a `FAILED` state to be able to successfully process an `ACK_FAILURE` request.
-For any other states, receipt of an `ACK_FAILURE` request will be considered a protocol violation and will lead to connection closure.
+```
+metadata::Dictionary
+```
 
 #### Synopsis
 
 ```
-ACK_FAILURE
+SUCCESS {metadata}
 ```
 
 Example:
 
 ```
-ACK_FAILURE
+SUCCESS {"example": "see specific message for server response metadata"}
 ```
 
-#### Server Response `SUCCESS`
 
-If an `ACK_FAILURE` request has been successfully received, the server should respond with a `SUCCESS` message and enter the `READY` state.
+### Summary Message - `IGNORED`
 
-The server may attach metadata to the `SUCCESS` message.
+The `IGNORED` message indicates that the corresponding request has not been carried out.
+
+**Signature:** `7E`
+
+**Fields:**
+
+No fields
+
+#### Synopsis
+
+```
+IGNORED
+```
 
 Example:
 
 ```
-SUCCESS {}
+IGNORED
 ```
 
-#### Server Response `FAILURE`
+### Summary Message - `FAILURE`
 
-If an `ACK_FAILURE` request is received while not in the `FAILED` state, the server should respond with a `FAILURE` message and immediately close the connection.
 
-The server may attach metadata to the message to provide more detail on the nature of the failure.
+**Signature:** `7F`
+
+**Fields:**
+
+```
+metadata::Dictionary(
+  code::String,
+  message::String,
+)
+```
+
+- The `code` is a textual code that uniquely identifies the type of failure. 
+- The `message` is a textual description of the failure, intended for human consumption.
+
+
+#### Synopsis
+
+```
+FAILURE {metadata}
+```
 
 Example:
 
@@ -492,52 +752,66 @@ FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 ```
 
 
-### 4.6. `RESET`
+### Detail Message - `RECORD`
 
-The `RESET` message requests that the connection should be set back to its initial `READY` state, as if an `INIT` had just successfully completed.
+A `RECORD` message carries a sequence of values corresponding to a single entry in a result.
 
-The `RESET` message is unique in that, on arrival at the server, it splits into two separate signals.
+**Signature:** `71`
 
-Firstly, an `<INTERRUPT>` **signal jumps ahead in the message queue**, stopping any unit of work that happens to be executing, and putting the state machine into an `INTERRUPTED` state.
+These messages are currently only ever received in response to a `PULL_ALL` message and will always be followed by a **summary message**.
 
-Secondly, the `RESET` queues along with all other incoming messages and is used to put the state machine back to `READY` when its turn for processing arrives.
+**Fields:**
 
-This essentially means that the `INTERRUPTED` state exists only transitionally between the arrival of a `RESET` in the message queue and the later processing of that `RESET` in its proper position.
-
-The `INTERRUPTED` state is therefore the only state to automatically resolve without any further input from the client and whose entry does not generate a response message.
-
+```
+data::List
+```
 
 #### Synopsis
 
 ```
-RESET
+RECORD [data]
 ```
 
-Example:
+Example 1:
 
 ```
-RESET
+RECORD ["1", "2", "3"]
 ```
 
-#### Server Response `SUCCESS`
-
-If a `RESET` message request has been successfully received, the server should respond with a `SUCCESS` message and enter the `READY` state.
-
-
-Example:
+Example 2:
 
 ```
-SUCCESS {}
+RECORD [{"point": [1, 2]}, "example_data", 123]
 ```
 
-#### Server Response `FAILURE`
 
-If `RESET` message is received before the server enters a `READY` state, it should trigger a `FAILURE` followed by immediate closure of the connection.
-Clients receiving a `FAILURE` in response to `RESET` should treat that connection as `DEFUNCT` and dispose of it.
+# Appendix - Message Exchange Examples
 
-Example:
+* The `C:` stands for client.
+* The `S:` stands for server.
+
+
+## Example 1
 
 ```
-FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
+C: 60 60 B0 17
+C: 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00
+S: 00 00 00 01
+C: INIT "user_agent": "Example/1.0.0" {"scheme": "basic", "principal": "user", "credentials": "password"}
+S: SUCCESS {"server": "Neo4j/3.4.0"}
 ```
 
+## Example 2
+
+```
+C: 60 60 B0 17
+C: 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00
+S: 00 00 00 01
+C: INIT "user_agent": "Example/1.0.0" {"scheme": "basic", "principal": "user", "credentials": "password"}
+S: SUCCESS {"server": "Neo4j/3.4.0"}
+C: RUN "RETURN $x AS example" {"x": 123}
+S: SUCCESS {"fields": ["example"]}
+C: PULL_ALL
+S: RECORD [123]
+S: SUCCESS {"bookmark": "example-bookmark:1", "t_last": 300}
+```

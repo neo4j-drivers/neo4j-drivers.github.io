@@ -59,7 +59,7 @@ See, [Bolt Protocol Server State Specification Version 4](bolt-protocol-server-s
 Jump ahead is that the signal will imediatly be available before any messages are processed in the message queue.
 
 | Server Signal   | Jump Ahead | Description            |
-|:---------------:|:----------:|------------------------|
+|:----------------|:----------:|------------------------|
 | `<INTERRUPT>`   | x          | an interrupt signal    |
 | `<DISCONNECT>`  |            | a disconnect signal    |
 
@@ -106,7 +106,12 @@ The chunking process allows the message to be broken into one or more pieces, ea
 Each chunk consists of a **two-byte header**, detailing the chunk size in bytes followed by the chunk data itself.
 Chunk headers are **16-bit unsigned integers**, meaning that the maximum theoretical chunk size permitted is 65,535 bytes.
 
-Each encoded message **must** be terminated with a chunk of zero size, i.e. `00 00`.
+Each encoded message **must** be terminated with a chunk of zero size, i.e.
+
+```
+00 00
+```
+
 This is used to signal message boundaries to a receiving parties, allowing blocks of data to be fully received without requiring that the message is parsed immediately.
 This also allows for unknown message types to be received and handled without breaking the messaging chain.
 
@@ -196,6 +201,11 @@ The client may send multiple requests eagerly without first waiting for response
 
 ## Messages - Version 4.0
 
+* **Request Message**, the client sends a message.
+* **Summary Message**, the server will always respond with one summary message.
+* **Detail Message**, the server will always repond with zero or more detail messages before sending a summary message.
+
+
 | Message       | Signature | Request Message | Summary Message | Detail Message | Fields                                                                                                                                                         | Description                                             |
 |---------------|:---------:|:---------------:|:---------------:|:--------------:|----------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
 | `HELLO`       | `01`      | x               |                 |                | `extra::Dictionary(user_agent::String, scheme::String, principal::String, credentials::String)`                                                                | initialize connection                                   |
@@ -210,7 +220,7 @@ The client may send multiple requests eagerly without first waiting for response
 | `SUCCESS`     | `70`      |                 | x               |                | `metadata::Dictionary`                                                                                                                                         | request succeeded                                       |
 | `IGNORED`     | `7E`      |                 | x               |                |                                                                                                                                                                | request was ignored                                     |
 | `FAILURE`     | `7F`      |                 | x               |                | `metadata::Dictionary(code::String, message::String)`                                                                                                          | request failed                                          |
-| `RECORD`      | `71`      |                 |                 | x              | `data::List<Value>`                                                                                                                                            | data values                                             |
+| `RECORD`      | `71`      |                 |                 | x              | `data::List`                                                                                                                                                   | data values                                             |
 
 
 
@@ -262,7 +272,7 @@ HELLO {user_agent::String, scheme::String, principal::String, credentials::Strin
 Example:
 
 ```
-HELLO {"user_agent": "example-agent/4.0.0", "scheme": "basic", "principal": "user-id-1", "credentials": "user-password"}
+HELLO {"user_agent": "Example/4.0.0", "scheme": "basic", "principal": "user-id-1", "credentials": "user-password"}
 ```
 
 

@@ -10,18 +10,18 @@ Each **connection** maintained by a Bolt server will occupy one of several state
 
 This state is used to determine what actions may be undertaken by the client.
 
-| State             | Logic State    | Description                                         |
-|-------------------|:--------------:|-----------------------------------------------------|
-| `DISCONNECTED`    | x              | no socket connection                                |
-| `CONNECTED`       | x              | protocol handshake has been completed successfully  |
-| `DEFUNCT`         | x              | the socket connection has been permanently closed   |
-| `READY`           |                | ready to accept a `RUN` message                     |
-| `STREAMING`       |                | a result is available for streaming from the server |
-| `FAILED`          |                | a connection is in a temporarily unusable state     |
-| `INTERUPTED`      |                |                                                     |
+| State                                             | Logic State    | Description                                         |
+|:--------------------------------------------------|:--------------:|:----------------------------------------------------|
+| [`DISCONNECTED`](#server-state---disconnected)    | x              | no socket connection                                |
+| [`CONNECTED`](#server-state---connected)          | x              | protocol handshake has been completed successfully  |
+| [`DEFUNCT`](#server-state---defunct)              | x              | the socket connection has been permanently closed   |
+| [`READY`](#server-state---ready)                  |                | ready to accept a `RUN` message                     |
+| [`STREAMING`](#server-state---streaming)          |                | a result is available for streaming from the server |
+| [`FAILED`](#server-state---failed)                |                | a connection is in a temporarily unusable state     |
+| [`INTERRUPTED`](#server-state---interrupted)      |                | the server got a `<INTERRUPT>` signal               |
 
 
-## Server State `DISCONNECTED`
+## Server State - `DISCONNECTED`
 
 No **socket connection** has yet been established.
 This is the initial state and exists only in a logical sense prior to the socket being opened.
@@ -32,15 +32,16 @@ This is the initial state and exists only in a logical sense prior to the socket
 - handshake did not complete successfully to `DEFUNCT`
 
 
-## Server State `CONNECTED`
+## Server State - `CONNECTED`
 
 After a new **protocol connection** has been established and handshake has been completed successfully, the server enters the `CONNECTED` state.
 The connection has not yet been authenticated and permits only one transition, through successful initialization, into the `READY` state.
 
 ### Transitions from `CONNECTED`
 
-- `INIT` to `READY` or `DEFUNCT`
 - `<DISCONNECT>` to `DEFUNCT`
+- `INIT` to `READY` or `DEFUNCT`
+
 
 #### `<DISCONNECT>` Signal State Transitions
 
@@ -56,7 +57,7 @@ The connection has not yet been authenticated and permits only one transition, t
 | `CONNECTED`   | `DEFUNCT`   | `FAILURE {}` |
 
 
-## Server State `DEFUNCT`
+## Server State - `DEFUNCT`
 
 This is not strictly a connection state, but is instead a logical state that exists after a connection has been closed.
 
@@ -71,9 +72,13 @@ This is a terminal state on which no further transitions may be carried out.
 The `<DISCONNECT>` signal will set the connection in the `DEFUNCT` server state.
 
 
-## Server State `READY`
+## Server State - `READY`
 
 ### Transitions from `READY`
+
+- `<INTERRUPT>` to `INTERRUPTED`
+- `<DISCONNECT>` to `DEFUNCT`
+- `RUN` to `STREAMING` or `FAILED`
 
 #### `<INTERRUPT>` Signal State Transitions
 
@@ -93,10 +98,9 @@ The `<DISCONNECT>` signal will set the connection in the `DEFUNCT` server state.
 |---------------|---------------|--------------|
 | `READY`       | `STREAMING`   | `SUCCESS {}` |
 | `READY`       | `FAILED`      | `FAILURE {}` |
-| `INTERRUPTED` | `INTERRUPTED` | `IGNORED`    |
 
 
-## Server State `STREAMING`
+## Server State - `STREAMING`
 
 When `STREAMING`, a result is available for streaming from server to client.
 
@@ -104,10 +108,11 @@ This result must be fully consumed or discarded by a client before the server ca
 
 ### Transitions from `STREAMING`
 
-- `PULL_ALL` to `READY` or `FAILED`
-- `DISCARD_ALL` to `READY` or `FAILED`
 - `<INTERRUPT>` to `INTERRUPTED`
 - `<DISCONNECT>` to `DEFUNCT`
+- `PULL_ALL` to `READY` or `FAILED`
+- `DISCARD_ALL` to `READY` or `FAILED`
+
 
 #### `<INTERRUPT>` Signal State Transitions
 
@@ -136,7 +141,7 @@ This result must be fully consumed or discarded by a client before the server ca
 | `STREAMING`   | `FAILED`      | \[`RECORD` ...\] `FAILURE {}` |
 
 
-## Server State `FAILED`
+## Server State - `FAILED`
 
 When `FAILED`, a connection is in a temporarily unusable state.
 
@@ -149,9 +154,10 @@ This mode ensures that only one failure can exist at a time, preventing cascadin
 
 ### Transitions from `FAILED`
 
-- `ACK_FAILURE` to `READY` or `DEFUNCT`
 - `<INTERRUPT>` to `INTERRUPTED`
 - `<DISCONNECT>` to `DEFUNCT`
+- `ACK_FAILURE` to `READY` or `DEFUNCT`
+
 
 #### `<INTERRUPT>` Signal State Transitions
 
@@ -173,7 +179,7 @@ This mode ensures that only one failure can exist at a time, preventing cascadin
 | `FAILED`      | `DEFUNCT`     | `FAILURE {}` |
 
 
-## Server State `INTERRUPTED`
+## Server State - `INTERRUPTED`
 
 This state occurs between the server receiving the jump-ahead `<INTERRUPT>` and the queued `RESET` message, (the `RESET` message triggers an `<INTERRUPT>`).
 
@@ -184,12 +190,14 @@ The `<INTERRUPT>` signal will set the connection in the `INTERRUPTED` server sta
 
 ### Transitions from `INTERRUPTED`
 
-- `RUN` to `INTERRUPTED`
-- `DISCARD_ALL` to `INTERRUPTED`
-- `PULL_ALL` to `INTERRUPTED`
-- `RESET` to `READY` or `DEFUNCT`
 - `<INTERRUPT>` to `INTERRUPTED`
 - `<DISCONNECT>` to `DEFUNCT`
+- `RUN` to `INTERRUPTED`
+- `PULL_ALL` to `INTERRUPTED`
+- `DISCARD_ALL` to `INTERRUPTED`
+- `ACK_FAILURE` to `INTERRUPTED`
+- `RESET` to `READY` or `DEFUNCT`
+
 
 #### `<INTERRUPT>` Signal State Transitions
 
@@ -227,4 +235,33 @@ The `<INTERRUPT>` signal will set the connection in the `INTERRUPTED` server sta
 |---------------|---------------|--------------|
 | `INTERRUPTED` | `READY`       | `SUCCESS {}` |
 | `INTERRUPTED` | `DEFUNCT`     | `FAILURE {}` |
+
+
+# Appendix - Bolt Message State Transitions
+
+
+| Initial State | Client Message | Triggers Signal | Server Response Summary Message | Final State   |
+|---------------|----------------|-----------------|---------------------------------|---------------| 
+| `CONNECTED`   | `INIT`         |                 | `SUCCESS {}`                    | `READY`       |
+| `CONNECTED`   | `INIT`         |                 | `FAILURE {}`                    | `DEFUNCT`     |
+| `READY`       | `RUN`          |                 | `SUCCESS {}`                    | `STREAMING`   |
+| `READY`       | `RUN`          |                 | `FAILURE {}`                    | `FAILED`      |
+| `READY`       | `RESET`        | `<INTERRUPT>`   | *n/a*                           | `INTERRUPTED` |
+| `STREAMING`   | `PULL_ALL`     |                 | `SUCCESS {}`                    | `READY`       |
+| `STREAMING`   | `PULL_ALL`     |                 | `FAILURE {}`                    | `FAILED`      |
+| `STREAMING`   | `DISCARD_ALL`  |                 | `SUCCESS {}`                    | `READY`       |
+| `STREAMING`   | `DISCARD_ALL`  |                 | `FAILURE {}`                    | `FAILED`      |
+| `STREAMING`   | `RESET`        | `<INTERRUPT>`   | *n/a*                           | `FAILED`      |
+| `FAILED`      | `RUN`          |                 | `IGNORED`                       | `FAILED`      |
+| `FAILED`      | `PULL_ALL`     |                 | `IGNORED`                       | `FAILED`      |
+| `FAILED`      | `DISCARD_ALL`  |                 | `IGNORED`                       | `INTERRUPTED` |
+| `FAILED`      | `ACK_FAILURE`  |                 | `SUCCESS {}`                    | `READY`       | 
+| `FAILED`      | `ACK_FAILURE`  |                 | `FAILURE {}`                    | `DEFUNCT`     |
+| `FAILED`      | `RESET`        | `<INTERRUPT>`   | *n/a*                           | `INTERRUPTED` |
+| `INTERRUPTED` | `RUN`          |                 | `IGNORED`                       | `INTERRUPTED` |
+| `INTERRUPTED` | `PULL_ALL`     |                 | `IGNORED`                       | `INTERRUPTED` |
+| `INTERRUPTED` | `DISCARD_ALL`  |                 | `IGNORED`                       | `INTERRUPTED` |
+| `INTERRUPTED` | `ACK_FAILURE`  |                 | `IGNORED`                       | `INTERRUPTED` |
+| `INTERRUPTED` | `RESET`        |                 | `SUCCESS {}`                    | `READY`       |
+| `INTERRUPTED` | `RESET`        |                 | `FAILURE {}`                    | `DEFUNCT`     |
 
