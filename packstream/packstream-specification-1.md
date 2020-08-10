@@ -422,7 +422,7 @@ A Dictionary is a list containing key-value entries.
 
 The size of a Dictionary denotes the number of key-value entries within that Dictionary, not the total packed byte size.
 
-The markers used to denote a map are described in the table below:
+The markers used to denote a Dictionary are described in the table below:
 
 
 | Marker | Size (key-value entries)                     | Maximum size             |
@@ -448,12 +448,14 @@ The markers used to denote a map are described in the table below:
 | `DA`   | 32-bit big-endian signed integer             | 2 147 483 648 entries    |
 
 
-For a Dictionary containing fewer than 16 key-value entries, including empty maps,
-the marker byte should contain the high-order nibble 'A' (binary 1010) followed by a low-order nibble containing the size.
+For a Dictionary containing fewer than 16 key-value entries, including an empty Dictionary,
+the marker byte should contain the high-order nibble `A` (binary `1010`) followed by a low-order nibble containing the size.
 
-The entries within the map are then serialised in [key, value, key, value] order immediately after the marker. Keys are always String values.
+The entries within the Dictionary are then serialised in `[key, value, key, value]` order immediately after the marker.
 
-For maps containing 16 key-value entries or more, the marker `D8`, `D9` or `DA` should be used, depending on scale.
+**Keys are always String values.**
+
+For a Dictionary containing 16 key-value entries or more, the marker `D8`, `D9` or `DA` should be used, depending on scale.
 This marker is followed by the size and the key-value entries.
 
 Example 1:
@@ -571,7 +573,7 @@ The **tag byte** may hold any value between 0 and +127.
 Node::Structure(
     id::Integer
     labels::List<String>
-    properties::Dictionary<String, Value>
+    properties::Dictionary
 )
 ```
 
@@ -601,7 +603,7 @@ Relationship::Structure(
     startNodeId::Integer
     endNodeId::Integer
     type::String
-    properties::Dictionary<String, Value>
+    properties::Dictionary
 )
 
 Example:
@@ -633,7 +635,7 @@ A relationship without information of start and end node id. It is used internal
 UnboundRelationship::Structure(
     id::Integer
     type::String
-    properties::Dictionary<String, Value>
+    properties::Dictionary
 )
 ```
 
