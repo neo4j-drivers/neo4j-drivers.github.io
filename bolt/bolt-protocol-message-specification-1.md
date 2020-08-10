@@ -222,8 +222,8 @@ auth_token::Dictionary(
 ```
 
   - The `user_agent` should conform to `"Name/Version"` for example `"Example/1.0.0"`. (see, [developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent))
-  - The `scheme` is the authentication scheme. Predefined schemes are `“none”`, `“basic”`.
-
+  - The `scheme` is the authentication scheme. Predefined schemes are `"none"`, `"basic"`. If no `scheme` is provided, it defaults to `"none"`.
+  - The `auth_token` must contain either just the entry `{"scheme" : "none"}` or the keys `scheme`, `principal` and `credentials`.
 
 **Detail Messages:**
 
@@ -241,7 +241,13 @@ No detail messages should be returned.
 INIT "user_agent" {auth_token}
 ```
 
-Example:
+Example 1:
+
+```
+INIT "Example/1.0.0" {"scheme": "none"}
+```
+
+Example 2:
 
 ```
 INIT "Example/1.0.0" {"scheme": "basic", "principal": "neo4j", "credentials": "password"}
