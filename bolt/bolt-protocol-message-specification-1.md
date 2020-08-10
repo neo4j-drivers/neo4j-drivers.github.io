@@ -42,6 +42,14 @@ Jump ahead is that the signal will imediatly be available before any messages ar
 If a server or client receives a message type that is unexpected, according to the transitions described in this document, it must treat that as a protocol error.
 Protocol errors are fatal and should immediately transition the server state to `DEFUNCT`, closing any open connections.
 
+### Session
+
+Each connection to the server creates a new **session** that lives until that connection is closed.
+
+Each session is isolated and the server keep track of the current state, based on the requests and responses exchanged within that session.
+
+A session ends when the socket for that connection is closed. Typically, this will be closed by the client.
+
 
 ## Message Exchange
 
