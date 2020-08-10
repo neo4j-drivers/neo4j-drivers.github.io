@@ -8,7 +8,7 @@ A Bolt connection always begins with a fixed handshake wherein the client identi
 The outcome of this negotiation determines the version of messaging protocol that follows.
 Messaging protocols are described elsewhere.
 
-*NOTE: Byte values in this document are represented using hexadecimal notation unless otherwise specified.*
+**NOTE:** *Byte values are represented using hexadecimal notation unless otherwise specified.*
 
 
 ## Endianness

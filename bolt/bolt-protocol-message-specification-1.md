@@ -4,7 +4,7 @@
 * [**Version 1**](#version-1)
 
 
-**NOTE:** Byte values are represented using hexadecimal notation unless otherwise specified.
+**NOTE:** *Byte values are represented using hexadecimal notation unless otherwise specified.*
 
 
 # Version 1
