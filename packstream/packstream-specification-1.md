@@ -269,6 +269,8 @@ CC 03 01 02 03
 
 **Markers:**
 
+For shorter strings,
+
 | Marker  | Size (bytes)   |
 |---------|----------------|
 | `80`    | 0              |
@@ -288,6 +290,8 @@ CC 03 01 02 03
 | `8E`    | 14             |
 | `8F`    | 15             |
 
+
+For longer strings,
 
 | Marker  | Size                                | Maximum number of bytes |
 |---------|-------------------------------------|-------------------------|
