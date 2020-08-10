@@ -1,7 +1,9 @@
 # Bolt Protocol Server State Specification - Version 1
 
 * [**Version 1**](#version-1)
+
 * [**Appendix - Bolt Message State Transitions**](#appendix---bolt-message-state-transitions)
+
 
 # Version 1
 
