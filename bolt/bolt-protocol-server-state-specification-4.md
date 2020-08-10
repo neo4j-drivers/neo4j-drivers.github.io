@@ -1,7 +1,11 @@
 # Bolt Protocol Server State Specification - Version 4
 
 * [**Version 4.0**](#version-40)
+
 * [**Version 4.1**](#version-41)
+
+* [**Appendix - Bolt Message State Transitions**](#appendix---bolt-message-state-transitions)
+
 
 # Version 4.0
 
@@ -365,3 +369,5 @@ The `<INTERRUPT>` signal will set the connection in the `INTERRUPTED` server sta
 
 No changes compared to version 4.0.
 
+
+# Appendix - Bolt Message State Transitions

@@ -5,6 +5,8 @@
 
 * [**Version 4.1**](#version-41)
 
+* [**Appendix - Bolt Message Exchange Examples**](#appendix---bolt-message-exchange-examples)
+
 
 **Note:** *Byte values are represented using hexadecimal notation unless otherwise specified.*
 
@@ -1057,7 +1059,7 @@ The two messages encoded with chunking and a `NOOP` (empty chunk) in between.
 
 
 
-# Appendix - Message Exchange Examples
+# Appendix - Bolt Message Exchange Examples
 
 * The `C:` stands for client.
 * The `S:` stands for server.

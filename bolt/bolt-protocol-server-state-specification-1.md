@@ -1,6 +1,7 @@
 # Bolt Protocol Server State Specification - Version 1
 
-* [Version 1](#version-1)
+* [**Version 1**](#version-1)
+* [**Appendix - Bolt Message State Transitions**](#appendix---bolt-message-state-transitions)
 
 # Version 1
 
@@ -246,22 +247,32 @@ The `<INTERRUPT>` signal will set the connection in the `INTERRUPTED` server sta
 | `CONNECTED`   | `INIT`         |                 | `FAILURE {}`                    | `DEFUNCT`     |
 | `READY`       | `RUN`          |                 | `SUCCESS {}`                    | `STREAMING`   |
 | `READY`       | `RUN`          |                 | `FAILURE {}`                    | `FAILED`      |
-| `READY`       | `RESET`        | `<INTERRUPT>`   | *n/a*                           | `INTERRUPTED` |
+| `READY`       | `RESET`        | `<INTERRUPT>`   | *n/a*                           |               |
 | `STREAMING`   | `PULL_ALL`     |                 | `SUCCESS {}`                    | `READY`       |
 | `STREAMING`   | `PULL_ALL`     |                 | `FAILURE {}`                    | `FAILED`      |
 | `STREAMING`   | `DISCARD_ALL`  |                 | `SUCCESS {}`                    | `READY`       |
 | `STREAMING`   | `DISCARD_ALL`  |                 | `FAILURE {}`                    | `FAILED`      |
-| `STREAMING`   | `RESET`        | `<INTERRUPT>`   | *n/a*                           | `FAILED`      |
+| `STREAMING`   | `RESET`        | `<INTERRUPT>`   | *n/a*                           |               |
 | `FAILED`      | `RUN`          |                 | `IGNORED`                       | `FAILED`      |
 | `FAILED`      | `PULL_ALL`     |                 | `IGNORED`                       | `FAILED`      |
 | `FAILED`      | `DISCARD_ALL`  |                 | `IGNORED`                       | `INTERRUPTED` |
 | `FAILED`      | `ACK_FAILURE`  |                 | `SUCCESS {}`                    | `READY`       | 
 | `FAILED`      | `ACK_FAILURE`  |                 | `FAILURE {}`                    | `DEFUNCT`     |
-| `FAILED`      | `RESET`        | `<INTERRUPT>`   | *n/a*                           | `INTERRUPTED` |
+| `FAILED`      | `RESET`        | `<INTERRUPT>`   | *n/a*                           |               |
 | `INTERRUPTED` | `RUN`          |                 | `IGNORED`                       | `INTERRUPTED` |
 | `INTERRUPTED` | `PULL_ALL`     |                 | `IGNORED`                       | `INTERRUPTED` |
 | `INTERRUPTED` | `DISCARD_ALL`  |                 | `IGNORED`                       | `INTERRUPTED` |
 | `INTERRUPTED` | `ACK_FAILURE`  |                 | `IGNORED`                       | `INTERRUPTED` |
-| `INTERRUPTED` | `RESET`        |                 | `SUCCESS {}`                    | `READY`       |
-| `INTERRUPTED` | `RESET`        |                 | `FAILURE {}`                    | `DEFUNCT`     |
+| `INTERRUPTED` | `RESET`        | `<INTERRUPT>`   | `SUCCESS {}`                    | `READY`       |
+| `INTERRUPTED` | `RESET`        | `<INTERRUPT>`   | `FAILURE {}`                    | `DEFUNCT`     |
 
+
+The `<INTERRUPT>` signal,
+
+
+| Initial State | Signal         | Server Response Summary Message | Final State   |
+|---------------|----------------|---------------------------------|---------------|
+| `READY`       | `<INTERRUPT>`  | *n/a*                           | `INTERRUPTED` |
+| `STREAMING`   | `<INTERRUPT>`  | *n/a*                           | `INTERRUPTED` |
+| `FAILED`      | `<INTERRUPT>`  | *n/a*                           | `INTERRUPTED` |
+| `INTERRUPTED` | `<INTERRUPT>`  | *n/a*                           | `INTERRUPTED` |
