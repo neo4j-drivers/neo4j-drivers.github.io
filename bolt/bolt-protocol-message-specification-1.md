@@ -287,7 +287,7 @@ Servers may choose to include metadata describing the nature of the failure but 
 Example:
 
 ```
-FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
+FAILURE {"code": "Example.Failure.Code", "message": "example failure"}
 ```
 
 
@@ -346,7 +346,7 @@ The server may attach metadata to the message to provide more detail on the natu
 Example:
 
 ```
-FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
+FAILURE {"code": "Example.Failure.Code", "message": "example failure"}
 ```
 
 
@@ -414,7 +414,7 @@ Clients receiving a `FAILURE` in response to `RESET` should treat that connectio
 Example:
 
 ```
-FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
+FAILURE {"code": "Example.Failure.Code", "message": "example failure"}
 ```
 
 
@@ -501,7 +501,7 @@ The server may attach metadata to the message to provide more detail on the natu
 Example:
 
 ```
-FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
+FAILURE {"code": "Example.Failure.Code", "message": "example failure"}
 ```
 
 ### Request Message - `DISCARD_ALL`
@@ -581,7 +581,7 @@ The server may attach metadata to the message to provide more detail on the natu
 Example:
 
 ```
-FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
+FAILURE {"code": "Example.Failure.Code", "message": "example failure"}
 ```
 
 
@@ -686,7 +686,7 @@ In this case, that result detail should be considered invalid.
 Example:
 
 ```
-FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
+FAILURE {"code": "Example.Failure.Code", "message": "example failure"}
 ```
 
 
@@ -768,7 +768,7 @@ FAILURE {metadata}
 Example:
 
 ```
-FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
+FAILURE {"code": "Example.Failure.Code", "message": "example failure"}
 ```
 
 
