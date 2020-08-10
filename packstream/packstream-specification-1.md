@@ -71,11 +71,16 @@ Sizes longer than this are not supported.
 
 The diagram below illustrates the general layout for a sized value, here with a 16-bit size:
 
-```
-Marker Size          Content
-  <>   <--->  <--------------------->
-  XX   XX XX  XX XX XX XX .. .. .. XX
-```
+
+[//]: Marker   Size           Content
+
+[//]:  `<>`  `<--->`  `<--------------------->`
+
+[//]:  `XX`  `XX XX`  `XX XX XX XX .. .. .. XX`
+
+
+![alt text](../art/packstream_sized_value.png "sized value")
+
 
 ### Endianness
 
