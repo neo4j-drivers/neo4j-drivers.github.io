@@ -62,6 +62,7 @@ Therefore, if a match occurs for more than one version, the first match should b
 Example 1: The client are aware of the Bolt protocol versions 1. The server responds with version 1.
 
 ```
+C: 60 60 B0 17
 C: 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00
 S: 00 00 00 01
 ```
@@ -69,6 +70,7 @@ S: 00 00 00 01
 Example 2: The client are aware of the two Bolt protocol versions 1 and 2. The server responds with version 2. 
 
 ```
+C: 60 60 B0 17
 C: 00 00 00 02 00 00 00 01 00 00 00 00 00 00 00 00
 S: 00 00 00 02
 ```
@@ -76,6 +78,7 @@ S: 00 00 00 02
 Example 3: The client are aware of the three Bolt protocol versions 1, 2 and 3. The server responds with version 2. 
 
 ```
+C: 60 60 B0 17
 C: 00 00 00 03 00 00 00 02 00 00 00 01 00 00 00 00
 S: 00 00 00 02
 ```
@@ -83,6 +86,7 @@ S: 00 00 00 02
 Example 4: The client are aware of the Bolt protocol versions 3. The server responds with no version, the server do not support communication with the client.
 
 ```
+C: 60 60 B0 17
 C: 00 00 00 03 00 00 00 00 00 00 00 00 00 00 00 00
 S: 00 00 00 00
 ```
@@ -100,6 +104,7 @@ Example 5: Version 4.1.
 Example 6: The client are aware of the three Bolt protocols 3, 4.0, and 4.1. The server responds with version 4.1.
 
 ```
+C: 60 60 B0 17
 C: 00 00 01 04 00 00 00 04 00 00 00 03 00 00 00 00
 S: 00 00 01 04
 ```
