@@ -53,7 +53,7 @@ For the server, each connection using the Bolt Protocol will occupy one of sever
 
 This state is used to determine what actions may be undertaken by the client.
 
-See, [Bolt Protocol Server State Specification Version 4](bolt-protocol-server-state-specification-4.md)
+See, [**Bolt Protocol Server State Specification Version 4**](bolt-protocol-server-state-specification-4.md)
 
 
 ### Server Signals
@@ -90,7 +90,7 @@ More details of this process can be found in the sections below.
 
 ### Serialization
 
-Messages and their contents are serialized into network streams using [PackStream Specification Version 1](../packstream/packstream-specification-1.md).
+Messages and their contents are serialized into network streams using [**PackStream Specification Version 1**](../packstream/packstream-specification-1.md).
 
 **Each message is represented as a PackStream structure**, that contains a fixed number of fields.
 
