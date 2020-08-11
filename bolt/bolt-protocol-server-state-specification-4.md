@@ -29,7 +29,7 @@ This state is used to determine what actions may be undertaken by the client.
 | [`TX_READY`](#server-state---tx_ready)            |                | **Explicit Transaction**, ready to accept a `RUN` message                                |
 | [`TX_STREAMING`](#server-state---tx_streaming)    |                | **Explicit Transaction**, a result is available for streaming from the server            |
 | [`FAILED`](#server-state---failed)                |                | a connection is in a temporarily unusable state                                          |
-| [`INTERUPTED`](#server-state---interrupted)       |                |                                                                                          |
+| [`INTERRUPTED`](#server-state---interrupted)      |                |                                                                                          |
 
 
 ## Server State - `DISCONNECTED`
@@ -50,22 +50,8 @@ The connection has not yet been authenticated and permits only one transition, t
 
 ### Transitions from `CONNECTED`
 
-- `INIT` to `READY` or `DEFUNCT`
 - `<DISCONNECT>` to `DEFUNCT`
-- `GOODBYE` to `CONNECTED`
-
-#### `<DISCONNECT>` Signal State Transitions
-
-| Initial State | Final State   | Response |
-|---------------|---------------|----------|
-| `CONNECTED`   | `DEFUNCT`     | *n/a*    |
-
-#### `HELLO` Message State Transitions
-
-| Initial State | Final State | Response     |
-|---------------|-------------|--------------|
-| `CONNECTED`   | `READY`     | `SUCCESS {}` |
-| `CONNECTED`   | `DEFUNCT`   | `FAILURE {}` |
+- `HELLO` to `READY` or `DEFUNCT`
 
 
 ## Server State - `DEFUNCT`
@@ -91,34 +77,6 @@ The `<DISCONNECT>` signal will set the connection in the `DEFUNCT` server state.
 - `<DISCONNECT>` to `DEFUNCT`
 - `RUN` to `STREAMING` or `FAILED`
 - `BEGIN` to `TX_READY` or `FAILED`
-
-#### `<INTERRUPT>` Signal State Transitions
-
-| Initial State | Final State   | Response |
-|---------------|---------------|----------|
-| `READY`       | `INTERRUPTED` | *n/a*    |
-
-#### `<DISCONNECT>` Signal State Transitions
-
-| Initial State | Final State   | Response |
-|---------------|---------------|----------|
-| `READY`       | `DEFUNCT`     | *n/a*    |
-
-
-#### `RUN` Message State Transitions
-
-| Initial State | Final State   | Response     |
-|---------------|---------------|--------------|
-| `READY`       | `STREAMING`   | `SUCCESS {}` |
-| `READY`       | `FAILED`      | `FAILURE {}` |
-
-
-#### `BEGIN` Message State Transitions
-
-| Initial State | Final State   | Response     |
-|---------------|---------------|--------------|
-| `READY`       | `TX_READY`    | `SUCCESS {}` |
-| `READY`       | `FAILED`      | `FAILURE {}` |
 
 
 ## Server State - `STREAMING`
@@ -147,7 +105,7 @@ This result must be fully consumed or discarded by a client before the server ca
 |---------------|---------------|----------|
 | `STREAMING`   | `DEFUNCT`     | *n/a*    |
 
-#### `DISCARD` Message State Transitions
+#### Request Message - `DISCARD` - State Transitions
 
 | Initial State | Final State   | Response                     |
 |---------------|---------------|------------------------------|
@@ -155,7 +113,7 @@ This result must be fully consumed or discarded by a client before the server ca
 | `STREAMING`   | `FAILED`      | `FAILURE {}`                 |
 | `STREAMING`   | `STREAMING`   | `SUCCESS {"has_more": true}` |
 
-#### `PULL` Message State Transitions
+#### Request Message - `PULL` - State Transitions
 
 | Initial State | Final State   | Response                                      |
 |---------------|---------------|-----------------------------------------------|
@@ -222,41 +180,30 @@ This result must be fully consumed or discarded by a client before the server ca
 - `PULL` to `TX_READY`, `FAILED` or `TX_STREAMING`
 - `DISCARD` to `TX_READY`, `FAILED` or `TX_STREAMING`
 
-
-#### `<INTERRUPT>` Signal State Transitions
-
-| Initial State    | Final State   | Response |
-|------------------|---------------|----------|
-| `TX_STREAMING`   | `INTERRUPTED` | *n/a*    |
-
-#### `<DISCONNECT>` Signal State Transitions
-
-| Initial State    | Final State   | Response |
-|------------------|---------------|----------|
-| `TX_STREAMING`   | `DEFUNCT`     | *n/a*    |
-
-#### `RUN` Message State Transitions
+#### Request Message - `RUN` - State Transitions
 
 | Initial State    | Final State      | Response                       |
 |------------------|------------------|--------------------------------|
 | `TX_STREAMING`   | `TX_STREAMING`   | `SUCCESS {"qid": id::Integer}` |
 | `TX_STREAMING`   | `FAILED`         | `FAILURE {}`                   |
 
-#### `DISCARD` Message State Transitions
+#### Request Message - `DISCARD` - State Transitions
 
-| Initial State    | Final State      | Response                     |
-|------------------|------------------|------------------------------|
-| `TX_STREAMING`   | `TX_READY`       | `SUCCESS {"has_more": false}`|
-| `TX_STREAMING`   | `FAILED`         | `FAILURE {}`                 |
-| `TX_STREAMING`   | `TX_STREAMING`   | `SUCCESS {"has_more": true}` |
+| Initial State    | Final State                                                     | Response                     |
+|------------------|-----------------------------------------------------------------|------------------------------|
+| `TX_STREAMING`   | `TX_READY` or `TX_STREAMING` if there is other streams open     | `SUCCESS {"has_more": false}`|
+| `TX_STREAMING`   | `FAILED`                                                        | `FAILURE {}`                 |
+| `TX_STREAMING`   | `TX_STREAMING`                                                  | `SUCCESS {"has_more": true}` |
 
-#### `PULL` Message State Transitions
+#### Request Message - `PULL` - State Transitions
 
-| Initial State    | Final State      | Response                                      |
-|------------------|------------------|-----------------------------------------------|
-| `TX_STREAMING`   | `TX_READY`       | \[`RECORD` ...\] `SUCCESS {"has_more": false}`|
-| `TX_STREAMING`   | `FAILED`         | \[`RECORD` ...\] `FAILURE {}`                 |
-| `TX_STREAMING`   | `TX_STREAMING`   | \[`RECORD` ...\] `SUCCESS {"has_more": true}` |
+`TX_READY` or `TX_STREAMING` if there is other streams open
+
+| Initial State    | Final State                                                    | Response                                      |
+|------------------|----------------------------------------------------------------|-----------------------------------------------|
+| `TX_STREAMING`   | `TX_READY` or `TX_STREAMING` if there is other streams open    | \[`RECORD` ...\] `SUCCESS {"has_more": false}`|
+| `TX_STREAMING`   | `FAILED`                                                       | \[`RECORD` ...\] `FAILURE {}`                 |
+| `TX_STREAMING`   | `TX_STREAMING`                                                 | \[`RECORD` ...\] `SUCCESS {"has_more": true}` |
 
 
 ## Server State - `FAILED`
