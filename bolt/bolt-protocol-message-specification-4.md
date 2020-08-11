@@ -208,25 +208,25 @@ The client may send multiple requests eagerly without first waiting for response
 * **Detail Message**, the server will always repond with zero or more detail messages before sending a summary message.
 
 
-| Message       | Signature | Request Message | Summary Message | Detail Message | Fields                                                                                                                                                         | Description                                             |
-|---------------|:---------:|:---------------:|:---------------:|:--------------:|----------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
-| `HELLO`       | `01`      | x               |                 |                | `extra::Dictionary(user_agent::String, scheme::String, principal::String, credentials::String)`                                                                | initialize connection                                   |
-| `GOODBYE`     | `02`      | x               |                 |                |                                                                                                                                                                | close the connection, triggers a `<DISCONNECT>` signal  |
-| `RESET`       | `0F`      | x               |                 |                |                                                                                                                                                                | reset the connection, triggers a `<INTERRUPT>` signal   |
-| `RUN`         | `10`      | x               |                 |                | `query::String`, `parameters::Dictionary`, `extra::Dictionary(bookmarks::List<String>, tx_timeout::Integer, tx_metadata::Dictionary, mode::String, db:String)` | execute a query                                         |
-| `DISCARD`     | `2F`      | x               |                 |                | `extra::Dictionary(n::Integer`, `qid::Integer)`                                                                                                                | discard records                                         |
-| `PULL`        | `3F`      | x               |                 |                | `extra::Dictionary(n::Integer`, `qid::Integer)`                                                                                                                | fetch records                                           |
-| `BEGIN`       | `11`      | x               |                 |                | `extra::Dictionary(bookmarks::List<String>, tx_timeout::Integer, tx_metadata::Dictionary, mode::String, db::String)`                                           | begin a new transaction                                 |
-| `COMMIT`      | `12`      | x               |                 |                |                                                                                                                                                                | commit a transaction                                    |
-| `ROLLBACK`    | `13`      | x               |                 |                |                                                                                                                                                                | rollback a transaction                                  |
-| `SUCCESS`     | `70`      |                 | x               |                | `metadata::Dictionary`                                                                                                                                         | request succeeded                                       |
-| `IGNORED`     | `7E`      |                 | x               |                |                                                                                                                                                                | request was ignored                                     |
-| `FAILURE`     | `7F`      |                 | x               |                | `metadata::Dictionary(code::String, message::String)`                                                                                                          | request failed                                          |
-| `RECORD`      | `71`      |                 |                 | x              | `data::List`                                                                                                                                                   | data values                                             |
+| Message                                       | Signature | Request Message | Summary Message | Detail Message | Fields                                                                                                                                                         | Description                                             |
+|-----------------------------------------------|:---------:|:---------------:|:---------------:|:--------------:|----------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
+| [`HELLO`](#request-message---hello)           | `01`      | x               |                 |                | `extra::Dictionary(user_agent::String, scheme::String, principal::String, credentials::String)`                                                                | initialize connection                                   |
+| [`GOODBYE`](#request-message---goodbye)       | `02`      | x               |                 |                |                                                                                                                                                                | close the connection, triggers a `<DISCONNECT>` signal  |
+| [`RESET`](#request-message---reset)           | `0F`      | x               |                 |                |                                                                                                                                                                | reset the connection, triggers a `<INTERRUPT>` signal   |
+| [`RUN`](#request-message---run)               | `10`      | x               |                 |                | `query::String`, `parameters::Dictionary`, `extra::Dictionary(bookmarks::List<String>, tx_timeout::Integer, tx_metadata::Dictionary, mode::String, db:String)` | execute a query                                         |
+| [`DISCARD`](#request-message---discard)       | `2F`      | x               |                 |                | `extra::Dictionary(n::Integer`, `qid::Integer)`                                                                                                                | discard records                                         |
+| [`PULL`](#request-message---pull)             | `3F`      | x               |                 |                | `extra::Dictionary(n::Integer`, `qid::Integer)`                                                                                                                | fetch records                                           |
+| [`BEGIN`](#request-message---begin)           | `11`      | x               |                 |                | `extra::Dictionary(bookmarks::List<String>, tx_timeout::Integer, tx_metadata::Dictionary, mode::String, db::String)`                                           | begin a new transaction                                 |
+| [`COMMIT`](#request-message---commit)         | `12`      | x               |                 |                |                                                                                                                                                                | commit a transaction                                    |
+| [`ROLLBACK`](#request-message---rollback)     | `13`      | x               |                 |                |                                                                                                                                                                | rollback a transaction                                  |
+| [`SUCCESS`](#summary-message---success)       | `70`      |                 | x               |                | `metadata::Dictionary`                                                                                                                                         | request succeeded                                       |
+| [`IGNORED`](#summary-message---ignored)       | `7E`      |                 | x               |                |                                                                                                                                                                | request was ignored                                     |
+| [`FAILURE`](#summary-message---failure)       | `7F`      |                 | x               |                | `metadata::Dictionary(code::String, message::String)`                                                                                                          | request failed                                          |
+| [`RECORD`](#detail-message---record)          | `71`      |                 |                 | x              | `data::List`                                                                                                                                                   | data values                                             |
 
 
 
-### `HELLO` - Message
+### Request Message - `HELLO`
 
 The `HELLO` message request the connection to be authorized for use with the remote database.
 
@@ -253,7 +253,7 @@ extra::Dictionary(
 ```
 
   - The `user_agent` should conform to `"Name/Version"` for example `"Example/4.0.0"`. (see, [developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent))
-  - The `scheme` is the authentication scheme. Predefined schemes are `“none”`, `“basic”`, `“kerberos”`.
+  - The `scheme` is the authentication scheme. Predefined schemes are `"none"`, `"basic"`, `"kerberos"`.
 
 **Detail Messages:**
 
@@ -307,7 +307,7 @@ FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 ```
 
 
-### `GOODBYE` - Message
+### Request Message - `GOODBYE`
 
 The `GOODBYE` message notifies the server that the connection is terminating gracefully.
 
@@ -343,7 +343,7 @@ Example:
 GOODBYE
 ```
 
-### `RESET` - Message
+### Request Message - `RESET`
 
 The `RESET` message requests that the connection should be set back to its initial state, as if a `HELLO` message had just been successfully completed.
 
@@ -378,7 +378,7 @@ Example:
 RESET
 ```
 
-### `RUN` - Message
+### Request Message - `RUN`
 
 The `RUN` message requests that a Cypher query is executed with a set of parameters and additional extra data.
 
@@ -389,8 +389,8 @@ This message could both be used for running an explicit transaction or an autoco
 **Fields:**
 
 ```
-query::String
-paramaters::Dictionary
+query::String,
+paramaters::Dictionary,
 extra::Dictionary(
   bookmarks::List<String>,
   tx_timeout::Integer,
@@ -490,7 +490,7 @@ Example:
 FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 ```
 
-### `DISCARD` - Message
+### Request Message - `DISCARD`
 
 The `DISCARD` message requests that the remainder of the result stream should be thrown away.
 
@@ -579,7 +579,7 @@ FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 ```
 
 
-### `PULL` - Message
+### Request Message - `PULL`
 
 The `PULL` message requests that the remainder of the result stream should be thrown away.
 
@@ -673,7 +673,7 @@ FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 ```
 
 
-### `BEGIN` - Message
+### Request Message - `BEGIN`
 
 The `BEGIN` message request the creation of a new **explicit transaction**.
 
@@ -758,7 +758,7 @@ FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 ```
 
 
-### `COMMIT` - Message
+### Request Message - `COMMIT`
 
 The `COMMIT` message request that the **explicit transaction** is done.
 
@@ -821,7 +821,7 @@ Example:
 FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 ```
 
-### `ROLLBACK` - Message
+### Request Message - `ROLLBACK`
 
 The `ROLLBACK` message requests that the **explicit transaction** rolls back.
 
@@ -880,7 +880,7 @@ Example:
 FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 ```
 
-### `SUCCESS` - Summary Message
+### Summary Message - `SUCCESS`
 
 The `SUCCESS` message indicates that the corresponding request has succeeded as intended.
 
@@ -909,7 +909,7 @@ SUCCESS {"example": "see specific message for server response metadata"}
 ```
 
 
-### `IGNORED` - Summary Message
+### Summary Message - `IGNORED`
 
 The `IGNORED` message indicates that the corresponding request has not been carried out.
 
@@ -931,7 +931,7 @@ Example:
 IGNORED
 ```
 
-### `FAILURE` - Summary Message
+### Summary Message - `FAILURE`
 
 
 **Signature:** `7F`
@@ -962,7 +962,7 @@ FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 ```
 
 
-### `RECORD` - Detail Message
+### Detail Message - `RECORD`
 
 A `RECORD` message carries a sequence of values corresponding to a single entry in a result.
 
@@ -1041,22 +1041,109 @@ The two messages encoded with chunking and a `NOOP` (empty chunk) in between.
 ## Messages - Version 4.1
 
 
-| Message       | Signature | Request Message | Summary Message | Detail Message | Fields                                                                                                                                                           | Description                                             |
-|---------------|:---------:|:---------------:|:---------------:|:--------------:|------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
-| `HELLO`       | `01`      | x               |                 |                | `extra::Dictionary(user_agent::String, scheme::String, principal::String, credentials::String, routing::Dictionary(address::String))`                            | initialize connection                                   |
-| `GOODBYE`     | `02`      | x               |                 |                |                                                                                                                                                                  | close the connection, triggers a `<DISCONNECT>` signal  |
-| `RESET`       | `0F`      | x               |                 |                |                                                                                                                                                                  | reset the connection, triggers a `<INTERRUPT>` signal   |
-| `RUN`         | `10`      | x               |                 |                | `query::String`, `parameters::Dictionary`, `extra::Dictionary(bookmarks::List<String>, tx_timeout::Integer, tx_metadata::Dictionary, mode::String, db:String)`   | execute a query                                         |
-| `DISCARD`     | `2F`      | x               |                 |                | `extra::Dictionary(n::Integer`, `qid::Integer)`                                                                                                                  | discard records                                         |
-| `PULL`        | `3F`      | x               |                 |                | `extra::Dictionary(n::Integer`, `qid::Integer)`                                                                                                                  | fetch records                                           |
-| `BEGIN`       | `11`      | x               |                 |                | `extra::Dictionary(bookmarks::List<String>, tx_timeout::Integer, tx_metadata::Dictionary, mode::String, db::String)`                                             | begin a new transaction                                 |
-| `COMMIT`      | `12`      | x               |                 |                |                                                                                                                                                                  | commit a transaction                                    |
-| `ROLLBACK`    | `13`      | x               |                 |                |                                                                                                                                                                  | rollback a transaction                                  |
-| `SUCCESS`     | `70`      |                 | x               |                | `metadata::Dictionary`                                                                                                                                           | request succeeded                                       |
-| `IGNORED`     | `7E`      |                 | x               |                |                                                                                                                                                                  | request was ignored                                     |
-| `FAILURE`     | `7F`      |                 | x               |                | `metadata::Dictionary(code::String, message::String)`                                                                                                            | request failed                                          |
-| `RECORD`      | `71`      |                 |                 | x              | `data::List`                                                                                                                                                     | data values                                             |
+| Message                                      | Signature | Request Message | Summary Message | Detail Message | Fields                                                                                                                                                           | Description                                             |
+|----------------------------------------------|:---------:|:---------------:|:---------------:|:--------------:|------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
+| [`HELLO`](#request-message---41---hello)     | `01`      | x               |                 |                | `extra::Dictionary(user_agent::String, scheme::String, principal::String, credentials::String, routing::Dictionary(address::String))`                            | initialize connection                                   |
+| [`GOODBYE`](#request-message---goodbye)      | `02`      | x               |                 |                |                                                                                                                                                                  | close the connection, triggers a `<DISCONNECT>` signal  |
+| [`RESET`](#request-message---reset)          | `0F`      | x               |                 |                |                                                                                                                                                                  | reset the connection, triggers a `<INTERRUPT>` signal   |
+| [`RUN`](#request-message---run)              | `10`      | x               |                 |                | `query::String`, `parameters::Dictionary`, `extra::Dictionary(bookmarks::List<String>, tx_timeout::Integer, tx_metadata::Dictionary, mode::String, db:String)`   | execute a query                                         |
+| [`DISCARD`](#request-message---discard)      | `2F`      | x               |                 |                | `extra::Dictionary(n::Integer`, `qid::Integer)`                                                                                                                  | discard records                                         |
+| [`PULL`](#request-message---pull)            | `3F`      | x               |                 |                | `extra::Dictionary(n::Integer`, `qid::Integer)`                                                                                                                  | fetch records                                           |
+| [`BEGIN`](#request-message---begin)          | `11`      | x               |                 |                | `extra::Dictionary(bookmarks::List<String>, tx_timeout::Integer, tx_metadata::Dictionary, mode::String, db::String)`                                             | begin a new transaction                                 |
+| [`COMMIT`](#request-message---commit)        | `12`      | x               |                 |                |                                                                                                                                                                  | commit a transaction                                    |
+| [`ROLLBACK`](#request-message---rollback)    | `13`      | x               |                 |                |                                                                                                                                                                  | rollback a transaction                                  |
+| [`SUCCESS`](#summary-message---success)      | `70`      |                 | x               |                | `metadata::Dictionary`                                                                                                                                           | request succeeded                                       |
+| [`IGNORED`](#summary-message---ignored)      | `7E`      |                 | x               |                |                                                                                                                                                                  | request was ignored                                     |
+| [`FAILURE`](#summary-message---failure)      | `7F`      |                 | x               |                | `metadata::Dictionary(code::String, message::String)`                                                                                                            | request failed                                          |
+| [`RECORD`](#detail-message---record)         | `71`      |                 |                 | x              | `data::List`                                                                                                                                                     | data values                                             |
 
+
+### Request Message - 4.1 - `HELLO`
+
+The `HELLO` message request the connection to be authorized for use with the remote database.
+
+The server **must** be in the `CONNECTED` state to be able to process a `HELLO` message.
+For any other states, receipt of an `HELLO` request **must** be considered a protocol violation and lead to connection closure.
+
+Clients should send `HELLO` message to the server immediately after connection and process the corresponding response before using that connection in any other way.
+
+If authentication fails, the server **must** respond with a `FAILURE` message and immediately close the connection.
+
+Clients wishing to retry initialization should establish a new connection.
+
+**Signature:** `01`
+
+**Fields:**
+
+```
+extra::Dictionary(
+  user_agent::String,
+  scheme::String,
+  principal::String,
+  credentials::String,
+  routing::Dictionary(address::String),
+)
+```
+
+  - The `user_agent` should conform to `"Name/Version"` for example `"Example/4.1.0"`. (see, [developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent))
+  - The `scheme` is the authentication scheme. Predefined schemes are `"none"`, `"basic"`, `"kerberos"`.
+  - The `routing` field should contain routing context information and the `address` field that should contain the address that the client initially tries to connect with e.g. `"x.example.com:9001"`.
+
+**Detail Messages:**
+
+No detail messages should be returned.
+
+**Valid Summary Messages:**
+
+* `SUCCESS`
+* `FAILURE`
+
+
+#### Synopsis
+
+```
+HELLO {user_agent::String, scheme::String, principal::String, credentials::String, routing::Dictionary(address::String))
+```
+
+Example 1:
+
+```
+HELLO {"user_agent": "Example/4.1.0", "scheme": "basic", "principal": "user", "credentials": "password", "routing": {"address": "x.example.com:9001"}}
+```
+
+Example 2:
+
+```
+HELLO {"user_agent": "Example/4.1.0", "scheme": "basic", "principal": "user", "credentials": "password", "routing": {"address": "x.example.com:9001", "policy": "example_policy_routing_context", "region": "example_region_routing_context"}}
+```
+
+#### Server Response `SUCCESS`
+
+A `SUCCESS` message response indicates that the client is permitted to exchange further messages.
+Servers can include metadata that describes details of the server environment and/or the connection.
+
+The following fields are defined for inclusion in the `SUCCESS` metadata.
+
+  - `server::String` (server agent string, example `"Neo4j/4.1.0"`)
+  - `connection_id::String` (unique identifier of the bolt connection used on the server side, example: `"bolt-61"`)
+
+Example:
+
+```
+SUCCESS {"server": "Neo4j/4.0.0"}
+```
+
+
+#### Server Response `FAILURE`
+
+A `FAILURE` message response indicates that the client is not permitted to exchange further messages.
+Servers may choose to include metadata describing the nature of the failure but **must** immediately close the connection after the failure has been sent.
+
+Example:
+
+```
+FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
+```
 
 
 # Appendix - Bolt Message Exchange Examples
@@ -1100,7 +1187,7 @@ C: GOODBYE
 C: 60 60 B0 17
 C: 00 00 01 04 00 00 00 00 00 00 00 00 00 00 00 00
 S: 00 00 01 04
-C: HELLO {"user_agent": "Example/4.1.0", "scheme": "basic", "principal": "user", "credentials": "password", "routing": {"address": "x.example.com"}}
+C: HELLO {"user_agent": "Example/4.1.0", "scheme": "basic", "principal": "user", "credentials": "password", "routing": {"address": "x.example.com:9001", "policy": "example_policy_routing_context", "region": "example_region_routing_context"}}
 S: SUCCESS {"server": "Neo4j/4.1.0", "connection_id": "example-connection-id:1"}
 C: RUN "RETURN $x AS example" {"x": 123} {"mode": "r", "db": "example_database"}
 S: SUCCESS {"fields": ["example"]}
