@@ -416,7 +416,7 @@ No changes compared to version 4.0.
 |                |                |                 |                                 |                                                             |
 | `FAILED`       | `RUN`          |                 | `IGNORED`                       | `FAILED`                                                    |
 | `FAILED`       | `PULL`         |                 | `IGNORED`                       | `FAILED`                                                    |
-| `FAILED`       | `DISCARD`      |                 | `IGNORED`                       | `INTERRUPTED`                                               |
+| `FAILED`       | `DISCARD`      |                 | `IGNORED`                       | `FAILED`                                                    |
 | `FAILED`       | `RESET`        | `<INTERRUPT>`   | *n/a*                           |                                                             |
 | `FAILED`       | `GOODBYE`      | `<DISCONNECT>`  | *n/a*                           | `DEFUNCT`                                                   |
 |                |                |                 |                                 |                                                             |
