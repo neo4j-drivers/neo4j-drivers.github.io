@@ -212,12 +212,14 @@ The **Auto-commit Transaction** is successfully closed with the summary message 
 Thus the **Auto-commit Transaction** can only contain one `RUN` request message.
 
 An **Explicit Transaction** is a more generic transaction that can contain several `RUN` request messages.
-The concept of **Explicit Transaction** is when the server is in the `READY` state and the transaction is opened with the request message `BEGIN` and the response of a summary message `SUCCESS`.
+The concept of **Explicit Transaction** is when the server is in the `READY` state and the transaction is opened with the request message `BEGIN` and the response of a summary message `SUCCESS` (thus transition into the `TX_READY` server state).
 The **Explicit Transaction** is successfully closed with the request message `COMMIT` and the response of a summary message `SUCCESS`.
+The result stream (detail messages) must be fully consumed or discarded by a client before the server can transition to the `TX_READY` state and thus be able to close the transaction with a `COMMIT` request message.
 
 TODO: If there still are detail messages `RECORD` to be streamed they will be discarded by the server on a successfull `COMMIT` request message???
 
 The **Explicit Transaction** can be gracefully discarded and set to the initial server state of `READY` with the request message `ROLLBACK`.
+
 
 ## Messages - Version 4.0
 

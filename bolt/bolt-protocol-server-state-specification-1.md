@@ -244,7 +244,7 @@ The `<INTERRUPT>` signal will set the connection in the `INTERRUPTED` server sta
 
 
 | Initial State | Client Message | Triggers Signal | Server Response Summary Message | Final State   |
-|---------------|----------------|-----------------|---------------------------------|---------------| 
+|---------------|----------------|-----------------|---------------------------------|---------------|
 | `CONNECTED`   | `INIT`         |                 | `SUCCESS {}`                    | `READY`       |
 | `CONNECTED`   | `INIT`         |                 | `FAILURE {}`                    | `DEFUNCT`     |
 | `READY`       | `RUN`          |                 | `SUCCESS {}`                    | `STREAMING`   |
@@ -258,7 +258,7 @@ The `<INTERRUPT>` signal will set the connection in the `INTERRUPTED` server sta
 | `FAILED`      | `RUN`          |                 | `IGNORED`                       | `FAILED`      |
 | `FAILED`      | `PULL_ALL`     |                 | `IGNORED`                       | `FAILED`      |
 | `FAILED`      | `DISCARD_ALL`  |                 | `IGNORED`                       | `INTERRUPTED` |
-| `FAILED`      | `ACK_FAILURE`  |                 | `SUCCESS {}`                    | `READY`       | 
+| `FAILED`      | `ACK_FAILURE`  |                 | `SUCCESS {}`                    | `READY`       |
 | `FAILED`      | `ACK_FAILURE`  |                 | `FAILURE {}`                    | `DEFUNCT`     |
 | `FAILED`      | `RESET`        | `<INTERRUPT>`   | *n/a*                           |               |
 | `INTERRUPTED` | `RUN`          |                 | `IGNORED`                       | `INTERRUPTED` |
