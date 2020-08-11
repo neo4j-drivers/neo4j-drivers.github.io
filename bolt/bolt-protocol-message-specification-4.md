@@ -562,9 +562,9 @@ DISCARD {"n": 1000}
 
 The following fields are defined for inclusion in the `SUCCESS` metadata.
 
-  - `has_more::Boolean`, true if there are more records to stream
+  - `has_more::Boolean`, true if there are more records to stream. If this field is not present it should be considered to default to false.
 
-  or
+  or in the case that `has_more` is false,
 
   - `bookmark::String`, the bookmark after committing this transaction. (**Auto-commit Transaction** only).
   - `db::String`, the database name where the query was executed
@@ -650,9 +650,9 @@ PULL {"n": 1000}
 
 The following fields are defined for inclusion in the `SUCCESS` metadata.
 
-  - `has_more::Boolean`, true if there are more records to stream
+  - `has_more::Boolean`, true if there are more records to stream. If this field is not present it should be considered to default to false.
 
-  or
+  or in the case that `has_more` is false,
 
   - `bookmark::String`, the bookmark after committing this transaction. (**Autocommit Transaction** only).
   - `t_last::Integer`, the time, specified in ms, which the last record in the result stream is consumed after.
