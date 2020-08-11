@@ -254,62 +254,62 @@ No changes compared to version 4.0.
 # Appendix - Bolt Message State Transitions
 
 
-| Initial State  | Client Message | Triggers Signal | Server Response Summary Message | Final State                                                 |
-|----------------|----------------|-----------------|---------------------------------|-------------------------------------------------------------|
-| `CONNECTED`    | `HELLO`        |                 | `SUCCESS {}`                    | `READY`                                                     |
-| `CONNECTED`    | `HELLO`        |                 | `FAILURE {}`                    | `DEFUNCT`                                                   |
-|                |                |                 |                                 |                                                             |
-| `READY`        | `RUN`          |                 | `SUCCESS {}`                    | `STREAMING`                                                 |
-| `READY`        | `RUN`          |                 | `FAILURE {}`                    | `FAILED`                                                    |
-| `READY`        | `BEGIN`        |                 | `SUCCESS {}`                    | `TX_READY`                                                  |
-| `READY`        | `BEGIN`        |                 | `FAILURE {}`                    | `FAILED`                                                    |
-| `READY`        | `RESET`        | `<INTERRUPT>`   | *n/a*                           |                                                             |
-| `READY`        | `GOODBYE`      | `<DISCONNECT>`  | *n/a*                           | `DEFUNCT`                                                   |
-|                |                |                 |                                 |                                                             |
-| `STREAMING`    | `PULL`         |                 | `SUCCESS {"has_more": true}`    | `STREAMING`                                                 |
-| `STREAMING`    | `PULL`         |                 | `SUCCESS {"has_more": false}`   | `READY`                                                     |
-| `STREAMING`    | `PULL`         |                 | `FAILURE {}`                    | `FAILED`                                                    |
-| `STREAMING`    | `DISCARD`      |                 | `SUCCESS {"has_more": true}`    | `STREAMING`                                                 |
-| `STREAMING`    | `DISCARD`      |                 | `SUCCESS {"has_more": false}`   | `READY`                                                     |
-| `STREAMING`    | `DISCARD`      |                 | `FAILURE {}`                    | `FAILED`                                                    |
-| `STREAMING`    | `RESET`        | `<INTERRUPT>`   | *n/a*                           |                                                             |
-| `STREAMING`    | `GOODBYE`      | `<DISCONNECT>`  | *n/a*                           | `DEFUNCT`                                                   |
-|                |                |                 |                                 |                                                             |
-| `TX_READY`     | `RUN`          |                 | `SUCCESS {"qid": id::Integer}`  | `TX_STREAMING`                                              |
-| `TX_READY`     | `RUN`          |                 | `FAILURE {}`                    | `FAILED`                                                    |
-| `TX_READY`     | `COMMIT`       |                 | `SUCCESS {}`                    | `READY`                                                     |
-| `TX_READY`     | `COMMIT`       |                 | `FAILURE {}`                    | `FAILED`                                                    |
-| `TX_READY`     | `ROLLBACK`     |                 | `SUCCESS {}`                    | `READY`                                                     |
-| `TX_READY`     | `ROLLBACK`     |                 | `FAILURE {}`                    | `FAILED`                                                    |
-| `TX_READY`     | `RESET`        | `<INTERRUPT>`   | *n/a*                           |                                                             |
-| `TX_READY`     | `GOODBYE`      | `<DISCONNECT>`  | *n/a*                           | `DEFUNCT`                                                   |
-|                |                |                 |                                 |                                                             |
-| `TX_STREAMING` | `RUN`          |                 | `SUCCESS {"qid": id::Integer}`  | `TX_STREAMING`                                              |
-| `TX_STREAMING` | `RUN`          |                 | `FAILURE {}`                    | `FAILED`                                                    |
-| `TX_STREAMING` | `PULL`         |                 | `SUCCESS {"has_more": true}`    | `TX_STREAMING`                                              |
-| `TX_STREAMING` | `PULL`         |                 | `SUCCESS {"has_more": false}`   | `TX_READY` or `TX_STREAMING` if there is other streams open |
-| `TX_STREAMING` | `PULL`         |                 | `FAILURE {}`                    | `FAILED`                                                    |
-| `TX_STREAMING` | `DISCARD`      |                 | `SUCCESS {"has_more": true}`    | `TX_STREAMING`                                              |
-| `TX_STREAMING` | `DISCARD`      |                 | `SUCCESS {"has_more": false}`   | `TX_READY` or `TX_STREAMING` if there is other streams open |
-| `TX_STREAMING` | `DISCARD`      |                 | `FAILURE {}`                    | `FAILED`                                                    |
-| `TX_STREAMING` | `RESET`        | `<INTERRUPT>`   | *n/a*                           |                                                             |
-| `TX_STREAMING` | `GOODBYE`      | `<DISCONNECT>`  | *n/a*                           | `DEFUNCT`                                                   |
-|                |                |                 |                                 |                                                             |
-| `FAILED`       | `RUN`          |                 | `IGNORED`                       | `FAILED`                                                    |
-| `FAILED`       | `PULL`         |                 | `IGNORED`                       | `FAILED`                                                    |
-| `FAILED`       | `DISCARD`      |                 | `IGNORED`                       | `FAILED`                                                    |
-| `FAILED`       | `RESET`        | `<INTERRUPT>`   | *n/a*                           |                                                             |
-| `FAILED`       | `GOODBYE`      | `<DISCONNECT>`  | *n/a*                           | `DEFUNCT`                                                   |
-|                |                |                 |                                 |                                                             |
-| `INTERRUPTED`  | `RUN`          |                 | `IGNORED`                       | `INTERRUPTED`                                               |
-| `INTERRUPTED`  | `PULL`         |                 | `IGNORED`                       | `INTERRUPTED`                                               |
-| `INTERRUPTED`  | `DISCARD`      |                 | `IGNORED`                       | `INTERRUPTED`                                               |
-| `INTERRUPTED`  | `BEGIN`        |                 | `IGNORED`                       | `INTERRUPTED`                                               |
-| `INTERRUPTED`  | `COMMIT`       |                 | `IGNORED`                       | `INTERRUPTED`                                               |
-| `INTERRUPTED`  | `ROLLBACK`     |                 | `IGNORED`                       | `INTERRUPTED`                                               |
-| `INTERRUPTED`  | `RESET`        | `<INTERRUPT>`   | `SUCCESS {}`                    | `READY`                                                     |
-| `INTERRUPTED`  | `RESET`        | `<INTERRUPT>`   | `FAILURE {}`                    | `DEFUNCT`                                                   |
-| `INTERRUPTED`  | `GOODBYE`      | `<DISCONNECT>`  | *n/a*                           | `DEFUNCT`                                                   |
+| Initial State  | Request Message | Triggers Signal | Server Response Summary Message | Final State                                                 |
+|----------------|-----------------|-----------------|---------------------------------|-------------------------------------------------------------|
+| `CONNECTED`    | `HELLO`         |                 | `SUCCESS {}`                    | `READY`                                                     |
+| `CONNECTED`    | `HELLO`         |                 | `FAILURE {}`                    | `DEFUNCT`                                                   |
+|                |                 |                 |                                 |                                                             |
+| `READY`        | `RUN`           |                 | `SUCCESS {}`                    | `STREAMING`                                                 |
+| `READY`        | `RUN`           |                 | `FAILURE {}`                    | `FAILED`                                                    |
+| `READY`        | `BEGIN`         |                 | `SUCCESS {}`                    | `TX_READY`                                                  |
+| `READY`        | `BEGIN`         |                 | `FAILURE {}`                    | `FAILED`                                                    |
+| `READY`        | `RESET`         | `<INTERRUPT>`   | *n/a*                           |                                                             |
+| `READY`        | `GOODBYE`       | `<DISCONNECT>`  | *n/a*                           | `DEFUNCT`                                                   |
+|                |                 |                 |                                 |                                                             |
+| `STREAMING`    | `PULL`          |                 | `SUCCESS {"has_more": true}`    | `STREAMING`                                                 |
+| `STREAMING`    | `PULL`          |                 | `SUCCESS {"has_more": false}`   | `READY`                                                     |
+| `STREAMING`    | `PULL`          |                 | `FAILURE {}`                    | `FAILED`                                                    |
+| `STREAMING`    | `DISCARD`       |                 | `SUCCESS {"has_more": true}`    | `STREAMING`                                                 |
+| `STREAMING`    | `DISCARD`       |                 | `SUCCESS {"has_more": false}`   | `READY`                                                     |
+| `STREAMING`    | `DISCARD`       |                 | `FAILURE {}`                    | `FAILED`                                                    |
+| `STREAMING`    | `RESET`         | `<INTERRUPT>`   | *n/a*                           |                                                             |
+| `STREAMING`    | `GOODBYE`       | `<DISCONNECT>`  | *n/a*                           | `DEFUNCT`                                                   |
+|                |                 |                 |                                 |                                                             |
+| `TX_READY`     | `RUN`           |                 | `SUCCESS {"qid": id::Integer}`  | `TX_STREAMING`                                              |
+| `TX_READY`     | `RUN`           |                 | `FAILURE {}`                    | `FAILED`                                                    |
+| `TX_READY`     | `COMMIT`        |                 | `SUCCESS {}`                    | `READY`                                                     |
+| `TX_READY`     | `COMMIT`        |                 | `FAILURE {}`                    | `FAILED`                                                    |
+| `TX_READY`     | `ROLLBACK`      |                 | `SUCCESS {}`                    | `READY`                                                     |
+| `TX_READY`     | `ROLLBACK`      |                 | `FAILURE {}`                    | `FAILED`                                                    |
+| `TX_READY`     | `RESET`         | `<INTERRUPT>`   | *n/a*                           |                                                             |
+| `TX_READY`     | `GOODBYE`       | `<DISCONNECT>`  | *n/a*                           | `DEFUNCT`                                                   |
+|                |                 |                 |                                 |                                                             |
+| `TX_STREAMING` | `RUN`           |                 | `SUCCESS {"qid": id::Integer}`  | `TX_STREAMING`                                              |
+| `TX_STREAMING` | `RUN`           |                 | `FAILURE {}`                    | `FAILED`                                                    |
+| `TX_STREAMING` | `PULL`          |                 | `SUCCESS {"has_more": true}`    | `TX_STREAMING`                                              |
+| `TX_STREAMING` | `PULL`          |                 | `SUCCESS {"has_more": false}`   | `TX_READY` or `TX_STREAMING` if there is other streams open |
+| `TX_STREAMING` | `PULL`          |                 | `FAILURE {}`                    | `FAILED`                                                    |
+| `TX_STREAMING` | `DISCARD`       |                 | `SUCCESS {"has_more": true}`    | `TX_STREAMING`                                              |
+| `TX_STREAMING` | `DISCARD`       |                 | `SUCCESS {"has_more": false}`   | `TX_READY` or `TX_STREAMING` if there is other streams open |
+| `TX_STREAMING` | `DISCARD`       |                 | `FAILURE {}`                    | `FAILED`                                                    |
+| `TX_STREAMING` | `RESET`         | `<INTERRUPT>`   | *n/a*                           |                                                             |
+| `TX_STREAMING` | `GOODBYE`       | `<DISCONNECT>`  | *n/a*                           | `DEFUNCT`                                                   |
+|                |                 |                 |                                 |                                                             |
+| `FAILED`       | `RUN`           |                 | `IGNORED`                       | `FAILED`                                                    |
+| `FAILED`       | `PULL`          |                 | `IGNORED`                       | `FAILED`                                                    |
+| `FAILED`       | `DISCARD`       |                 | `IGNORED`                       | `FAILED`                                                    |
+| `FAILED`       | `RESET`         | `<INTERRUPT>`   | *n/a*                           |                                                             |
+| `FAILED`       | `GOODBYE`       | `<DISCONNECT>`  | *n/a*                           | `DEFUNCT`                                                   |
+|                |                 |                 |                                 |                                                             |
+| `INTERRUPTED`  | `RUN`           |                 | `IGNORED`                       | `INTERRUPTED`                                               |
+| `INTERRUPTED`  | `PULL`          |                 | `IGNORED`                       | `INTERRUPTED`                                               |
+| `INTERRUPTED`  | `DISCARD`       |                 | `IGNORED`                       | `INTERRUPTED`                                               |
+| `INTERRUPTED`  | `BEGIN`         |                 | `IGNORED`                       | `INTERRUPTED`                                               |
+| `INTERRUPTED`  | `COMMIT`        |                 | `IGNORED`                       | `INTERRUPTED`                                               |
+| `INTERRUPTED`  | `ROLLBACK`      |                 | `IGNORED`                       | `INTERRUPTED`                                               |
+| `INTERRUPTED`  | `RESET`         | `<INTERRUPT>`   | `SUCCESS {}`                    | `READY`                                                     |
+| `INTERRUPTED`  | `RESET`         | `<INTERRUPT>`   | `FAILURE {}`                    | `DEFUNCT`                                                   |
+| `INTERRUPTED`  | `GOODBYE`       | `<DISCONNECT>`  | *n/a*                           | `DEFUNCT`                                                   |
 
 
 The `<INTERRUPT>` signal,
