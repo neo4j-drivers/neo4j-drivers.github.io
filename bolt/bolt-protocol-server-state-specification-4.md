@@ -259,7 +259,7 @@ This result must be fully consumed or discarded by a client before the server ca
 | `TX_STREAMING`   | `TX_STREAMING`   | \[`RECORD` ...\] `SUCCESS {"has_more": true}` |
 
 
-## Server State `FAILED`
+## Server State - `FAILED`
 
 When `FAILED`, a connection is in a temporarily unusable state.
 
