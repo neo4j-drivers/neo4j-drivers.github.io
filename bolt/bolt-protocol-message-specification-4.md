@@ -21,7 +21,7 @@ The changes compared to Bolt protocol version 3 are listed below:
 * `PULL_ALL` message renamed to `PULL` and introduced new fields.
 * The `BEGIN` message now have a field `db` to specify a database name.
 * The `RUN` message now have a field `db` to specify a database name.
-* **Explicit transaction** (`BEGIN`+`RUN`) can now get a server response with a `SUCCESS` and metadata key `qid` (query identification).
+* **Explicit Transaction** (`BEGIN`+`RUN`) can now get a server response with a `SUCCESS` and metadata key `qid` (query identification).
 * The `DISCARD` message can now discard an arbitrary number of records. New fields `n` and `qid`.
 * The `DISCARD` message can now get a server response with a `SUCCESS` and metadata key `has_more`. 
 * The `PULL` message can now fetch an arbitrary number of records. New fields `n` and `qid`.
@@ -33,7 +33,7 @@ The changes compared to Bolt protocol version 3 are listed below:
 
 The handshake have been re-specified to support Major and Minor versions.
 
-Queries within an **explicit transaction** can be consumed out of order with the new behaviour of `PULL` and `DISCARD`.
+Queries within an **Explicit Transaction** can be consumed out of order with the new behaviour of `PULL` and `DISCARD`.
 
 ```
 PULL {"n": ?, "qid": ?}
@@ -43,7 +43,7 @@ PULL {"n": ?, "qid": ?}
 DISCARD {"n": ?, "qid": ?}
 ```
 
-The `qid` is included in the `SUCCESS` response of a `RUN` message within an **explicit transaction** (`BEGIN`+`RUN`).
+The `qid` is included in the `SUCCESS` response of a `RUN` message within an **Explicit Transaction** (`BEGIN`+`RUN`).
 See [Appendix - Example 4](#example-4).
 
 
@@ -400,7 +400,8 @@ RESET
 
 The `RUN` message requests that a Cypher query is executed with a set of parameters and additional extra data.
 
-This message could both be used for running an explicit transaction or an autocommit transaction. The transaction type is implied by the order of message sequence.
+This message could both be used in an **Explicit Transaction** or an **Auto-commit Transaction**.
+The transaction type is implied by the order of message sequence.
 
 **Signature:** `10`
 
@@ -421,9 +422,9 @@ extra::Dictionary(
   - The `query` can be a Cypher syntax or a procedure call.
   - The `parameters` is a dictionary of parameters to be used in the `query` string.
 
-  An **explicit transaction** (`BEGIN`+`RUN`) does not carry any data in the extra `extra` field.
+  An **Explicit Transaction** (`BEGIN`+`RUN`) does not carry any data in the extra `extra` field.
 
-  For **autocommit transaction** (`RUN`) the `extra` field carries:
+  For **Auto-commit Transaction** (`RUN`) the `extra` field carries:
 
   - The `bookmarks` is a list of strings containg some kind of bookmark identification e.g [“neo4j-bookmark-transaction:1”, “neo4j-bookmark-transaction:2”]
   - The `tx_timeout` is an integer in that specifies a transaction timeout in ms.
@@ -474,7 +475,7 @@ The following fields are defined for inclusion in the `SUCCESS` metadata.
   - `fields::List<String>`, the fields of the return result. e.g. [“name”, “age”, ...]
   - `t_first::Integer`, the time, specified in ms, which the first record in the result stream is available after.
   
-  For **explicit transaction** (`BEGIN`+`RUN`):
+  For **Explicit Transaction** (`BEGIN`+`RUN`):
 
   - `qid::Integer`, specifies the server assigned statement id to reference the server side resultset with commencing `BEGIN`+`RUN`+`PULL` and `BEGIN`+`RUN`+`DISCARD` messages.
 
@@ -524,7 +525,7 @@ extra::Dictionary{
 ```
 
   - The `n` specifies how many records to throw away. `n=-1` will throw away all records.
-  - The `qid` (query identification) specifies the result of which statement the operation should be carried out. (Explicit transaction only). `qid=-1` can be used to denote the last executed statement and if no ``.
+  - The `qid` (query identification) specifies the result of which statement the operation should be carried out. (**Explicit Transaction** only). `qid=-1` can be used to denote the last executed statement and if no ``.
 
 **Detail Messages:**
 
@@ -563,7 +564,7 @@ The following fields are defined for inclusion in the `SUCCESS` metadata.
 
   or
 
-  - `bookmark::String`, the bookmark after committing this transaction. (Autocommit transaction only).
+  - `bookmark::String`, the bookmark after committing this transaction. (**Auto-commit Transaction** only).
   - `db::String`, the database name where the query was executed
 
 Example 1:
@@ -613,7 +614,7 @@ extra::Dictionary{
 ```
 
   - The `n` specifies how many records to fetch. `n=-1` will fetch all records.
-  - The `qid` (query identification) specifies the result of which statement the operation should be carried out. (Explicit transaction only). `qid=-1` can be used to denote the last executed statement and if no ``.
+  - The `qid` (query identification) specifies the result of which statement the operation should be carried out. (**Explicit Transaction** only). `qid=-1` can be used to denote the last executed statement and if no ``.
 
 **Detail Messages:**
 
@@ -651,7 +652,7 @@ The following fields are defined for inclusion in the `SUCCESS` metadata.
 
   or
 
-  - `bookmark::String`, the bookmark after committing this transaction. **autocommit transaction only**.
+  - `bookmark::String`, the bookmark after committing this transaction. (**Autocommit Transaction** only).
   - `t_last::Integer`, the time, specified in ms, which the last record in the result stream is consumed after.
   - `type::String`, the type of the statement, e.g. “r” for read-only statement, “w” for write-only statement, “rw” for read-and-write, and “s” for schema only.
   - `stats::Dictionary`, counter information, such as db-hits etc.
@@ -693,11 +694,11 @@ FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 
 ### Request Message - `BEGIN`
 
-The `BEGIN` message request the creation of a new **explicit transaction**.
+The `BEGIN` message request the creation of a new **Explicit Transaction**.
 
 This message should then be followed by a `RUN` message.
 
-The **explicit transaction** is closed with either the `COMMIT` message or `ROLLBACK` message.
+The **Explicit Transaction** is closed with either the `COMMIT` message or `ROLLBACK` message.
 
 
 **Signature:** `11`
@@ -778,7 +779,7 @@ FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 
 ### Request Message - `COMMIT`
 
-The `COMMIT` message request that the **explicit transaction** is done.
+The `COMMIT` message request that the **Explicit Transaction** is done.
 
 **Signature:** `12`
 
@@ -811,7 +812,7 @@ COMMIT
 
 #### Server Response `SUCCESS`
 
-A `SUCCESS` message response indicates that the **explicit transaction** was completed.
+A `SUCCESS` message response indicates that the **Explicit Transaction** was completed.
 
   - `bookmark::String`, the bookmark after committing this transaction.
 
@@ -841,7 +842,7 @@ FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
 
 ### Request Message - `ROLLBACK`
 
-The `ROLLBACK` message requests that the **explicit transaction** rolls back.
+The `ROLLBACK` message requests that the **Explicit Transaction** rolls back.
 
 **Signature:** `13`
 
@@ -874,7 +875,7 @@ ROLLBACK
 
 #### Server Response `SUCCESS`
 
-A `SUCCESS` message response indicates that the **explicit transaction** was rolled back.
+A `SUCCESS` message response indicates that the **Explicit Transaction** was rolled back.
 
 ```
 SUCCESS {}
