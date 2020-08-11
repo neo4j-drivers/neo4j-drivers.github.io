@@ -272,19 +272,9 @@ This mode ensures that only one failure can exist at a time, preventing cascadin
 
 - `<INTERRUPT>` to `INTERRUPTED`
 - `<DISCONNECT>` to `DEFUNCT`
-
-
-#### `<INTERRUPT>` Signal State Transitions
-
-| Initial State | Final State   | Response |
-|---------------|---------------|----------|
-| `FAILED`      | `INTERRUPTED` | *n/a*    |
-
-#### `<DISCONNECT>` Signal State Transitions
-
-| Initial State | Final State   | Response |
-|---------------|---------------|----------|
-| `FAILED`      | `DEFUNCT`     | *n/a*    |
+- `RUN` to `FAILED`
+- `PULL` to `FAILED`
+- `DISCARD` to `FAILED`
 
 
 ## Server State - `INTERRUPTED`
@@ -307,62 +297,6 @@ The `<INTERRUPT>` signal will set the connection in the `INTERRUPTED` server sta
 - `COMMIT` to `INTERRUPTED`
 - `ROLLBACK` to `INTERRUPTED`
 - `RESET` to `READY` or `DEFUNCT`
-
-
-#### `<INTERRUPT>` Signal State Transitions
-
-| Initial State | Final State   | Response |
-|---------------|---------------|----------|
-| `INTERRUPTED` | `INTERRUPTED` | *n/a*    |
-
-#### `<DISCONNECT>` Signal State Transitions
-
-| Initial State | Final State   | Response |
-|---------------|---------------|----------|
-| `INTERRUPTED` | `DEFUNCT`     | *n/a*    |
-
-#### `RUN` Message State Transitions
-
-| Initial State | Final State   | Response     |
-|---------------|---------------|--------------|
-| `INTERRUPTED` | `INTERRUPTED` | `IGNORED`    |
-
-#### `DISCARD` Message State Transitions
-
-| Initial State | Final State   | Response     |
-|---------------|---------------|--------------|
-| `INTERRUPTED` | `INTERRUPTED` | `IGNORED`    |
-
-#### `PULL` Message State Transitions
-
-| Initial State | Final State   | Response     |
-|---------------|---------------|--------------|
-| `INTERRUPTED` | `INTERRUPTED` | `IGNORED`    |
-
-#### `BEGIN` Message State Transitions
-
-| Initial State | Final State   | Response     |
-|---------------|---------------|--------------|
-| `INTERRUPTED` | `INTERRUPTED` | `IGNORED`    |
-
-#### `COMMIT` Message State Transitions
-
-| Initial State | Final State   | Response     |
-|---------------|---------------|--------------|
-| `INTERRUPTED` | `INTERRUPTED` | `IGNORED`    |
-
-#### `ROLLBACK` Message State Transitions
-
-| Initial State | Final State   | Response     |
-|---------------|---------------|--------------|
-| `INTERRUPTED` | `INTERRUPTED` | `IGNORED`    |
-
-#### `RESET` Message State Transitions
-
-| Initial State | Final State   | Response     |
-|---------------|---------------|--------------|
-| `INTERRUPTED` | `READY`       | `SUCCESS {}` |
-| `INTERRUPTED` | `DEFUNCT`     | `FAILURE {}` |
 
 
 # Version 4.1
