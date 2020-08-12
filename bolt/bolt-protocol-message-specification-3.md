@@ -66,6 +66,7 @@ Jump ahead is that the signal will imediatly be available before any messages ar
 If a server or client receives a message type that is unexpected, according to the transitions described in this document, it must treat that as a protocol error.
 Protocol errors are fatal and should immediately transition the server state to `DEFUNCT`, closing any open connections.
 
+
 ## Message Exchange
 
 Messages are exchanged in a request-response pattern between client and server.
@@ -76,10 +77,8 @@ In other words, some request message types elicit a response that may contain de
 
 Messages may also be pipelined. In other words, clients may send multiple requests eagerly without first waiting for responses.
 
-When a failure occurs in this scenario, servers **must** ignore all subsequent requests until the client has explicitly acknowledged receipt of the failure.
+When a failure occurs in this scenario, the server **must** ignore all subsequent requests until the connection from the server side is in the `READY` state.
 This prevents inadvertent execution of queries that may not be valid.
-
-More details of this process can be found in the sections below.
 
 
 ### Serialization
