@@ -392,7 +392,7 @@ Servers may choose to include metadata describing the nature of the failure but 
 Example:
 
 ```
-FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
+FAILURE {"code": "Example.Failure.Code", "message": "example failure"}
 ```
 
 
@@ -577,7 +577,7 @@ TODO: A `FAILURE` message response indicates that the client is not permitted to
 Example:
 
 ```
-FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
+FAILURE {"code": "Example.Failure.Code", "message": "example failure"}
 ```
 
 ### Request Message - `DISCARD`
@@ -665,7 +665,7 @@ TODO: A `FAILURE` message response indicates that the client is not permitted to
 Example:
 
 ```
-FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
+FAILURE {"code": "Example.Failure.Code", "message": "example failure"}
 ```
 
 
@@ -759,7 +759,7 @@ TODO: A `FAILURE` message response indicates that the client is not permitted to
 Example:
 
 ```
-FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
+FAILURE {"code": "Example.Failure.Code", "message": "example failure"}
 ```
 
 
@@ -782,7 +782,7 @@ extra::Dictionary(
   `tx_timeout::Integer`,
   `tx_metadata::Dictionary`
   `mode::String`,
-  `db::String`
+  `db::String`,
 )
 ```
 
@@ -844,7 +844,7 @@ TODO: A `FAILURE` message response indicates that the client is not permitted to
 Example:
 
 ```
-FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
+FAILURE {"code": "Example.Failure.Code", "message": "example failure"}
 ```
 
 
@@ -908,7 +908,7 @@ TODO: A `FAILURE` message response indicates that the client is not permitted to
 Example:
 
 ```
-FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
+FAILURE {"code": "Example.Failure.Code", "message": "example failure"}
 ```
 
 ### Request Message - `ROLLBACK`
@@ -1048,7 +1048,7 @@ FAILURE {metadata}
 Example:
 
 ```
-FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
+FAILURE {"code": "Example.Failure.Code", "message": "example failure"}
 ```
 
 
@@ -1232,7 +1232,7 @@ Servers may choose to include metadata describing the nature of the failure but 
 Example:
 
 ```
-FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
+FAILURE {"code": "Example.Failure.Code", "message": "example failure"}
 ```
 
 
