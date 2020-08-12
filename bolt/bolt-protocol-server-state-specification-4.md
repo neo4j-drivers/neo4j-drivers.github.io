@@ -13,6 +13,8 @@
 
 Compared to version 3 the `RUN`, `PULL` and `DISCARD` now can re-enter `STREAMING` or `TX_STREAMING`.
 
+The server state transitions are using the updated set of messages defined in [**Bolt Protocol Message Specification Version 4.0**](bolt/bolt-protocol-message-specification-4.md).
+
 ## Server States
 
 Each **connection** maintained by a Bolt server will occupy one of several states throughout its lifetime.
@@ -39,8 +41,8 @@ This is the initial state and exists only in a logical sense prior to the socket
 
 ### Transitions from `DISCONNECTED`
 
-- handshake completed successfully to `CONNECTED`
-- handshake did not complete successfully to `DEFUNCT`
+- Bolt handshake completed successfully to `CONNECTED`
+- Bolt handshake did not complete successfully to `DEFUNCT`
 
 
 ## Server State - `CONNECTED`
@@ -93,18 +95,6 @@ This result must be fully consumed or discarded by a client before the server ca
 - `DISCARD` to `READY`, `FAILED` or `STREAMING`
 
 
-#### `<INTERRUPT>` Signal State Transitions
-
-| Initial State | Final State   | Response |
-|---------------|---------------|----------|
-| `STREAMING`   | `INTERRUPTED` | *n/a*    |
-
-#### `<DISCONNECT>` Signal State Transitions
-
-| Initial State | Final State   | Response |
-|---------------|---------------|----------|
-| `STREAMING`   | `DEFUNCT`     | *n/a*    |
-
 #### Request Message - `DISCARD` - State Transitions
 
 | Initial State | Final State   | Response                     |
@@ -132,38 +122,12 @@ This result must be fully consumed or discarded by a client before the server ca
 - `COMMIT` to `READY` or `FAILED`
 - `ROLLBACK` to `READY` or `FAILED`
 
-#### `<INTERRUPT>` Signal State Transitions
-
-| Initial State | Final State   | Response |
-|---------------|---------------|----------|
-| `TX_READY`    | `INTERRUPTED` | *n/a*    |
-
-#### `<DISCONNECT>` Signal State Transitions
-
-| Initial State | Final State   | Response |
-|---------------|---------------|----------|
-| `TX_READY`    | `DEFUNCT`     | *n/a*    |
-
 #### `RUN` Message State Transitions
 
 | Initial State | Final State      | Response                       |
 |---------------|------------------|--------------------------------|
 | `TX_READY`    | `TX_STREAMING`   | `SUCCESS {"qid": id::Integer}` |
 | `TX_READY`    | `FAILED`         | `FAILURE {}`                   |
-
-#### `COMMIT` Message State Transitions
-
-| Initial State | Final State      | Response     |
-|---------------|------------------|--------------|
-| `TX_READY`    | `READY`          | `SUCCESS {}` |
-| `TX_READY`    | `FAILED`         | `FAILURE {}` |
-
-#### `ROLLBACK` Message State Transitions
-
-| Initial State | Final State      | Response     |
-|---------------|------------------|--------------|
-| `TX_READY`    | `READY`          | `SUCCESS {}` |
-| `TX_READY`    | `FAILED`         | `FAILURE {}` |
 
 
 ## Server State - `TX_STREAMING`
@@ -248,6 +212,7 @@ The `<INTERRUPT>` signal will set the connection in the `INTERRUPTED` server sta
 
 # Version 4.1
 
+## Deltas
 No changes compared to version 4.0.
 
 
