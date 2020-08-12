@@ -8,25 +8,20 @@
 
 # Version 3
 
-Added BEGIN, COMMIT, ROLLBACK
-INIT became HELLO, added GOODBYE
-Removed ACK_FAILURE (using RESET instead)
-Added extra metadata field to RUN and BEGIN
-
 ## Deltas
 
 The changes compared to Bolt protocol version 2 are listed below:
 
-* The `INIT` message has been replaced with `HELLO` message.
-* The `ACK_FAILUER` message has been removed. Use `RESET` message instead.
+* The `INIT` request message has been replaced with `HELLO` message.
+* The `ACK_FAILUER` request message has been removed. Use `RESET` message instead.
 * Added `extra::Map` field to `RUN` message.
 * Added `extra::Map` field to `BEGIN` message.
-* New `HELLO` message.
-* New `GOODBYE` message.
-* New `BEGIN` message.
-* New `COMMIT` message.
-* New `ROLLBACK` message.
-* New `RESET` message.
+* New `HELLO` request message.
+* New `GOODBYE` request message.
+* New `BEGIN` request message.
+* New `COMMIT` request message.
+* New `ROLLBACK` request message.
+* New `RESET` request message.
 
 ## Overview of Major Version Changes
 
