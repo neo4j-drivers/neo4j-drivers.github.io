@@ -19,8 +19,8 @@ The changes compared to Bolt protocol version 3 are listed below:
 
 * `DISCARD_ALL` message renamed to `DISCARD` and introduced new fields.
 * `PULL_ALL` message renamed to `PULL` and introduced new fields.
-* The `BEGIN` message now have a field `db` to specify a database name.
-* The `RUN` message now have a field `db` to specify a database name.
+* The `BEGIN` message now have a field `db::String` to specify a database name.
+* The `RUN` message now have a field `db::String` to specify a database name.
 * **Explicit Transaction** (`BEGIN`+`RUN`) can now get a server response with a `SUCCESS` and metadata key `qid` (query identification).
 * The `DISCARD` message can now discard an arbitrary number of records. New fields `n` and `qid`.
 * The `DISCARD` message can now get a server response with a `SUCCESS` and metadata key `has_more`. 
@@ -32,6 +32,8 @@ The changes compared to Bolt protocol version 3 are listed below:
 ## Overview of Major Version Changes
 
 The handshake have been re-specified to support Major and Minor versions.
+
+The concept of multi database support have been introduced with the field `db::String` for the request message `BEGIN` and the request message `RUN`.
 
 Queries within an **Explicit Transaction** can be consumed out of order with the new behaviour of `PULL` and `DISCARD`.
 
