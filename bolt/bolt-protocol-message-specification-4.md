@@ -772,11 +772,11 @@ The **Explicit Transaction** is closed with either the `COMMIT` message or `ROLL
 
 ```
 extra::Dictionary(
-  `bookmarks::List<String>`,
-  `tx_timeout::Integer`,
-  `tx_metadata::Dictionary`
-  `mode::String`,
-  `db::String`,
+  bookmarks::List<String>,
+  tx_timeout::Integer,
+  tx_metadata::Dictionary,
+  mode::String,
+  db::String,
 )
 ```
 

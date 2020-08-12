@@ -676,6 +676,87 @@ FAILURE {"code": "Example.Failure.Code", "message": "example failure"}
 ```
 
 
+### Request Message - `BEGIN`
+
+The `BEGIN` message request the creation of a new **Explicit Transaction**.
+
+This message should then be followed by a `RUN` message.
+
+The **Explicit Transaction** is closed with either the `COMMIT` message or `ROLLBACK` message.
+
+
+**Signature:** `11`
+
+**Fields:**
+
+```
+extra::Dictionary(
+  bookmarks::List<String>,
+  tx_timeout::Integer,
+  tx_metadata::Dictionary,
+  mode::String,
+)
+```
+
+  - The `bookmarks` is a list of strings containg some kind of bookmark identification e.g ["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"]
+  - The `tx_timeout` is an integer in that specifies a transaction timeout in ms.
+  - The `tx_metadata` is a dictionary that can contain some metadata information, mainly used for logging.
+  - The `mode` specifies what kind of server the `RUN` message is targeting. For write access use `"w"` and for read access use `"r"`. Defaults to write access if no mode is sent.
+
+**Detail Messages:**
+
+No detail messages.
+
+**Valid Summary Messages:**
+
+* `SUCCESS`
+* `FAILURE`
+
+#### Synopsis
+
+```
+BEGIN {extra}
+```
+
+Example 1:
+
+```
+BEGIN {"tx_timeout": 123, "mode": "r", "tx_metadata": {"log": "example_log_data"}}
+```
+
+
+Example 2:
+
+```
+BEGIN {"tx_metadata": {"log": "example_log_data"}, "bookmarks": ["example-bookmark:1", "example-bookmark2"]}
+```
+
+
+#### Server Response `SUCCESS`
+
+Example:
+
+```
+SUCCESS {}
+```
+
+#### Server Response `IGNORED`
+
+Example:
+
+```
+IGNORED
+```
+
+#### Server Response `FAILURE`
+
+Example:
+
+```
+FAILURE {"code": "Example.Failure.Code", "message": "example failure"}
+```
+
+
 # Appendix - Message Exchange Examples
 
 * The `C:` stands for client.
