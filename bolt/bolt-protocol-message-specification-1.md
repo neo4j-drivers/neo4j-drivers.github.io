@@ -180,6 +180,34 @@ The two messages encoded with chunking,
 The client may send multiple requests eagerly without first waiting for responses.
 
 
+### Transaction
+
+A [transaction](https://en.wikipedia.org/wiki/Database_transaction) is the concept of [atomic](https://en.wikipedia.org/wiki/Atomicity_(database_systems)) units of work.
+
+The concept of **Transaction** is when the server is in the `READY` state and the transaction is opened with the request message `RUN` and the response of a summary message `SUCCESS`.
+
+The **Transaction** is successfully closed with the summary message `SUCCESS` for the request message `PULL_ALL` or the request message `DISCARD_ALL`.
+
+Example:
+
+```
+...
+C: INIT ...
+S: SUCCESS ...  // Server is in READY state
+
+C: RUN ...      // Open a new Transaction
+S: SUCCESS ...  // Server is in STREAMING state
+
+C: PULL_ALL ...
+S: RECORD ...
+   ...
+S: RECORD ...
+S: SUCCESS ... // Server is in READY state and this implies that the Transaction is closed.
+```
+
+See, [**Bolt Protocol Server State Specification Version 1**](bolt-protocol-server-state-specification-1.md#appendix---bolt-message-state-transitions)
+
+
 ## Messages
 
 * **Request Message**, the client sends a message.
