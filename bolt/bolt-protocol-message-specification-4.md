@@ -667,7 +667,7 @@ FAILURE {"code": "Example.Failure.Code", "message": "example failure"}
 
 ### Request Message - `PULL`
 
-The `PULL` message requests that the remainder of the result stream should be thrown away.
+The `PULL` message requests data from the remainder of the result stream.
 
 **Signature:** `3F`
 

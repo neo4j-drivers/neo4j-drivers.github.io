@@ -17,8 +17,8 @@ The changes compared to Bolt protocol version 2 are listed below:
 
 * The `INIT` request message has been replaced with `HELLO` message.
 * The `ACK_FAILUER` request message has been removed. Use `RESET` message instead.
-* Added `extra::Map` field to `RUN` message.
-* Added `extra::Map` field to `BEGIN` message.
+* Added `extra::Dictionary` field to `RUN` message.
+* Added `extra::Dictionary` field to `BEGIN` message.
 * New `HELLO` request message.
 * New `GOODBYE` request message.
 * New `BEGIN` request message.
@@ -529,6 +529,134 @@ Example 1:
 
 ```
 SUCCESS {"fields": ["x"], "t_first": 123}
+```
+
+#### Server Response `IGNORED`
+
+Example:
+
+```
+IGNORED
+```
+
+#### Server Response `FAILURE`
+
+Example:
+
+```
+FAILURE {"code": "Example.Failure.Code", "message": "example failure"}
+```
+
+### Request Message - `DISCARD_ALL`
+
+The `DISCARD_ALL` message requests that all of the result stream should be thrown away.
+
+**Signature:** `2F`
+
+**Fields:**
+
+No fields.
+
+**Detail Messages:**
+
+No detail messages should be returned.
+
+**Valid Summary Messages:**
+
+* `SUCCESS`
+* `IGNORED`
+* `FAILURE`
+
+
+#### Synopsis
+
+```
+DISCARD_ALL
+```
+
+Example 1:
+
+```
+DISCARD_ALL
+```
+
+#### Server Response `SUCCESS`
+
+The following fields are defined for inclusion in the `SUCCESS` metadata.
+
+  - `bookmark::String`, the bookmark after committing this transaction. (**Auto-commit Transaction** only).
+
+Example:
+
+```
+SUCCESS {"bookmark": "example-bookmark:1"}
+```
+
+#### Server Response `IGNORED`
+
+Example:
+
+```
+IGNORED
+```
+
+#### Server Response `FAILURE`
+
+Example:
+
+```
+FAILURE {"code": "Example.Failure.Code", "message": "example failure"}
+```
+
+
+### Request Message - `PULL_ALL`
+
+The `PULL_ALL` message requests all data of the result stream.
+
+**Signature:** `3F`
+
+**Fields:**
+
+No fields.
+
+**Detail Messages:**
+
+Zero or more `RECORD`
+
+**Valid Summary Messages:**
+
+* `SUCCESS`
+* `IGNORED`
+* `FAILURE`
+
+#### Synopsis
+
+```
+PULL_ALL
+```
+
+Example:
+
+```
+PULL_ALL
+```
+
+#### Server Response `SUCCESS`
+
+The following fields are defined for inclusion in the `SUCCESS` metadata.
+
+  - `bookmark::String`, the bookmark after committing this transaction. (**Autocommit Transaction** only).
+  - `t_last::Integer`, the time, specified in ms, which the last record in the result stream is consumed after.
+  - `type::String`, the type of the statement, e.g. `"r"` for read-only statement, `"w"` for write-only statement, `"rw"` for read-and-write, and `"s"` for schema only.
+  - `stats::Dictionary`, counter information, such as db-hits etc.
+  - `plan::Dictionary`, plan result.
+  - `profile::Dictionary`, profile result.
+  - `notifications::Dictionary`, any notification generated during execution of this statement.
+
+Example:
+
+```
+SUCCESS {"bookmark": "example-bookmark:1", "t_last": 123}
 ```
 
 #### Server Response `IGNORED`
