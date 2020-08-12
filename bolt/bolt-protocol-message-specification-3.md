@@ -335,7 +335,7 @@ No detail messages should be returned.
 #### Synopsis
 
 ```
-HELLO {user_agent::String, scheme::String, principal::String, credentials::String)
+HELLO {user_agent::String, scheme::String, principal::String, credentials::String}
 ```
 
 Example:
@@ -352,13 +352,13 @@ Servers can include metadata that describes details of the server environment an
 
 The following fields are defined for inclusion in the `SUCCESS` metadata.
 
-  - `server::String` (server agent string, example `"Neo4j/3.5.0"`)
-  - `connection_id::String` (unique identifier of the bolt connection used on the server side, example: `"bolt-61"`)
+  - `server::String`, the server agent string. e.g. `"Neo4j/3.5.0"`.
+  - `connection_id::String`, an unique identifier of the bolt connection used on the server side. e.g. `"bolt-61"`.
 
 Example:
 
 ```
-SUCCESS {"server": "Neo4j/3.5.0"}
+SUCCESS {"server": "Neo4j/3.5.0", "connection_id": "bolt-61"}
 ```
 
 
