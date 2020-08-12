@@ -493,11 +493,11 @@ extra::Dictionary(
   - The `query` can be a Cypher syntax or a procedure call.
   - The `parameters` is a dictionary of parameters to be used in the `query` string.
 
-  An **Explicit Transaction** (`BEGIN`+`RUN`) does not carry any data in the extra `extra` field.
+  An **Explicit Transaction** (`BEGIN`+`RUN`) does not carry any data in the `extra` field.
 
   For **Auto-commit Transaction** (`RUN`) the `extra` field carries:
 
-  - The `bookmarks` is a list of strings containg some kind of bookmark identification e.g [“neo4j-bookmark-transaction:1”, “neo4j-bookmark-transaction:2”]
+  - The `bookmarks` is a list of strings containg some kind of bookmark identification e.g ["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"]
   - The `tx_timeout` is an integer in that specifies a transaction timeout in ms.
   - The `tx_metadata` is a dictionary that can contain some metadata information, mainly used for logging.
   - The `mode` specifies what kind of server the `RUN` message is targeting. For write access use `"w"` and for read access use `"r"`. Defaults to write access if no mode is sent.
@@ -543,7 +543,7 @@ A `SUCCESS` message response indicates that the client is permitted to exchange 
 
 The following fields are defined for inclusion in the `SUCCESS` metadata.
 
-  - `fields::List<String>`, the fields of the return result. e.g. [“name”, “age”, ...]
+  - `fields::List<String>`, the fields of the return result. e.g. ["name", "age", ...]
   - `t_first::Integer`, the time, specified in ms, which the first record in the result stream is available after.
   
   For **Explicit Transaction** (`BEGIN`+`RUN`):
@@ -725,7 +725,7 @@ The following fields are defined for inclusion in the `SUCCESS` metadata.
 
   - `bookmark::String`, the bookmark after committing this transaction. (**Autocommit Transaction** only).
   - `t_last::Integer`, the time, specified in ms, which the last record in the result stream is consumed after.
-  - `type::String`, the type of the statement, e.g. “r” for read-only statement, “w” for write-only statement, “rw” for read-and-write, and “s” for schema only.
+  - `type::String`, the type of the statement, e.g. `"r"` for read-only statement, `"w"` for write-only statement, `"rw"` for read-and-write, and `"s"` for schema only.
   - `stats::Dictionary`, counter information, such as db-hits etc.
   - `plan::Dictionary`, plan result.
   - `profile::Dictionary`, profile result.
