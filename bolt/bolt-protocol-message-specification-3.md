@@ -1023,3 +1023,39 @@ S: RECORD [123]
 S: SUCCESS {"bookmark": "example-bookmark:1", "t_last": 300, "type": "r"}
 C: GOODBYE
 ```
+
+## Example 3
+
+```
+C: 60 60 B0 17
+C: 00 00 00 03 00 00 00 00 00 00 00 00 00 00 00 00
+S: 00 00 00 03
+C: HELLO {"user_agent": "Example/3.0.0", "scheme": "basic", "principal": "user", "credentials": "password"}
+S: SUCCESS {"server": "Neo4j/3.5.0", "connection_id": "example-connection-id:1"}
+C: RUN "RETURN $x AS example" {"x": 123} {"mode": "r"}
+S: SUCCESS {"fields": ["example"]}
+C: DISCARD_ALL
+S: SUCCESS {"bookmark": "example-bookmark:1", "t_last": 300, "type": "r"}
+C: GOODBYE
+```
+
+
+## Example 4
+
+```
+C: 60 60 B0 17
+C: 00 00 00 03 00 00 00 00 00 00 00 00 00 00 00 00
+S: 00 00 00 03
+C: HELLO {"user_agent": "Example/3.0.0", "scheme": "basic", "principal": "user", "credentials": "password"}
+S: SUCCESS {"server": "Neo4j/3.5.0", "connection_id": "example-connection-id:1"}
+C: BEGIN {"mode": "r"}
+S: SUCCESS {}
+C: RUN "RETURN $x AS example" {"x": 123} {}
+S: SUCCESS {"fields": ["example"]}
+C: PULL_ALL
+S: RECORD [123]
+S: SUCCESS {"t_last": 300, "type": "r"}
+C: COMMIT
+S: SUCCESS {"bookmark": "example-bookmark:1"}
+C: GOODBYE
+```
