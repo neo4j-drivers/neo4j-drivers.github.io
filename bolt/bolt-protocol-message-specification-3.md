@@ -541,8 +541,6 @@ IGNORED
 
 #### Server Response `FAILURE`
 
-TODO: A `FAILURE` message response indicates that the client is not permitted to exchange further messages before the server is in a 
-
 Example:
 
 ```

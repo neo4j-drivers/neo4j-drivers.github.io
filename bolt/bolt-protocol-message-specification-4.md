@@ -572,8 +572,6 @@ IGNORED
 
 #### Server Response `FAILURE`
 
-TODO: A `FAILURE` message response indicates that the client is not permitted to exchange further messages before the server is in a 
-
 Example:
 
 ```
@@ -659,8 +657,6 @@ IGNORED
 ```
 
 #### Server Response `FAILURE`
-
-TODO: A `FAILURE` message response indicates that the client is not permitted to exchange further messages before the server is in a 
 
 Example:
 
@@ -754,8 +750,6 @@ IGNORED
 
 #### Server Response `FAILURE`
 
-TODO: A `FAILURE` message response indicates that the client is not permitted to exchange further messages before the server is in a 
-
 Example:
 
 ```
@@ -786,7 +780,7 @@ extra::Dictionary(
 )
 ```
 
-  - The `bookmarks` is a list of strings containg some kind of bookmark identification e.g [“neo4j-bookmark-transaction:1”, “neo4j-bookmark-transaction:2”]
+  - The `bookmarks` is a list of strings containg some kind of bookmark identification e.g ["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"]
   - The `tx_timeout` is an integer in that specifies a transaction timeout in ms.
   - The `tx_metadata` is a dictionary that can contain some metadata information, mainly used for logging.
   - The `mode` specifies what kind of server the `RUN` message is targeting. For write access use `"w"` and for read access use `"r"`. Defaults to write access if no mode is sent.
@@ -838,8 +832,6 @@ IGNORED
 ```
 
 #### Server Response `FAILURE`
-
-TODO: A `FAILURE` message response indicates that the client is not permitted to exchange further messages before the server is in a 
 
 Example:
 
@@ -903,8 +895,6 @@ IGNORED
 
 #### Server Response `FAILURE`
 
-TODO: A `FAILURE` message response indicates that the client is not permitted to exchange further messages before the server is in a 
-
 Example:
 
 ```
@@ -961,8 +951,6 @@ IGNORED
 ```
 
 #### Server Response `FAILURE`
-
-TODO: A `FAILURE` message response indicates that the client is not permitted to exchange further messages before the server is in a 
 
 Example:
 
