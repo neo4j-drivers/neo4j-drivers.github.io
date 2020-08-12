@@ -955,7 +955,7 @@ IGNORED
 Example:
 
 ```
-FAILURE {"message": "example failure", "code": "Example.Failure.Code"}
+FAILURE {"code": "Example.Failure.Code", "message": "example failure"}
 ```
 
 ### Summary Message - `SUCCESS`
@@ -1051,7 +1051,7 @@ These messages are currently only ever received in response to a `PULL` message 
 **Fields:**
 
 ```
-data::List<Value>
+data::List
 ```
 
 #### Synopsis

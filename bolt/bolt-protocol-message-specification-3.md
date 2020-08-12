@@ -757,6 +757,241 @@ FAILURE {"code": "Example.Failure.Code", "message": "example failure"}
 ```
 
 
+### Request Message - `COMMIT`
+
+The `COMMIT` message request that the **Explicit Transaction** is done.
+
+**Signature:** `12`
+
+**Fields:**
+
+No fields.
+
+**Detail Messages:**
+
+No detail messages.
+
+**Valid Summary Messages:**
+
+* `SUCCESS`
+* `IGNORED`
+* `FAILURE`
+
+
+#### Synopsis
+
+```
+COMMIT
+```
+
+Example:
+
+```
+COMMIT
+```
+
+#### Server Response `SUCCESS`
+
+A `SUCCESS` message response indicates that the **Explicit Transaction** was completed.
+
+  - `bookmark::String`, the bookmark after committing this transaction.
+
+Example:
+
+```
+SUCCESS {"bookmark": "example-bookmark:1"}
+```
+
+#### Server Response `IGNORED`
+
+Example:
+
+```
+IGNORED
+```
+
+#### Server Response `FAILURE`
+
+Example:
+
+```
+FAILURE {"code": "Example.Failure.Code", "message": "example failure"}
+```
+
+
+### Request Message - `ROLLBACK`
+
+The `ROLLBACK` message requests that the **Explicit Transaction** rolls back.
+
+**Signature:** `13`
+
+**Fields:**
+
+No fields.
+
+**Detail Messages:**
+
+No detail messages.
+
+**Valid Summary Messages:**
+
+* `SUCCESS`
+* `IGNORED`
+* `FAILURE`
+
+
+#### Synopsis
+
+```
+ROLLBACK
+```
+
+Example:
+
+```
+ROLLBACK
+```
+
+#### Server Response `SUCCESS`
+
+A `SUCCESS` message response indicates that the **Explicit Transaction** was rolled back.
+
+```
+SUCCESS {}
+```
+
+#### Server Response `IGNORED`
+
+Example:
+
+```
+IGNORED
+```
+
+#### Server Response `FAILURE`
+
+Example:
+
+```
+FAILURE {"code": "Example.Failure.Code", "message": "example failure"}
+```
+
+
+### Summary Message - `SUCCESS`
+
+The `SUCCESS` message indicates that the corresponding request has succeeded as intended.
+
+It may contain metadata relating to the outcome.
+
+Metadata keys are described in the section of this document relating to the message that began the exchange.
+
+**Signature:** `70`
+
+**Fields:**
+
+```
+metadata::Dictionary
+```
+
+#### Synopsis
+
+```
+SUCCESS {metadata}
+```
+
+Example:
+
+```
+SUCCESS {"example": "see specific message for server response metadata"}
+```
+
+
+### Summary Message - `IGNORED`
+
+The `IGNORED` message indicates that the corresponding request has not been carried out.
+
+**Signature:** `7E`
+
+**Fields:**
+
+No fields
+
+#### Synopsis
+
+```
+IGNORED
+```
+
+Example:
+
+```
+IGNORED
+```
+
+### Summary Message - `FAILURE`
+
+
+**Signature:** `7F`
+
+**Fields:**
+
+```
+metadata::Dictionary(
+  code::String,
+  message::String,
+)
+```
+
+- The `code` is a textual code that uniquely identifies the type of failure. 
+- The `message` is a textual description of the failure, intended for human consumption.
+
+
+#### Synopsis
+
+```
+FAILURE {metadata}
+```
+
+Example:
+
+```
+FAILURE {"code": "Example.Failure.Code", "message": "example failure"}
+```
+
+
+### Detail Message - `RECORD`
+
+A `RECORD` message carries a sequence of values corresponding to a single entry in a result.
+
+**Signature:** `71`
+
+These messages are currently only ever received in response to a `PULL_ALL` message and will always be followed by a **summary message**.
+
+**Fields:**
+
+```
+data::List
+```
+
+#### Synopsis
+
+```
+RECORD [data]
+```
+
+Example 1:
+
+```
+RECORD ["1", "2", "3"]
+```
+
+Example 2:
+
+```
+RECORD [{"point": [1, 2]}, "example_data", 123]
+```
+
+
 # Appendix - Message Exchange Examples
 
 * The `C:` stands for client.
