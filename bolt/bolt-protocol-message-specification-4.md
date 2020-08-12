@@ -208,17 +208,84 @@ A [transaction](https://en.wikipedia.org/wiki/Database_transaction) is the conce
 An **Auto-commit Transaction** is a basic but limited form of transaction.
 
 The concept of **Auto-commit Transaction** is when the server is in the `READY` state and the transaction is opened with the request message `RUN` and the response of a summary message `SUCCESS`.
+
 The **Auto-commit Transaction** is successfully closed with the summary message `SUCCESS` and not containing the field `has_more::true` for the request message `PULL` or `DISCARD`.
 Thus the **Auto-commit Transaction** can only contain one `RUN` request message.
 
+Example 1:
+
+```
+...
+C: HELLO ...
+S: SUCCESS ...  // Server is in READY state
+
+C: RUN ...      // Open a new Auto-commit Transaction
+S: SUCCESS ...  // Server is in STREAMING state
+
+C: PULL ...
+S: RECORD ...
+   ...
+S: RECORD ...
+S: SUCCESS ... has_more=true  // Server is still in STREAMING state
+
+C: PULL
+S: RECORD ...
+   ...
+S: RECORD ...
+S: SUCCESS ... has_more=false  // Server is still in READY state and this implies that the Auto-commit Transaction is closed.
+```
+
+See, [**Bolt Protocol Server State Specification Version 4**](bolt-protocol-server-state-specification-4.md#appendix---bolt-message-state-transitions)
+
 An **Explicit Transaction** is a more generic transaction that can contain several `RUN` request messages.
+
 The concept of **Explicit Transaction** is when the server is in the `READY` state and the transaction is opened with the request message `BEGIN` and the response of a summary message `SUCCESS` (thus transition into the `TX_READY` server state).
+
 The **Explicit Transaction** is successfully closed with the request message `COMMIT` and the response of a summary message `SUCCESS`.
 The result stream (detail messages) must be fully consumed or discarded by a client before the server can transition to the `TX_READY` state and thus be able to close the transaction with a `COMMIT` request message.
 
-TODO: If there still are detail messages `RECORD` to be streamed they will be discarded by the server on a successfull `COMMIT` request message???
-
 The **Explicit Transaction** can be gracefully discarded and set to the initial server state of `READY` with the request message `ROLLBACK`.
+
+
+Example 2:
+
+```
+...
+C: HELLO ...
+S: SUCCESS ...  // Server is in READY state
+
+C: BEGIN ...    // Open a new Explicit Transaction
+S: SUCCESS ...  // Server is in TX_READY state
+
+C: RUN ...
+S: SUCCESS ... qid=123 // Server is in TX_STREAMING state, one stream is open
+
+C: RUN ...
+S: SUCCESS ... qid=456 // Server is in TX_STREAMING state, two streams are open
+
+C: PULL ... qid=123
+S: RECORD ...
+   ...
+S: RECORD ...
+S: SUCCESS ... has_more=true  // Server is still in TX_STREAMING state, two streams are still open
+
+C: PULL ... qid=123
+S: RECORD ...
+   ...
+S: RECORD ...
+S: SUCCESS ... has_more=false  // Server is still in TX_STREAMING state, one stream is still open
+
+C: PULL ... qid=456
+S: RECORD ...
+   ...
+S: RECORD ...
+S: SUCCESS ... has_more=false  // Server is in TX_READY state, all streams have been fully consumed
+
+C: COMMIT   // Close the Explicit Transaction
+S: SUCCESS  // Server is in READY state
+```
+
+See, [**Bolt Protocol Server State Specification Version 4**](bolt-protocol-server-state-specification-4.md#appendix---bolt-message-state-transitions)
 
 
 ## Messages - Version 4.0
