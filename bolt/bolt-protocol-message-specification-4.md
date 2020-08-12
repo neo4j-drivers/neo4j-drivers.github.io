@@ -203,7 +203,7 @@ The client may send multiple requests eagerly without first waiting for response
 
 ### Transaction
 
-A [transaction](https://en.wikipedia.org/wiki/Database_transaction) is the concept of [atomic](#https://en.wikipedia.org/wiki/Atomicity_(database_systems)) units of work.
+A [transaction](https://en.wikipedia.org/wiki/Database_transaction) is the concept of [atomic](https://en.wikipedia.org/wiki/Atomicity_(database_systems)) units of work.
 
 An **Auto-commit Transaction** is a basic but limited form of transaction.
 
