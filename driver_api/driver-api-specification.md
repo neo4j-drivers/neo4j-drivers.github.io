@@ -70,11 +70,39 @@ The driver should support a **routing table**.
 The procedure call to fetch the routing table has varied considerably throughout the various versions of Neo4j.
 
 
-| Neo4j Version | Procedure Call                                                                                                                | Bolt Message                                                                                                                          |
-|--------------:|:------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------|
-| 3.5           | [`dbms.cluster.routing.getRoutingTable($context)`](https://neo4j.com/docs/operations-manual/3.5/reference/procedures/)        | `RUN "CALL dbms.cluster.routing.getRoutingTable($context)" {"context": {}} {"mode": "r"}`                                             |
-| 4.0           | [`dbms.routing.getRoutingTable($context, $database)`](https://neo4j.com/docs/operations-manual/4.0/reference/procedures/)     | `RUN "CALL dbms.routing.getRoutingTable($context, $database)" {"context": {}, "database": "foo"} {"database": "system", "mode": "r"}` |
-| 4.1           | [`dbms.routing.getRoutingTable($context, $database)`](https://neo4j.com/docs/operations-manual/4.1/reference/procedures/)     | `RUN "CALL dbms.routing.getRoutingTable($context, $database)" {"context": {}, "database": "foo"} {"database": "system", "mode": "r"}` |
+| Neo4j | Bolt | Neo4j Procedure Call                                                                                                          |
+|------:|-----:|:------------------------------------------------------------------------------------------------------------------------------|
+| 3.5   | 3    | [`dbms.cluster.routing.getRoutingTable($context)`](https://neo4j.com/docs/operations-manual/3.5/reference/procedures/)        |
+| 4.0   | 4.0  | [`dbms.routing.getRoutingTable($context, $database)`](https://neo4j.com/docs/operations-manual/4.0/reference/procedures/)     |
+| 4.1   | 4.1  | [`dbms.routing.getRoutingTable($context, $database)`](https://neo4j.com/docs/operations-manual/4.1/reference/procedures/)     |
+| 4.2   | 4.2  | ?                                                                                                                             |
+
+
+The table shows how to fetch the routing table for database `"foo"`, (Neo4j 3.5 does not support multi-database)
+
+
+| Neo4j | Bolt  | Bolt Message                                                                                                                          |
+|------:|------:|:--------------------------------------------------------------------------------------------------------------------------------------|
+| 3.5   | 3     | `RUN "CALL dbms.cluster.routing.getRoutingTable($context)" {"context": {}} {"mode": "r"}`                                             |
+| 4.0   | 4.0   | `RUN "CALL dbms.routing.getRoutingTable($context, $database)" {"context": {}, "database": "foo"} {"database": "system", "mode": "r"}` |
+| 4.1   | 4.1   | `RUN "CALL dbms.routing.getRoutingTable($context, $database)" {"context": {}, "database": "foo"} {"database": "system", "mode": "r"}` |
+| 4.2   | 4.2   | ?                                                                                                                                     |
+
+
+
+```
+
+
+C: HELLO {"scheme": "basic", "principal": "test", "credentials": "test", "user_agent": "test", "routing": {"address": "localhost:9001", "policy": "my_policy", "region": "china"}}
+S: SUCCESS {"server": "Neo4j/4.1.0", "connection_id": "bolt-123456789"}
+C: RUN "CALL dbms.routing.getRoutingTable($context)" {"context": {"address": "localhost:9001", "policy": "my_policy", "region": "china"}} {"mode": "r", "db": "system"}
+C: PULL {"n": -1}
+S: SUCCESS {"fields": ["ttl", "servers"]}
+S: RECORD [4321, [{"addresses": ["127.0.0.1:9001"],"role": "WRITE"}, {"addresses": ["127.0.0.1:9002"], "role": "READ"}, {"addresses": ["127.0.0.1:9001", "127.0.0.1:9002"], "role": "ROUTE"}]]
+S: SUCCESS {"bookmark": "neo4j:bookmark-test-1", "type": "r", "t_last": 5, "db": "system"}
+C: GOODBYE
+```
+
 
 
 ### Neo4j 4.0 Cluster and Multi-database
