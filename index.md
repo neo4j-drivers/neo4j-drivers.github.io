@@ -1,8 +1,10 @@
 <div>
-  <p>Please note that this documentation is provided as-is and may change at any time.
+  <p style="background-color:#ffb950; padding:10px; border-radius:5px; color:black;">
+  Please note that this documentation is provided as-is and may change at any time.
   Likewise, no guarantees are given that this documentation is fully up to date.
   No support can be provided for users of this documentation, but issues may still be raised at
-  <a href="https://github.com/neo4j-drivers/neo4j-drivers.github.io/issues">https://github.com/neo4j-drivers/neo4j-drivers.github.io/issues</a></p>
+  <a href="https://github.com/neo4j-drivers/neo4j-drivers.github.io/issues">https://github.com/neo4j-drivers/neo4j-drivers.github.io/issues</a>
+  </p>
 </div>
 
 
