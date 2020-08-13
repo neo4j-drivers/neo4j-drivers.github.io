@@ -1,9 +1,16 @@
+<div>
+  <p style="background-color:#ffb950; padding:10px; border-radius:5px; color:black;">
+  Please note that this documentation is provided as-is and may change at any time.
+  Likewise, no guarantees are given that this documentation is fully up to date.
+  No support can be provided for users of this documentation, but issues may still be raised at
+  <a href="https://github.com/neo4j-drivers/neo4j-drivers.github.io/issues">https://github.com/neo4j-drivers/neo4j-drivers.github.io/issues</a>
+  </p>
+</div>
+
+
 # Overview of Driver Technology
 
 The sections below contain links to current, historic, and proposed future specifications. 
-
-Unlinked entries in the lists below generally represent known future artifacts that have not yet been designed or current or historic artifacts that have no specification available.
-Such entries exist for completeness.
 
 
 ## PackStream
@@ -11,18 +18,7 @@ Such entries exist for completeness.
 PackStream is a binary [presentation](https://en.wikipedia.org/wiki/Presentation_layer) format for the exchange of richly-typed data.
 It provides a syntax layer for the Bolt messaging protocol.
 
-- [PackStream Specification v1](packstream/packstream-specification-v1.md) (Neo4j 3.0 to 3.5)
-- PackStream Specification v2 (Neo4j 4.0)
-
-
-### Jolt
-
-Jolt is a proposed PackStream spin-off that provides identical data exchange capabilities to PackStream within a pure [JSON](http://json.org/) context.
-This introduces readability at the expense of a slightly higher byte count.
-
-Jolt is intended primarily for use over an HTTP connection and can be useful within network environments that have a requirement for the automatic inspection of traffic.  
- 
-- [Jolt Specification v1](jolt/jolt-specification-v1.md)
+- [**Version 1**](packstream/packstream-specification-1.md), corresponds to the first releases of the PackStream specification.
 
 
 ## Bolt
@@ -33,70 +29,77 @@ It is generally carried over a regular [TCP](https://tools.ietf.org/html/rfc793)
 Bolt inherits its core type system from PackStream, over which its messages are generally carried.
 Each version of Bolt provides a number of type system extensions, via the PackStream type extension mechanism.  
 
-### Bolt Handshake
+### Bolt Protocol Handshake Specification
 
 All Bolt connections begin with a handshake to negotiate which version of the messaging protocol to use.
 Following a successful negotiation, the agreed messaging protocol then takes ownership of the connection for the remainder of its lifetime.
 The handshake itself is not versioned. 
 
-- [Bolt Handshake Protocol Specification](bolt/bolt-handshake-protocol-specification.md)
+* **Version 1**, corresponds to the first releases of the handshake specification.
+* **Version 4.0**, incorporates an updated handshake specification. Now supports Major and Minor versions.
 
-### Bolt v1 (Neo4j 3.0 to 3.3)
-
-Version 1 corresponds to the first releases of the messaging protocol and the type system.
-
-- [Bolt Messaging Protocol Specification v1](bolt/bolt-messaging-protocol-specification-v1.md)
-- [Bolt Type System Extensions v1](types/bolt-type-system-extensions-v1.md)
-
-### Bolt v2 (Neo4j 3.4)
-
-Version 2 incorporates an updated type system, but retains the messaging protocol from version 1.
-There is consequently no second version of the Bolt Messaging Protocol Specification.
-
-- Bolt Type System Extensions v2
-
-### Bolt v3 (Neo4j 3.5)
-
-Version 3 incorporates both an updated type system and an updated messaging protocol.
-
-- [Bolt Messaging Protocol Specification v3](bolt/bolt-messaging-protocol-specification-v3.md)
-- Bolt Type System Extensions v3
-
-### Bolt v4 (Neo4j 4.0)
-
-Version 4 incorporates both an updated type system and an updated messaging protocol.
-
-- Bolt Messaging Protocol Specification v4
-- Bolt Type System Extensions v4
+[**Bolt Protocol Handshake Specification**](bolt/bolt-protocol-handshake-specification.md)
 
 
-## Driver API:
+### Bolt Protocol Message Specification
 
-The official Neo4j drivers export a uniform API.
-This allows driver concepts and naming to be shared across ecosystems, making transition between languages and multi-language support easier and more consistent.
-
-- v1.0
-- v1.1
-- v1.2
-- v1.3
-- v1.4
-- v1.5
-- v1.6
-- v1.7
-- v2.0
+* [**Version 1**](bolt/bolt-protocol-message-specification-1.md), corresponds to the first releases of the message specification. Uses **PackStream Version 1**.
+* [**Version 2**](bolt/bolt-protocol-message-specification-2.md), incorporates no changes to the message specification.
+* [**Version 3**](bolt/bolt-protocol-message-specification-3.md), incorporates an updated message specification.
+* [**Version 4.0**](bolt/bolt-protocol-message-specification-4.md), incorporates an updated message specification.
+* [**Version 4.1**](bolt/bolt-protocol-message-specification-4.md), incorporates an updated message specification.
 
 
-## Connectors
+### Bolt Protocol Server State Specification
 
-Connectors are low-level libraries that provide Bolt messaging and routing capabilities.
-They are primarily intended for use by drivers and other tooling.
-It is recommended that application developers choose a driver over a connector for general purpose integration with Neo4j.
+For the server, each connection using the Bolt Protocol will occupy one of several states throughout its lifetime.
 
-- [Seabolt](connectors/seabolt.md) (C Connector)
+This state is used to determine what actions may be undertaken by the client. Each server state specification corresponds to a message specification with the same version.
+
+* [**Version 1**](bolt/bolt-protocol-server-state-specification-1.md), first version that defines the server states.
+* [**Version 2**](bolt/bolt-protocol-server-state-specification-2.md), incorporates no changes to the server state specification.
+* [**Version 3**](bolt/bolt-protocol-server-state-specification-3.md), incorporates major changes to the server state specification.
+* [**Version 4.0**](bolt/bolt-protocol-server-state-specification-4.md), incorporates some changes to the server state specification.
+* [**Version 4.1**](bolt/bolt-protocol-server-state-specification-4.md), incorporates no changes to the server state specification.
 
 
-## Tools
+## Bolt Protocol and Neo4j Compatibility
 
-The links below provide extra resources for driver authors.
 
-- BoltKit
+| Neo4j Version | Bolt `1` | Bolt `2` | Bolt `3` | Bolt `4.0` | Bolt `4.1` | Bolt `4.2`  |
+|:-------------:|:--------:|:--------:|:--------:|:----------:|:----------:|:-----------:|
+| `3.0`         | `x`      |          |          |            |            |             |
+| `3.1`         | `x`      |          |          |            |            |             |
+| `3.2`         | `x`      |          |          |            |            |             |
+| `3.3`         | `x`      |          |          |            |            |             |
+| `3.4`         | `(x)`    | `x`      |          |            |            |             |
+| `3.5`         |          | `(x)`    | `x`      |            |            |             |
+| `4.0`         |          |          | `(x)`    | `x`        |            |             |
+| `4.1`         |          |          | `(x)`    | `(x)`      | `x`        |             |
+| `4.2`         |          |          | `(x)`    | `(x)`      | `(x)`      | `x`         |
+
+
+The `(x)` denotes that support could be removed in next version of Neo4j.
+
+
+[//]: ## Neo4j Driver API
+
+[//]: The official Neo4j drivers export a uniform API.
+
+[//]: This allows driver concepts and naming to be shared across ecosystems, making transition between languages and multi-language support easier and more consistent.
+
+[//]: [Driver API Specification](driver\_api/driver-api-specification.md)
+
+
+## Neo4j Drivers
+
+[Java Driver](https://github.com/neo4j/neo4j-java-driver)
+
+[JavaScript Driver](https://github.com/neo4j/neo4j-javascript-driver)
+
+[.NET Driver](https://github.com/neo4j/neo4j-dotnet-driver)
+
+[Python Driver](https://github.com/neo4j/neo4j-python-driver)
+
+[Go Driver](https://github.com/neo4j/neo4j-go-driver)
+
