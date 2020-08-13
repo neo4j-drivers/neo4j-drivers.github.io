@@ -168,7 +168,7 @@ The `<INTERRUPT>` signal will set the connection in the `INTERRUPTED` server sta
 # Appendix - Bolt Message State Transitions
 
 
-| Initial State  | Request Message | Triggers Signal | Server Response Summary Message | Final State                                                 |
+| State          | Request Message | Triggers Signal | Server Response Summary Message | New State                                                   |
 |----------------|-----------------|-----------------|---------------------------------|-------------------------------------------------------------|
 | `CONNECTED`    | `HELLO`         |                 | `SUCCESS {}`                    | `READY`                                                     |
 | `CONNECTED`    | `HELLO`         |                 | `FAILURE {}`                    | `DEFUNCT`                                                   |
@@ -223,7 +223,7 @@ The `<INTERRUPT>` signal will set the connection in the `INTERRUPTED` server sta
 The `<INTERRUPT>` signal,
 
 
-| Initial State  | Signal         | Server Response Summary Message | Final State   |
+| State          | Signal         | Server Response Summary Message | New State     |
 |----------------|----------------|---------------------------------|---------------|
 | `READY`        | `<INTERRUPT>`  | *n/a*                           | `INTERRUPTED` |
 | `STREAMING`    | `<INTERRUPT>`  | *n/a*                           | `INTERRUPTED` |
