@@ -97,7 +97,7 @@ This result must be fully consumed or discarded by a client before the server ca
 
 #### Request Message - `DISCARD` - State Transitions
 
-| Initial State | Final State   | Response                     |
+| State         | New State     | Response                     |
 |---------------|---------------|------------------------------|
 | `STREAMING`   | `READY`       | `SUCCESS {"has_more": false}`|
 | `STREAMING`   | `FAILED`      | `FAILURE {}`                 |
@@ -105,7 +105,7 @@ This result must be fully consumed or discarded by a client before the server ca
 
 #### Request Message - `PULL` - State Transitions
 
-| Initial State | Final State   | Response                                      |
+| State         | New State     | Response                                      |
 |---------------|---------------|-----------------------------------------------|
 | `STREAMING`   | `READY`       | \[`RECORD` ...\] `SUCCESS {"has_more": false}`|
 | `STREAMING`   | `FAILED`      | \[`RECORD` ...\] `FAILURE {}`                 |
@@ -124,7 +124,7 @@ This result must be fully consumed or discarded by a client before the server ca
 
 #### `RUN` Message State Transitions
 
-| Initial State | Final State      | Response                       |
+| State         | New State        | Response                       |
 |---------------|------------------|--------------------------------|
 | `TX_READY`    | `TX_STREAMING`   | `SUCCESS {"qid": id::Integer}` |
 | `TX_READY`    | `FAILED`         | `FAILURE {}`                   |
@@ -146,14 +146,14 @@ This result must be fully consumed or discarded by a client before the server ca
 
 #### Request Message - `RUN` - State Transitions
 
-| Initial State    | Final State      | Response                       |
+| State            | New State        | Response                       |
 |------------------|------------------|--------------------------------|
 | `TX_STREAMING`   | `TX_STREAMING`   | `SUCCESS {"qid": id::Integer}` |
 | `TX_STREAMING`   | `FAILED`         | `FAILURE {}`                   |
 
 #### Request Message - `DISCARD` - State Transitions
 
-| Initial State    | Final State                                                     | Response                     |
+| State            | New State                                                       | Response                     |
 |------------------|-----------------------------------------------------------------|------------------------------|
 | `TX_STREAMING`   | `TX_READY` or `TX_STREAMING` if there is other streams open     | `SUCCESS {"has_more": false}`|
 | `TX_STREAMING`   | `FAILED`                                                        | `FAILURE {}`                 |
@@ -163,7 +163,7 @@ This result must be fully consumed or discarded by a client before the server ca
 
 `TX_READY` or `TX_STREAMING` if there is other streams open
 
-| Initial State    | Final State                                                    | Response                                      |
+| State            | New State                                                      | Response                                      |
 |------------------|----------------------------------------------------------------|-----------------------------------------------|
 | `TX_STREAMING`   | `TX_READY` or `TX_STREAMING` if there is other streams open    | \[`RECORD` ...\] `SUCCESS {"has_more": false}`|
 | `TX_STREAMING`   | `FAILED`                                                       | \[`RECORD` ...\] `FAILURE {}`                 |
@@ -219,7 +219,7 @@ No changes compared to version 4.0.
 # Appendix - Bolt Message State Transitions
 
 
-| Initial State  | Request Message | Triggers Signal | Server Response Summary Message | Final State                                                 |
+| State          | Request Message | Triggers Signal | Server Response Summary Message | New State                                                   |
 |----------------|-----------------|-----------------|---------------------------------|-------------------------------------------------------------|
 | `CONNECTED`    | `HELLO`         |                 | `SUCCESS {}`                    | `READY`                                                     |
 | `CONNECTED`    | `HELLO`         |                 | `FAILURE {}`                    | `DEFUNCT`                                                   |
@@ -280,7 +280,7 @@ No changes compared to version 4.0.
 The `<INTERRUPT>` signal,
 
 
-| Initial State  | Signal         | Server Response Summary Message | Final State   |
+| State          | Signal         | Server Response Summary Message | New State     |
 |----------------|----------------|---------------------------------|---------------|
 | `READY`        | `<INTERRUPT>`  | *n/a*                           | `INTERRUPTED` |
 | `STREAMING`    | `<INTERRUPT>`  | *n/a*                           | `INTERRUPTED` |

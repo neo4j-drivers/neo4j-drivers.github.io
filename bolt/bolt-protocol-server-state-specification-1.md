@@ -93,7 +93,7 @@ This result must be fully consumed or discarded by a client before the server ca
 
 #### Request Message - `DISCARD_ALL` - State Transitions
 
-| Initial State | Final State   | Response     |
+| State         | New State     | Response     |
 |---------------|---------------|--------------|
 | `STREAMING`   | `READY`       | `SUCCESS {}` |
 | `STREAMING`   | `FAILED`      | `FAILURE {}` |
@@ -101,7 +101,7 @@ This result must be fully consumed or discarded by a client before the server ca
 
 #### Request Message - `PULL_ALL` - State Transitions
 
-| Initial State | Final State   | Response                      |
+| State         | New State     | Response                      |
 |---------------|---------------|-------------------------------|
 | `STREAMING`   | `READY`       | \[`RECORD` ...\] `SUCCESS {}` |
 | `STREAMING`   | `FAILED`      | \[`RECORD` ...\] `FAILURE {}` |
@@ -148,7 +148,7 @@ The `<INTERRUPT>` signal will set the connection in the `INTERRUPTED` server sta
 # Appendix - Bolt Message State Transitions
 
 
-| Initial State | Request Message | Triggers Signal | Server Response Summary Message | Final State   |
+| State         | Request Message | Triggers Signal | Server Response Summary Message | New State     |
 |---------------|-----------------|-----------------|---------------------------------|---------------|
 | `CONNECTED`   | `INIT`          |                 | `SUCCESS {}`                    | `READY`       |
 | `CONNECTED`   | `INIT`          |                 | `FAILURE {}`                    | `DEFUNCT`     |
@@ -181,7 +181,7 @@ The `<INTERRUPT>` signal will set the connection in the `INTERRUPTED` server sta
 The `<INTERRUPT>` signal,
 
 
-| Initial State | Signal         | Server Response Summary Message | Final State   |
+| State         | Signal         | Server Response Summary Message | New State     |
 |---------------|----------------|---------------------------------|---------------|
 | `READY`       | `<INTERRUPT>`  | *n/a*                           | `INTERRUPTED` |
 | `STREAMING`   | `<INTERRUPT>`  | *n/a*                           | `INTERRUPTED` |
