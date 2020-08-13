@@ -1,3 +1,11 @@
+<div>
+  <p>Please note that this documentation is provided as-is and may change at any time.
+  Likewise, no guarantees are given that this documentation is fully up to date.
+  No support can be provided for users of this documentation, but issues may still be raised at
+  <a href="https://github.com/neo4j-drivers/neo4j-drivers.github.io/issues">https://github.com/neo4j-drivers/neo4j-drivers.github.io/issues</a></p>
+</div>
+
+
 # Overview of Driver Technology
 
 The sections below contain links to current, historic, and proposed future specifications. 
