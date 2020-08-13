@@ -84,22 +84,24 @@ The table shows how to fetch the routing table for database `"foo"`, (Neo4j 3.5 
 | Neo4j | Bolt  | Bolt Message                                                                                                                          |
 |------:|------:|:--------------------------------------------------------------------------------------------------------------------------------------|
 | 3.5   | 3     | `RUN "CALL dbms.cluster.routing.getRoutingTable($context)" {"context": {}} {"mode": "r"}`                                             |
-| 4.0   | 4.0   | `RUN "CALL dbms.routing.getRoutingTable($context, $database)" {"context": {}, "database": "foo"} {"database": "system", "mode": "r"}` |
-| 4.1   | 4.1   | `RUN "CALL dbms.routing.getRoutingTable($context, $database)" {"context": {}, "database": "foo"} {"database": "system", "mode": "r"}` |
+| 4.0   | 4.0   | `RUN "CALL dbms.routing.getRoutingTable($context, $database)" {"context": {}, "database": "foo"} {"db": "system", "mode": "r"}` |
+| 4.1   | 4.1   | `RUN "CALL dbms.routing.getRoutingTable($context, $database)" {"context": {}, "database": "foo"} {"db": "system", "mode": "r"}` |
 | 4.2   | 4.2   | ?                                                                                                                                     |
 
 
+Example:
 
 ```
-
-
-C: HELLO {"scheme": "basic", "principal": "test", "credentials": "test", "user_agent": "test", "routing": {"address": "localhost:9001", "policy": "my_policy", "region": "china"}}
+C: 60 60 B0 17
+C: 00 00 01 04 00 00 00 00 00 00 00 00 00 00 00 00
+S: 00 00 01 04
+C: HELLO {"scheme": "basic", "principal": "user", "credentials": "password", "user_agent": "Example/4.1.0", "routing": {"address": "localhost:9001", "policy": "example_policy", "region": "example_region"}}
 S: SUCCESS {"server": "Neo4j/4.1.0", "connection_id": "bolt-123456789"}
-C: RUN "CALL dbms.routing.getRoutingTable($context)" {"context": {"address": "localhost:9001", "policy": "my_policy", "region": "china"}} {"mode": "r", "db": "system"}
+C: RUN "CALL dbms.routing.getRoutingTable($context)" {"context": {"address": "localhost:9001", "policy": "example_policy", "region": "example_region"}} {"mode": "r", "db": "system"}
 C: PULL {"n": -1}
 S: SUCCESS {"fields": ["ttl", "servers"]}
-S: RECORD [4321, [{"addresses": ["127.0.0.1:9001"],"role": "WRITE"}, {"addresses": ["127.0.0.1:9002"], "role": "READ"}, {"addresses": ["127.0.0.1:9001", "127.0.0.1:9002"], "role": "ROUTE"}]]
-S: SUCCESS {"bookmark": "neo4j:bookmark-test-1", "type": "r", "t_last": 5, "db": "system"}
+S: RECORD [300, [{"addresses": ["127.0.0.1:9001"], "role": "WRITE"}, {"addresses": ["127.0.0.1:9002"], "role": "READ"}, {"addresses": ["127.0.0.1:9001", "127.0.0.1:9002"], "role": "ROUTE"}]]
+S: SUCCESS {"bookmark": "example-bookmark:1", "type": "r", "t_last": 5, "db": "system"}
 C: GOODBYE
 ```
 
