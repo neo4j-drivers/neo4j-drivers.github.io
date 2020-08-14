@@ -580,9 +580,9 @@ The **tag byte** may hold any value between 0 and +127.
 
 ```
 Node::Structure(
-    id::Integer
-    labels::List<String>
-    properties::Dictionary
+    id::Integer,
+    labels::List<String>,
+    properties::Dictionary,
 )
 ```
 
@@ -590,9 +590,9 @@ Example:
 
 ```
 Node(
-  id = 3
-  labels = ["Example", "Node"]
-  properties = {"name": "example"}
+  id = 3,
+  labels = ["Example", "Node"],
+  properties = {"name": "example"},
 )
 ```
 
@@ -608,22 +608,22 @@ B3 4E
 **Number of fields:** 5
 
 Relationship::Structure(
-    id::Integer
-    startNodeId::Integer
-    endNodeId::Integer
-    type::String
-    properties::Dictionary
+    id::Integer,
+    startNodeId::Integer,
+    endNodeId::Integer,
+    type::String,
+    properties::Dictionary,
 )
 
 Example:
 
 ```
 Relationship(
-    id = 11
-    startNodeId = 2
-    endNodeId = 3
-    type = "KNOWS"
-    properties = {"name": "example"}
+    id = 11,
+    startNodeId = 2,
+    endNodeId = 3,
+    type = "KNOWS",
+    properties = {"name": "example"},
 )
 ```
 
@@ -642,9 +642,9 @@ A relationship without information of start and end node id. It is used internal
 
 ```
 UnboundRelationship::Structure(
-    id::Integer
-    type::String
-    properties::Dictionary
+    id::Integer,
+    type::String,
+    properties::Dictionary,
 )
 ```
 
@@ -652,9 +652,9 @@ Example:
 
 ```
 UnboundRelationship(
-    id = 17
-    type = "KNOWS"
-    properties = {"name": "example"}
+    id = 17,
+    type = "KNOWS",
+    properties = {"name": "example"},
 )
 ```
 
@@ -671,9 +671,9 @@ B3 72
 
 ```
 Path::Structure(
-    nodes::List<Node>
-    rels::List<UnboundRelationship>
-    ids::List<Integer>
+    nodes::List<Node>,
+    rels::List<UnboundRelationship>,
+    ids::List<Integer>,
 )
 ```
 
@@ -690,7 +690,7 @@ An instant capturing the date, but not the time, nor the time zone.
 
 ```
 Date::Structure(
-    days::Integer
+    days::Integer,
 )
 ```
 
@@ -707,13 +707,20 @@ An instant capturing the time of day, and the timezone, but not the date.
 
 ```
 Time::Structure(
-    nanoseconds::Integer
-    tz_offset_seconds::Integer
+    nanoseconds::Integer,
+    tz_offset_seconds::Integer,
 )
 ```
 
-- The `nanoseconds` are nanosecond since midnight.
+- The `nanoseconds` are nanoseconds since midnight. This time is not [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time).
 - The `tz_offset_seconds` are an offset in seconds from UTC.
+
+
+To convert to UTC use:
+
+```
+utc_nanoseconds = nanoseconds - (tz_offset_seconds * 1000000000)
+```
 
 
 ### LocalTime - Structure
@@ -726,7 +733,7 @@ An instant capturing the time of day, but not the date, nor the time zone.
 
 ```
 LocalTime::Structure(
-    nanoseconds::Integer
+    nanoseconds::Integer,
 )
 ```
 
@@ -744,17 +751,21 @@ The time zone information is specified with a zone offset.
 
 ```
 DateTime::Structure(
-    seconds::Integer
-    nanoseconds::Integer
-    tz_offset_minutes::Integer
+    seconds::Integer,
+    nanoseconds::Integer,
+    tz_offset_minutes::Integer,
 )
 ```
 
-- The `seconds` are seconds since the Unix epoch.
+- The `seconds` are seconds since the adjusted [Unix epoch](https://en.wikipedia.org/wiki/Epoch_(computing)). This is not [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time).
 - The `tz_offset_minutes` specifies the offset in minutes from UTC.
 
-Bolt Representation with zone id:
 
+To convert to UTC:
+
+```
+utc_nanoseconds = (seconds * 1000000000) + nanoseconds - (tx_offset_minutes * 60 * 1000000000)
+```
 
 ### DateTimeZoneId - Structure
 
@@ -768,14 +779,20 @@ The time zone information is specified with a **zone identification number**.
 
 ```
 DateTime::Structure(
-    seconds::Integer
-    nanoseconds::Integer
-    tz_id::Integer
+    seconds::Integer,
+    nanoseconds::Integer,
+    tz_id::Integer,
 )
 ```
 
-- The `seconds` are seconds since the Unix epoch.
+- The `seconds` are seconds since the adjusted [Unix epoch](https://en.wikipedia.org/wiki/Epoch_(computing)). This is not [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time).
+- The `tz_id` is an identifier for a specific time zone.
 
+To convert to UTC:
+
+```
+utc_nanoseconds = (seconds * 1000000000) + nanoseconds - get_offset_in_nanoseconds(tz_id)
+```
 
 ### LocalDateTime - Structure
 
@@ -787,8 +804,8 @@ An instant capturing the date and the time, but not the time zone.
 
 ```
 LocalDateTime::Structure(
-    seconds::Integer
-    nanoseconds::Integer
+    seconds::Integer,
+    nanoseconds::Integer,
 )
 ```
 
@@ -808,10 +825,10 @@ A Duration can be negative.
 
 ```
 Duration::Structure(
-    months::Integer
-    days::Integer
-    seconds::Integer
-    nanoseconds::Integer
+    months::Integer,
+    days::Integer,
+    seconds::Integer,
+    nanoseconds::Integer,
 )
 ```
 
@@ -825,13 +842,13 @@ Represents a single location in 2-dimensional space.
 
 ```
 Point2D::Structure(
-    srid::Integer
-    x::Float
-    y::Float
+    srid::Integer,
+    x::Float,
+    y::Float,
 )
 ```
 
-- The `srid` is the spatial reference identification number.
+- The `srid` is the [Spatial Reference System Identifier](https://en.wikipedia.org/wiki/Spatial_reference_system#Identifier).
 
 
 ### Point3D - Structure
@@ -844,12 +861,12 @@ Represents a single location in space.
 
 ```
 Point3D::Structure(
-    srid::Integer
-    x::Float
-    y::Float
-    z::Float
+    srid::Integer,
+    x::Float,
+    y::Float,
+    z::Float,
 )
 ```
 
-- The `srid` is the spatial reference identification number.
+- The `srid` is the [Spatial Reference System Identifier](https://en.wikipedia.org/wiki/Spatial_reference_system#Identifier).
 
