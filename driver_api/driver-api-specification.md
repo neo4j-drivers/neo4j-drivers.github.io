@@ -151,7 +151,7 @@ A cluster contains **Core** members and **Read Replica** members.
 
 * Each database in a cluster has its own **raft group**, each database has its own routing table.
 
-  In other words, the leader/core/read-replica of each database in a cluster can be different from each other.
+  In other words, the leader/core/read-replica for each database in a cluster can be different.
 
 * There is a **default database** for a single instance and/or a cluster.
 
@@ -169,7 +169,7 @@ A cluster contains **Core** members and **Read Replica** members.
 
 We should prevent the driver routing table from growing infinitely.
 
-Till now we only remove routing table from the map when we failed to obtain a routing table.
+Till now we only remove routing table from the Dictionary when we failed to obtain a routing table.
 
 However it is possible that the driver will hold some routing tables that is no longer valid anymore.
 
@@ -177,13 +177,13 @@ An invalid routing table could either be a routing table that is timed out, or a
 
 For example, a user could create a database using a driver, and then do some work on the newly created database, but finally delete the database.
 
-If this user repeat doing this, then the driver could hold infinite long routing table map.
+If this user repeat doing this, then the driver could hold infinite long routing table Dictionary.
 
-If we trim the driver routing table map by removing all routing tables that pointing an non-existing database, then the driver will still hold routing tables less or equal to the amount of routing tables on the server side.
+If we trim the driver routing table Dictionary by removing all routing tables that pointing an non-existing database, then the driver will still hold routing tables less or equal to the amount of routing tables on the server side.
 
-When should we remove a routing table from routing table map?
+When should we remove a routing table from routing table Dictionary?
 
-Should we allowed to remove a routing table from the map after TTL (default to 5 mins)? Currently we will remove the routing table after a timeout = TTL + 30s.  To be discussed.
+Should we allowed to remove a routing table from the Dictionary after TTL (default to 5 mins)? Currently we will remove the routing table after a timeout = TTL + 30s.  To be discussed.
 
 
 Here is the workflow the driver should follow when fetching a routing table for database named "foo".
