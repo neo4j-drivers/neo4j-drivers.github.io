@@ -1,53 +1,75 @@
-# Driver API Specification (DRAFT !!!)
+# Driver API Specification
 
+<div>
+  <p style="background-color:#ffb950; padding:10px; border-radius:5px; color:black;">
+  This Document is still in a draft state and the content can change at any time.
+  </p>
+</div>
+
+This document describes the overview of a Driver and how different scenarios like update the routing table for a clustered Neo4j setup, available URI schemes and TLS settings, etc.
 
 ## Driver Objects
 
-* Driver
-* Session
-* Transaction
+* **Driver**
+* **Session**
+* **Transaction**
 
 
-* DriverConfig
-  * uri::String
-  * auth::Map
-  * user\_agent::String
-  * encrypted::Boolean
-  * trust::String
+* **DriverConfig**
+  * `uri::String`
+  * `auth::Dictionary`
+  * `user_agent::String`
+  * `encrypted::Boolean`
+  * `trust::String`
 
 
-* SessionConfig
-  * default\_access\_mode::String
-  * database::String
-  * fetch\_size::Integer
-  * bookmarks::List\<String\>
+* **SessionConfig**
+  * `default_access_mode::String`
+  * `database::String`
+  * `fetch_size::Integer`
+  * `bookmarks::List<String>`
 
 
 * TransactionConfig
-  * metadata::Map
-  * timeout::Integer
+  * `metadata::Dictionary`
+  * `timeout::Integer`
 
 
-* AuthToken
-* TransactionManager
+* **AuthToken**
+* **TransactionManager**
 
 
-* ConnectionPool
-* Routing
+* **ConnectionPool**
+* **Routing**
 
 
-* BoltProtocol
-* PackStream
+* **BoltProtocol**
+* **PackStream**
 
 
-* Neo4jExceptions
-* DriverExceptions
+* **Neo4jExceptions**
+* **DriverExceptions**
 
 
 ## URI Schemes
 
-* `bolt`
-* `neo4j`
+No TLS enabled.
+
+* `bolt`, connect to a single Neo4j instance.
+* `neo4j`, connect to a Neo4j instance and use the routing table information for further connections.
+
+
+Enable TLS and allow self signed certificate authority.
+
+* `bolt+ssc`
+* `neo4j+ssc`
+
+
+Enable TLS and only allow system enabled certificate authorty and verify hostname.
+
+* `bolt+s`
+* `neo4j+s`
+
 
 ## Client Side Routing
 
@@ -84,8 +106,8 @@ The table shows how to fetch the routing table for database `"foo"`, (Neo4j 3.5 
 | Neo4j | Bolt  | Bolt Message                                                                                                                          |
 |------:|------:|:--------------------------------------------------------------------------------------------------------------------------------------|
 | 3.5   | 3     | `RUN "CALL dbms.cluster.routing.getRoutingTable($context)" {"context": {}} {"mode": "r"}`                                             |
-| 4.0   | 4.0   | `RUN "CALL dbms.routing.getRoutingTable($context, $database)" {"context": {}, "database": "foo"} {"db": "system", "mode": "r"}` |
-| 4.1   | 4.1   | `RUN "CALL dbms.routing.getRoutingTable($context, $database)" {"context": {}, "database": "foo"} {"db": "system", "mode": "r"}` |
+| 4.0   | 4.0   | `RUN "CALL dbms.routing.getRoutingTable($context, $database)" {"context": {}, "database": "foo"} {"db": "system", "mode": "r"}`       |
+| 4.1   | 4.1   | `RUN "CALL dbms.routing.getRoutingTable($context, $database)" {"context": {}, "database": "foo"} {"db": "system", "mode": "r"}`       |
 | 4.2   | 4.2   | ?                                                                                                                                     |
 
 
