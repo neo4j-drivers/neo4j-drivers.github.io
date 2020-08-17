@@ -88,7 +88,7 @@ Neo4j Drivers export a uniform API.
 
 This allows driver concepts and naming to be shared across ecosystems, making transition between languages and multi-language support easier and more consistent.
 
-[Driver API Specification](driver\_api/driver-api-specification.md)
+[Driver API Specification](driver_api/driver-api-specification.md)
 
 
 ## Neo4j Drivers
