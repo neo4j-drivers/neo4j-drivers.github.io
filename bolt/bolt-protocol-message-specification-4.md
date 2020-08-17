@@ -1077,7 +1077,7 @@ RECORD [{"point": [1, 2]}, "example_data", 123]
 
 The changes compared to Bolt protocol version 4.0 are listed below:
 
-* The `BEGIN` message now requires the sub-field `routing::Dictionary(address::String)`.
+* The `BEGIN` message, defines the sub-field `routing::Dictionary(address::String)` to indicate if server side routing should be performed and can include routing context data.
 * Support for `NOOP` chunk (empty chunk). Both server and client should support this.
 
 
@@ -1147,6 +1147,16 @@ If authentication fails, the server **must** respond with a `FAILURE` message an
 
 Clients wishing to retry initialization should establish a new connection.
 
+The new `routing::Dictionary(address::String)` field adds an indicator if the server should carry out routing, according to the the given routing context.
+
+
+| `routing` values                                                                  | Description                                                                 |
+|-----------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
+| `{"routing": null}`                                                               | the server should not carry out routing                                     |
+| `{"routing: {}}`                                                                  | the server should carry out routing                                         |
+| `{"routing: {"address": "x.example.com:9001", "region": "example", ...}}`         | the server should carry out routing according to the given routing context  |
+
+
 **Signature:** `01`
 
 **Fields:**
@@ -1163,7 +1173,14 @@ extra::Dictionary(
 
   - The `user_agent` should conform to `"Name/Version"` for example `"Example/4.1.0"`. (see, [developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent))
   - The `scheme` is the authentication scheme. Predefined schemes are `"none"`, `"basic"`, `"kerberos"`.
-  - The `routing` field should contain routing context information and the `address` field that should contain the address that the client initially tries to connect with e.g. `"x.example.com:9001"`.
+  - The `routing` field should contain routing context information and the `address` field that should contain the address that the client initially tries to connect with e.g. `"x.example.com:9001"`. Key-value entries in the routing context should correspond exactly to those in the original URI query string. The absence of the `routing` field indicates that the server should not carry out any routing.
+
+
+
+
+
+
+
 
 **Detail Messages:**
 

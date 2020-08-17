@@ -167,37 +167,39 @@ A cluster contains **Core** members and **Read Replica** members.
 
 #### Driver Routing Table
 
-We should prevent the driver routing table from growing infinitely.
+**The Driver should prevent the routing table from growing infinitely.**
 
-Till now we only remove routing table from the Dictionary when we failed to obtain a routing table.
+The routing table for a specific database should be removed from the routing table if there is a failed to attempt to obtain routing information.
 
-However it is possible that the driver will hold some routing tables that is no longer valid anymore.
+The routing table for a specific database should be removed from the routing table if it is invalid.
 
-An invalid routing table could either be a routing table that is timed out, or a routing table that pointing to a database that does not exist anymore. 
+An invalid routing table could either be a:
 
-For example, a user could create a database using a driver, and then do some work on the newly created database, but finally delete the database.
-
-If this user repeat doing this, then the driver could hold infinite long routing table Dictionary.
-
-If we trim the driver routing table Dictionary by removing all routing tables that pointing an non-existing database, then the driver will still hold routing tables less or equal to the amount of routing tables on the server side.
-
-When should we remove a routing table from routing table Dictionary?
-
-Should we allowed to remove a routing table from the Dictionary after TTL (default to 5 mins)? Currently we will remove the routing table after a timeout = TTL + 30s.  To be discussed.
+ - Routing table that has timed out where the `TTL` (Time To Live) key for that routing table have ended.
+ - Routing table that is pointing to a database that no longer exists.
 
 
-Here is the workflow the driver should follow when fetching a routing table for database named "foo".
 
-1. Find routing table in routing table map with key "foo".
-   If the key does not exist, then create an empty routing table with seed URL as initial router.
+Here is the workflow the driver should follow when fetching a routing table for database named `"foo"`.
 
-2. If the routing table is stale, then refresh the routing table. 
+1. Find the routing table for database `"foo"`.
 
-3. If any error happens, remove the key "foo" from routing table map.
+2. If the database does not exist in the routing table, then create an empty routing table with seed URL as initial router.
 
-  The only errors possible are `SECURITY_ERROR`, `ROUTING_ERROR`, or `SERVICE_UNAVILABLE_ERROR` which only happens when the driver failed to get routing table with all existing routers,
+3. If the routing table is stale, then refresh the routing table with a query to a cluster member that.
+
+4. If any error happens, remove the key "foo" from routing table map.
+
+  The only errors possible are:
   
+  - `SECURITY_ERROR`
+  - `ROUTING_ERROR`
+  - `SERVICE_UNAVILABLE_ERROR`, happens when the driver failed to get routing table for all existing routers
+
 
 ## Client Side Logging
 
+TODO:
 
+- Define the logging levels
+- Define logging syntax
