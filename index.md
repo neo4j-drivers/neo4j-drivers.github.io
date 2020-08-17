@@ -82,13 +82,13 @@ This state is used to determine what actions may be undertaken by the client. Ea
 The `(x)` denotes that support could be removed in next version of Neo4j.
 
 
-[//]: ## Neo4j Driver API
+## Neo4j Driver API
 
-[//]: The official Neo4j drivers export a uniform API.
+Neo4j Drivers export a uniform API.
 
-[//]: This allows driver concepts and naming to be shared across ecosystems, making transition between languages and multi-language support easier and more consistent.
+This allows driver concepts and naming to be shared across ecosystems, making transition between languages and multi-language support easier and more consistent.
 
-[//]: [Driver API Specification](driver\_api/driver-api-specification.md)
+[Driver API Specification](driver_api/driver-api-specification.md)
 
 
 ## Neo4j Drivers
