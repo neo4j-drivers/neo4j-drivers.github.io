@@ -8,6 +8,23 @@
 
 This document describes the overview of a Driver and how different scenarios like update the routing table for a clustered Neo4j setup, available URI schemes and TLS settings, etc.
 
+
+* [Driver Objects](#driver-objects)
+
+* [URI Schemes](#uri-schemes)
+
+* [Client Side Routing](#client-side-routing)
+
+* [Client Side Logging](#client-side-logging)
+
+* [Session](#session)
+
+* [Transaction](#transaction)
+
+* [Causal Chaining](#causal-chaining)
+
+
+
 ## Driver Objects
 
 * **Driver**
@@ -199,7 +216,23 @@ Here is the workflow the driver should follow when fetching a routing table for 
 
 ## Client Side Logging
 
-TODO:
+- Logging Levels
+- Logging Syntax
 
-- Define the logging levels
-- Define logging syntax
+
+## Session
+
+- Connections
+- Connection Pool
+
+
+## Transaction
+
+- Atomic unit of work
+- Transaction Manager
+- Transaction Functions
+
+
+## Causal Chaining
+
+- Bookmark
