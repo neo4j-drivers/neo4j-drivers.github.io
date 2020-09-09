@@ -21,7 +21,7 @@ The core data types are as follows:
 | [`Bytes`](#bytes)           | byte array                                    |
 | [`String`](#string)         | unicode text, **UTF-8**                       |
 | [`List`](#list)             | ordered collection of values                  |
-| [`Dictionary`](#dictionary) | ordered collection of key-value entries       |
+| [`Dictionary`](#dictionary) | collection of key-value entries               |
 | [`Structure`](#structure)   | composite value with a type signature         |
 
 **NOTE:** Neither unsigned integers nor 32-bit floating point numbers are included.
@@ -420,8 +420,6 @@ D4 28
 ## Dictionary
 
 A Dictionary is a list containing key-value entries.
-
-* Ordered.
 
 * Keys must be a String.
 
