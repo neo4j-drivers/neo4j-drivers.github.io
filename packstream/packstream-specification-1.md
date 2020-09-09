@@ -737,7 +737,7 @@ LocalTime::Structure(
 )
 ```
 
-- The `nanoseconds` are nanosecond since midnight.
+- The `nanoseconds` are nanoseconds since midnight.
 
 ### DateTime - Structure
 
@@ -753,18 +753,18 @@ The time zone information is specified with a zone offset.
 DateTime::Structure(
     seconds::Integer,
     nanoseconds::Integer,
-    tz_offset_minutes::Integer,
+    tz_offset_seconds::Integer,
 )
 ```
 
 - The `seconds` are seconds since the adjusted [Unix epoch](https://en.wikipedia.org/wiki/Epoch_(computing)). This is not [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time).
-- The `tz_offset_minutes` specifies the offset in minutes from UTC.
+- The `tz_offset_seconds` specifies the offset in seconds from UTC.
 
 
 To convert to UTC:
 
 ```
-utc_nanoseconds = (seconds * 1000000000) + nanoseconds - (tx_offset_minutes * 60 * 1000000000)
+utc_nanoseconds = (seconds * 1000000000) + nanoseconds - (tx_offset_minutes * 1000000000)
 ```
 
 ### DateTimeZoneId - Structure
@@ -775,18 +775,18 @@ utc_nanoseconds = (seconds * 1000000000) + nanoseconds - (tx_offset_minutes * 60
 
 An instant capturing the date, the time, and the time zone.
 
-The time zone information is specified with a **zone identification number**.
+The time zone information is specified with a **zone identifier**.
 
 ```
 DateTime::Structure(
     seconds::Integer,
     nanoseconds::Integer,
-    tz_id::Integer,
+    tz_id::String,
 )
 ```
 
 - The `seconds` are seconds since the adjusted [Unix epoch](https://en.wikipedia.org/wiki/Epoch_(computing)). This is not [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time).
-- The `tz_id` is an identifier for a specific time zone.
+- The `tz_id` is an identifier for a specific time zone, such as `"Europe/Paris"`.
 
 To convert to UTC:
 
@@ -848,7 +848,7 @@ Point2D::Structure(
 )
 ```
 
-- The `srid` is the [Spatial Reference System Identifier](https://en.wikipedia.org/wiki/Spatial_reference_system#Identifier).
+- The `srid` is a [Spatial Reference System Identifier](https://en.wikipedia.org/wiki/Spatial_reference_system#Identifier).
 
 
 ### Point3D - Structure
@@ -857,7 +857,7 @@ Point2D::Structure(
 
 **Number of fields:** 4
 
-Represents a single location in space.
+Represents a single location in 3-dimensional space.
 
 ```
 Point3D::Structure(
@@ -868,5 +868,5 @@ Point3D::Structure(
 )
 ```
 
-- The `srid` is the [Spatial Reference System Identifier](https://en.wikipedia.org/wiki/Spatial_reference_system#Identifier).
+- The `srid` is a [Spatial Reference System Identifier](https://en.wikipedia.org/wiki/Spatial_reference_system#Identifier).
 
