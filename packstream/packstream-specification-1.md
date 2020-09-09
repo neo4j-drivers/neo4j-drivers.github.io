@@ -605,6 +605,7 @@ B3 4E
 
 **Number of fields:** 5
 
+```
 Relationship::Structure(
     id::Integer,
     startNodeId::Integer,
@@ -612,6 +613,7 @@ Relationship::Structure(
     type::String,
     properties::Dictionary,
 )
+```
 
 Example:
 
