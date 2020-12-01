@@ -1,3 +1,6 @@
+---
+layout: default
+---
 # Bolt Protocol Server State Specification - Version 1
 
 * [**Version 1**](#version-1)
