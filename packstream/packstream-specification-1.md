@@ -1,3 +1,6 @@
+---
+layout: default
+---
 # PackStream Specification
 
 * [**Version 1**](#version1)

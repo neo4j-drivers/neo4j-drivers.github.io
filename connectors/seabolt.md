@@ -1,3 +1,6 @@
+---
+layout: default
+---
 # Seabolt
 
 Seabolt is a Neo4j connector library for C.

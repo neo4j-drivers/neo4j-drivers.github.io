@@ -1,9 +1,14 @@
+---
+layout: default
+---
 # Bolt Protocol Message Specification - Version 4
 
 
 * [**Version 4.0**](#version-40)
 
 * [**Version 4.1**](#version-41)
+
+* [**Version 4.2**](#version-42)
 
 * [**Appendix - Bolt Message Exchange Examples**](#appendix---bolt-message-exchange-examples)
 
@@ -55,7 +60,7 @@ For the server, each connection using the Bolt Protocol will occupy one of sever
 
 This state is used to determine what actions may be undertaken by the client.
 
-See, [**Bolt Protocol Server State Specification Version 4**](bolt-protocol-server-state-specification-4.md)
+See, [**Bolt Protocol Server State Specification Version 4**]({% link bolt/bolt-protocol-server-state-specification-4.md %})
 
 
 ### Server Signals
@@ -90,7 +95,7 @@ This prevents inadvertent execution of queries that may not be valid.
 
 ### Serialization
 
-Messages and their contents are serialized into network streams using [**PackStream Specification Version 1**](../packstream/packstream-specification-1.md).
+Messages and their contents are serialized into network streams using [**PackStream Specification Version 1**]({% link packstream/packstream-specification-1.md %}).
 
 **Each message is represented as a PackStream structure**, that contains a fixed number of fields.
 
@@ -235,7 +240,7 @@ S: RECORD ...
 S: SUCCESS ... has_more=false  // Server is in READY state and this implies that the Auto-commit Transaction is closed.
 ```
 
-See, [**Bolt Protocol Server State Specification Version 4**](bolt-protocol-server-state-specification-4.md#appendix---bolt-message-state-transitions)
+See, [**Bolt Protocol Server State Specification Version 4**]({% link bolt/bolt-protocol-server-state-specification-4.md %}#appendix---bolt-message-state-transitions)
 
 An **Explicit Transaction** is a more generic transaction that can contain several `RUN` request messages.
 
@@ -285,7 +290,7 @@ C: COMMIT   // Close the Explicit Transaction
 S: SUCCESS  // Server is in READY state
 ```
 
-See, [**Bolt Protocol Server State Specification Version 4**](bolt-protocol-server-state-specification-4.md#appendix---bolt-message-state-transitions)
+See, [**Bolt Protocol Server State Specification Version 4**]({% link bolt/bolt-protocol-server-state-specification-4.md %}#appendix---bolt-message-state-transitions)
 
 
 ## Messages - Version 4.0
@@ -1237,6 +1242,12 @@ Example:
 ```
 FAILURE {"code": "Example.Failure.Code", "message": "example failure"}
 ```
+
+# Version 4.2
+
+## Deltas
+
+No changes compared to version 4.1.
 
 
 # Appendix - Bolt Message Exchange Examples

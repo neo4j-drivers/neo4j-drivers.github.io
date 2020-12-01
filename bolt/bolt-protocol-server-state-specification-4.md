@@ -1,8 +1,13 @@
+---
+layout: default
+---
 # Bolt Protocol Server State Specification - Version 4
 
 * [**Version 4.0**](#version-40)
 
 * [**Version 4.1**](#version-41)
+
+* [**Version 4.2**](#version-42)
 
 * [**Appendix - Bolt Message State Transitions**](#appendix---bolt-message-state-transitions)
 
@@ -13,7 +18,7 @@
 
 Compared to version 3 the `RUN`, `PULL` and `DISCARD` now can re-enter `STREAMING` or `TX_STREAMING`.
 
-The server state transitions are using the updated set of messages defined in [**Bolt Protocol Message Specification Version 4.0**](bolt/bolt-protocol-message-specification-4.md).
+The server state transitions are using the updated set of messages defined in [**Bolt Protocol Message Specification Version 4.0**]({% link bolt/bolt-protocol-message-specification-4.md %}).
 
 ## Server States
 
@@ -214,6 +219,12 @@ The `<INTERRUPT>` signal will set the connection in the `INTERRUPTED` server sta
 
 ## Deltas
 No changes compared to version 4.0.
+
+
+# Version 4.2
+
+## Deltas
+No changes compared to version 4.1.
 
 
 # Appendix - Bolt Message State Transitions

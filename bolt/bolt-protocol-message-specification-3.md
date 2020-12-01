@@ -1,3 +1,6 @@
+---
+layout: default
+---
 # Bolt Protocol Message Specification - Version 3
 
 
@@ -36,7 +39,7 @@ The new request message `GOODBYE` have been introduced to be able to tell the se
 In Bolt protocol version 3 the concept of **Auto-commit Transaction** and **Explicit Transaction** have been introduced.
 **Auto-commit Transaction** is the concept of being in the `READY` server state and transition to the `STREAMING` server state.
 A new **Explicit Transaction** is created with the request message `BEGIN` and closed with the request message `COMMIT`.
-See, [**Bolt Protocol Server State Specification Version 3**](bolt-protocol-server-state-specification-3.md#appendix---bolt-message-state-transitions)
+See, [**Bolt Protocol Server State Specification Version 3**]({% link bolt/bolt-protocol-server-state-specification-3.md %}#appendix---bolt-message-state-transitions)
 
 The request message `ACK_FAILURE` has been removed and to reset the connection the new request message `RESET` should be used.
 The `RESET` message will trigger an `<INTERRUPT>` signal on the server.
@@ -48,7 +51,7 @@ For the server, each connection using the Bolt Protocol will occupy one of sever
 
 This state is used to determine what actions may be undertaken by the client.
 
-See, [**Bolt Protocol Server State Specification Version 3**](bolt-protocol-server-state-specification-3.md)
+See, [**Bolt Protocol Server State Specification Version 3**]({% link bolt/bolt-protocol-server-state-specification-3.md %})
 
 
 ### Server Signals
@@ -83,7 +86,7 @@ This prevents inadvertent execution of queries that may not be valid.
 
 ### Serialization
 
-Messages and their contents are serialized into network streams using [**PackStream Specification Version 1**](../packstream/packstream-specification-1.md).
+Messages and their contents are serialized into network streams using [**PackStream Specification Version 1**]({% link packstream/packstream-specification-1.md %}).
 
 **Each message is represented as a PackStream structure**, that contains a fixed number of fields.
 
@@ -222,7 +225,7 @@ S: RECORD ...
 S: SUCCESS ... // Server is in READY state and this implies that the Auto-commit Transaction is closed.
 ```
 
-See, [**Bolt Protocol Server State Specification Version 3**](bolt-protocol-server-state-specification-3.md#appendix---bolt-message-state-transitions)
+See, [**Bolt Protocol Server State Specification Version 3**]({% link bolt/bolt-protocol-server-state-specification-3.md %}#appendix---bolt-message-state-transitions)
 
 An **Explicit Transaction** is a more generic transaction that can contain several `RUN` request messages.
 
@@ -266,7 +269,7 @@ C: COMMIT   // Close the Explicit Transaction
 S: SUCCESS  // Server is in READY state
 ```
 
-See, [**Bolt Protocol Server State Specification Version 3**](bolt-protocol-server-state-specification-3.md#appendix---bolt-message-state-transitions)
+See, [**Bolt Protocol Server State Specification Version 3**]({% link bolt/bolt-protocol-server-state-specification-3.md %}#appendix---bolt-message-state-transitions)
 
 
 ## Messages

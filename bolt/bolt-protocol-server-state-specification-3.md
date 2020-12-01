@@ -1,3 +1,6 @@
+---
+layout: default
+---
 # Bolt Protocol Server State Specification - Version 3
 
 * [**Version 3**](#version-3)
@@ -16,7 +19,7 @@ Compared to version 2 there are new server states,
 
 These states are introduced to handle the concept of **Explicit Transaction**.
 
-The server state transitions are using the updated set of messages defined in [**Bolt Protocol Message Specification Version 3**](bolt/bolt-protocol-message-specification-3.md).
+The server state transitions are using the updated set of messages defined in [**Bolt Protocol Message Specification Version 3**]({% link bolt/bolt-protocol-message-specification-3.md %}).
 
 ## Server States
 

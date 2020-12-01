@@ -7,3 +7,7 @@
 + No support can be provided for users of this documentation, but issues may still be raised at:
   https://github.com/neo4j-drivers/neo4j-drivers.github.io/issues
 
+## Run locally
+
+Make sure to install Ruby and [https://bundler.io/](Bundler).
+All you have to do then is to execute `run.sh`.
