@@ -12,17 +12,17 @@ PackStream offers a number of core data types, many supported by multiple binary
 
 The core data types are as follows:
 
-| Data Type                   | Description                                   |
-|-----------------------------|-----------------------------------------------|
-| [`Null`](#null)             | missing or empty value                        |
-| [`Boolean`](#boolean)       | **true** or **false**                         |
-| [`Integer`](#integer)       | signed 64-bit integer                         |
-| [`Float`](#float)           | 64-bit floating point number                  |
-| [`Bytes`](#bytes)           | byte array                                    |
-| [`String`](#string)         | unicode text, **UTF-8**                       |
-| [`List`](#list)             | ordered collection of values                  |
-| [`Dictionary`](#dictionary) | ordered collection of key-value entries       |
-| [`Structure`](#structure)   | composite value with a type signature         |
+| Data Type                   | Description                                           |
+|-----------------------------|-------------------------------------------------------|
+| [`Null`](#null)             | missing or empty value                                |
+| [`Boolean`](#boolean)       | **true** or **false**                                 |
+| [`Integer`](#integer)       | signed 64-bit integer                                 |
+| [`Float`](#float)           | 64-bit floating point number                          |
+| [`Bytes`](#bytes)           | byte array                                            |
+| [`String`](#string)         | unicode text, **UTF-8**                               |
+| [`List`](#list)             | ordered collection of values                          |
+| [`Dictionary`](#dictionary) | collection of key-value entries (no order guaranteed) |
+| [`Structure`](#structure)   | composite value with a type signature                 |
 
 **NOTE:** Neither unsigned integers nor 32-bit floating point numbers are included.
 This is a deliberate design decision to allow broader compatibility across client languages.
@@ -421,8 +421,6 @@ D4 28
 
 A Dictionary is a list containing key-value entries.
 
-* Ordered.
-
 * Keys must be a String.
 
 * Can contain multiple instances of the same key.
@@ -607,6 +605,7 @@ B3 4E
 
 **Number of fields:** 5
 
+```
 Relationship::Structure(
     id::Integer,
     startNodeId::Integer,
@@ -614,6 +613,7 @@ Relationship::Structure(
     type::String,
     properties::Dictionary,
 )
+```
 
 Example:
 
@@ -737,7 +737,7 @@ LocalTime::Structure(
 )
 ```
 
-- The `nanoseconds` are nanosecond since midnight.
+- The `nanoseconds` are nanoseconds since midnight.
 
 ### DateTime - Structure
 
@@ -753,18 +753,18 @@ The time zone information is specified with a zone offset.
 DateTime::Structure(
     seconds::Integer,
     nanoseconds::Integer,
-    tz_offset_minutes::Integer,
+    tz_offset_seconds::Integer,
 )
 ```
 
 - The `seconds` are seconds since the adjusted [Unix epoch](https://en.wikipedia.org/wiki/Epoch_(computing)). This is not [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time).
-- The `tz_offset_minutes` specifies the offset in minutes from UTC.
+- The `tz_offset_seconds` specifies the offset in seconds from UTC.
 
 
 To convert to UTC:
 
 ```
-utc_nanoseconds = (seconds * 1000000000) + nanoseconds - (tx_offset_minutes * 60 * 1000000000)
+utc_nanoseconds = (seconds * 1000000000) + nanoseconds - (tx_offset_seconds * 1000000000)
 ```
 
 ### DateTimeZoneId - Structure
@@ -775,18 +775,18 @@ utc_nanoseconds = (seconds * 1000000000) + nanoseconds - (tx_offset_minutes * 60
 
 An instant capturing the date, the time, and the time zone.
 
-The time zone information is specified with a **zone identification number**.
+The time zone information is specified with a **zone identifier**.
 
 ```
-DateTime::Structure(
+DateTimeZoneId::Structure(
     seconds::Integer,
     nanoseconds::Integer,
-    tz_id::Integer,
+    tz_id::String,
 )
 ```
 
 - The `seconds` are seconds since the adjusted [Unix epoch](https://en.wikipedia.org/wiki/Epoch_(computing)). This is not [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time).
-- The `tz_id` is an identifier for a specific time zone.
+- The `tz_id` is an identifier for a specific time zone, such as `"Europe/Paris"`.
 
 To convert to UTC:
 
@@ -848,7 +848,7 @@ Point2D::Structure(
 )
 ```
 
-- The `srid` is the [Spatial Reference System Identifier](https://en.wikipedia.org/wiki/Spatial_reference_system#Identifier).
+- The `srid` is a [Spatial Reference System Identifier](https://en.wikipedia.org/wiki/Spatial_reference_system#Identifier).
 
 
 ### Point3D - Structure
@@ -857,7 +857,7 @@ Point2D::Structure(
 
 **Number of fields:** 4
 
-Represents a single location in space.
+Represents a single location in 3-dimensional space.
 
 ```
 Point3D::Structure(
@@ -868,5 +868,5 @@ Point3D::Structure(
 )
 ```
 
-- The `srid` is the [Spatial Reference System Identifier](https://en.wikipedia.org/wiki/Spatial_reference_system#Identifier).
+- The `srid` is a [Spatial Reference System Identifier](https://en.wikipedia.org/wiki/Spatial_reference_system#Identifier).
 
