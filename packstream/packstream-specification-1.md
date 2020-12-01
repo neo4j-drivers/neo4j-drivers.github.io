@@ -778,7 +778,7 @@ An instant capturing the date, the time, and the time zone.
 The time zone information is specified with a **zone identifier**.
 
 ```
-DateTime::Structure(
+DateTimeZoneId::Structure(
     seconds::Integer,
     nanoseconds::Integer,
     tz_id::String,
