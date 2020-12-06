@@ -3,7 +3,7 @@ layout: default
 ---
 # Jolt Specification v1 [DRAFT]
 
-Jolt is a scheme for the [JSON](http://json.org/)-based representation of the PackStream type system, as used by Bolt.
+Jolt is a scheme for the [JSON](https://json.org/)-based representation of the PackStream type system, as used by Bolt.
 
 
 ## Overview

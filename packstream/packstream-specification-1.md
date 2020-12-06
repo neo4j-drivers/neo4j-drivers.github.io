@@ -7,7 +7,7 @@ layout: default
 
 # Version 1
 
-PackStream is a general purpose data serialisation format, originally inspired by (but incompatible with) [MessagePack](http://msgpack.org).
+PackStream is a general purpose data serialisation format, originally inspired by (but incompatible with) [MessagePack](https://msgpack.org).
 
 The format provides a type system that is fully compatible with the [types supported by Cypher](https://neo4j.com/docs/cypher-manual/current/syntax/values/).
 
