@@ -65,7 +65,7 @@ See, [**Bolt Protocol Server State Specification Version 4**]({% link bolt/bolt-
 
 ### Server Signals
 
-Jump ahead is that the signal will imediatly be available before any messages are processed in the message queue.
+Jump ahead is that the signal will immediately be available before any messages are processed in the message queue.
 
 | Server Signal   | Jump Ahead | Description            |
 |:----------------|:----------:|------------------------|

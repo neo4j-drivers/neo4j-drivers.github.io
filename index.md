@@ -50,8 +50,8 @@ The handshake itself is not versioned.
 * [**Version 2**]({% link bolt/bolt-protocol-message-specification-2.md %}), incorporates no changes to the message specification.
 * [**Version 3**]({% link bolt/bolt-protocol-message-specification-3.md %}), incorporates an updated message specification.
 * [**Version 4.0**]({% link bolt/bolt-protocol-message-specification-4.md %}), incorporates an updated message specification.
-* [**Version 4.1**]({% link bolt/bolt-protocol-message-specification-4.md %}), incorporates an updated message specification.
-* [**Version 4.2**]({% link bolt/bolt-protocol-message-specification-4.md %}), incorporates no changes to the message specification.
+* [**Version 4.1**]({% link bolt/bolt-protocol-message-specification-4.md %}#version-41), incorporates an updated message specification.
+* [**Version 4.2**]({% link bolt/bolt-protocol-message-specification-4.md %}#version-42), incorporates no changes to the message specification.
 
 
 ### Bolt Protocol Server State Specification
