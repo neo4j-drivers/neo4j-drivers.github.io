@@ -246,7 +246,7 @@ Unlike other values, there is no separate encoding for byte arrays containing fe
 |--------|------------------------------------|---------------------|
 | `CC`   | 8-bit big-endian unsigned integer  | 255 bytes           |
 | `CD`   | 16-bit big-endian unsigned integer | 65 535 bytes        |
-| `CE`   | 32-bit big-endian signed integer   | 2 147 483 648 bytes |
+| `CE`   | 32-bit big-endian unsigned integer | 2 147 483 647 bytes |
 
 One of the markers `CC`, `CD` or `CE` should be used, depending on scale.
 
@@ -300,7 +300,7 @@ For longer strings,
 |---------|-------------------------------------|-------------------------|
 | `D0`    | 8-bit big-endian unsigned integer   | 255 bytes               |
 | `D1`    | 16-bit big-endian unsigned integer  | 65 535 bytes            |
-| `D2`    | 32-bit big-endian signed integer    | 2 147 483 648 bytes     |
+| `D2`    | 32-bit big-endian unsigned integer  | 2 147 483 647 bytes     |
 
 
 Text data is represented as **UTF-8** encoded bytes.
@@ -351,7 +351,7 @@ The markers used to denote a list are described in the table below:
 | `9F`   | the low-order nibble of marker          | 15 items              |
 | `D4`   | 8-bit big-endian unsigned integer       | 255 items             |
 | `D5`   | 16-bit big-endian unsigned integer      | 65 535 items          |
-| `D6`   | 32-bit big-endian signed integer        | 2 147 483 648 items   |
+| `D6`   | 32-bit big-endian unsigned integer      | 2 147 483 647 items   |
 
 
 For lists containing fewer than 16 items, including empty lists, the marker byte should contain the high-order nibble '9' (binary 1001) followed by a low-order nibble containing the size.
@@ -455,7 +455,7 @@ The markers used to denote a Dictionary are described in the table below:
 | `AF`   | contained within low-order nibble of marker  | 15                       |
 | `D8`   | 8-bit big-endian unsigned integer            | 255 entries              |
 | `D9`   | 16-bit big-endian unsigned integer           | 65 535 entries           |
-| `DA`   | 32-bit big-endian signed integer             | 2 147 483 648 entries    |
+| `DA`   | 32-bit big-endian unsigned integer           | 2 147 483 647 entries    |
 
 
 For a Dictionary containing fewer than 16 key-value entries, including an empty Dictionary,
