@@ -26,17 +26,17 @@ Each **connection** maintained by a Bolt server will occupy one of several state
 
 This state is used to determine what actions may be undertaken by the client.
 
-| State                                             | Logic State    | Description                                                                              |
-|---------------------------------------------------|:--------------:|------------------------------------------------------------------------------------------|
-| [`DISCONNECTED`](#server-state---disconnected)    | x              | no socket connection                                                                     |
-| [`CONNECTED`](#server-state---connected)          | x              | protocol handshake has been completed successfully                                       |
-| [`DEFUNCT`](#server-state---defunct)              | x              | the socket connection has been permanently closed                                        |
-| [`READY`](#server-state---ready)                  |                | ready to accept a `RUN` message                                                          |
-| [`STREAMING`](#server-state---streaming)          |                | **Auto-commit Transaction**, a result is available for streaming from the server         |
-| [`TX_READY`](#server-state---tx_ready)            |                | **Explicit Transaction**, ready to accept a `RUN` message                                |
-| [`TX_STREAMING`](#server-state---tx_streaming)    |                | **Explicit Transaction**, a result is available for streaming from the server            |
-| [`FAILED`](#server-state---failed)                |                | a connection is in a temporarily unusable state                                          |
-| [`INTERRUPTED`](#server-state---interrupted)      |                |                                                                                          |
+| State                                          | Logic State | Description                                                                      |
+|------------------------------------------------|:-----------:|----------------------------------------------------------------------------------|
+| [`DISCONNECTED`](#server-state---disconnected) | x           | no socket connection                                                             |
+| [`CONNECTED`](#server-state---connected)       | x           | protocol handshake has been completed successfully                               |
+| [`DEFUNCT`](#server-state---defunct)           | x           | the socket connection has been permanently closed                                |
+| [`READY`](#server-state---ready)               |             | ready to accept a `RUN` message                                                  |
+| [`STREAMING`](#server-state---streaming)       |             | **Auto-commit Transaction**, a result is available for streaming from the server |
+| [`TX_READY`](#server-state---tx_ready)         |             | **Explicit Transaction**, ready to accept a `RUN` message                        |
+| [`TX_STREAMING`](#server-state---tx_streaming) |             | **Explicit Transaction**, a result is available for streaming from the server    |
+| [`FAILED`](#server-state---failed)             |             | a connection is in a temporarily unusable state                                  |
+| [`INTERRUPTED`](#server-state---interrupted)   |             |                                                                                  |
 
 
 ## Server State - `DISCONNECTED`
@@ -102,19 +102,19 @@ This result must be fully consumed or discarded by a client before the server ca
 
 #### Request Message - `DISCARD` - State Transitions
 
-| State         | New State     | Response                     |
-|---------------|---------------|------------------------------|
-| `STREAMING`   | `READY`       | `SUCCESS {"has_more": false}`|
-| `STREAMING`   | `FAILED`      | `FAILURE {}`                 |
-| `STREAMING`   | `STREAMING`   | `SUCCESS {"has_more": true}` |
+| State       | New State   | Response                                      |
+|-------------|-------------|-----------------------------------------------|
+| `STREAMING` | `READY`     | `SUCCESS {"has_more": false}` or `SUCCESS {}` |
+| `STREAMING` | `FAILED`    | `FAILURE {}`                                  |
+| `STREAMING` | `STREAMING` | `SUCCESS {"has_more": true}`                  |
 
 #### Request Message - `PULL` - State Transitions
 
-| State         | New State     | Response                                      |
-|---------------|---------------|-----------------------------------------------|
-| `STREAMING`   | `READY`       | \[`RECORD` ...\] `SUCCESS {"has_more": false}`|
-| `STREAMING`   | `FAILED`      | \[`RECORD` ...\] `FAILURE {}`                 |
-| `STREAMING`   | `STREAMING`   | \[`RECORD` ...\] `SUCCESS {"has_more": true}` |
+| State       | New State   | Response                                       |
+|-------------|-------------|------------------------------------------------|
+| `STREAMING` | `READY`     | \[`RECORD` ...\] `SUCCESS {"has_more": false}` |
+| `STREAMING` | `FAILED`    | \[`RECORD` ...\] `FAILURE {}`                  |
+| `STREAMING` | `STREAMING` | \[`RECORD` ...\] `SUCCESS {"has_more": true}`  |
 
 
 ## Server State - `TX_READY`
@@ -129,10 +129,10 @@ This result must be fully consumed or discarded by a client before the server ca
 
 #### `RUN` Message State Transitions
 
-| State         | New State        | Response                       |
-|---------------|------------------|--------------------------------|
-| `TX_READY`    | `TX_STREAMING`   | `SUCCESS {"qid": id::Integer}` |
-| `TX_READY`    | `FAILED`         | `FAILURE {}`                   |
+| State      | New State      | Response                       |
+|------------|----------------|--------------------------------|
+| `TX_READY` | `TX_STREAMING` | `SUCCESS {"qid": id::Integer}` |
+| `TX_READY` | `FAILED`       | `FAILURE {}`                   |
 
 
 ## Server State - `TX_STREAMING`
@@ -158,21 +158,21 @@ This result must be fully consumed or discarded by a client before the server ca
 
 #### Request Message - `DISCARD` - State Transitions
 
-| State            | New State                                                       | Response                     |
-|------------------|-----------------------------------------------------------------|------------------------------|
-| `TX_STREAMING`   | `TX_READY` or `TX_STREAMING` if there is other streams open     | `SUCCESS {"has_more": false}`|
-| `TX_STREAMING`   | `FAILED`                                                        | `FAILURE {}`                 |
-| `TX_STREAMING`   | `TX_STREAMING`                                                  | `SUCCESS {"has_more": true}` |
+| State          | New State                                                   | Response                      |
+|----------------|-------------------------------------------------------------|-------------------------------|
+| `TX_STREAMING` | `TX_READY` or `TX_STREAMING` if there is other streams open | `SUCCESS {"has_more": false}` |
+| `TX_STREAMING` | `FAILED`                                                    | `FAILURE {}`                  |
+| `TX_STREAMING` | `TX_STREAMING`                                              | `SUCCESS {"has_more": true}`  |
 
 #### Request Message - `PULL` - State Transitions
 
 `TX_READY` or `TX_STREAMING` if there is other streams open
 
-| State            | New State                                                      | Response                                      |
-|------------------|----------------------------------------------------------------|-----------------------------------------------|
-| `TX_STREAMING`   | `TX_READY` or `TX_STREAMING` if there is other streams open    | \[`RECORD` ...\] `SUCCESS {"has_more": false}`|
-| `TX_STREAMING`   | `FAILED`                                                       | \[`RECORD` ...\] `FAILURE {}`                 |
-| `TX_STREAMING`   | `TX_STREAMING`                                                 | \[`RECORD` ...\] `SUCCESS {"has_more": true}` |
+| State          | New State                                                   | Response                                       |
+|----------------|-------------------------------------------------------------|------------------------------------------------|
+| `TX_STREAMING` | `TX_READY` or `TX_STREAMING` if there is other streams open | \[`RECORD` ...\] `SUCCESS {"has_more": false}` |
+| `TX_STREAMING` | `FAILED`                                                    | \[`RECORD` ...\] `FAILURE {}`                  |
+| `TX_STREAMING` | `TX_STREAMING`                                              | \[`RECORD` ...\] `SUCCESS {"has_more": true}`  |
 
 
 ## Server State - `FAILED`
@@ -291,11 +291,11 @@ No changes compared to version 4.1.
 The `<INTERRUPT>` signal,
 
 
-| State          | Signal         | Server Response Summary Message | New State     |
-|----------------|----------------|---------------------------------|---------------|
-| `READY`        | `<INTERRUPT>`  | *n/a*                           | `INTERRUPTED` |
-| `STREAMING`    | `<INTERRUPT>`  | *n/a*                           | `INTERRUPTED` |
-| `TX_READY`     | `<INTERRUPT>`  | *n/a*                           | `INTERRUPTED` |
-| `TX_STREAMING` | `<INTERRUPT>`  | *n/a*                           | `INTERRUPTED` |
-| `FAILED`       | `<INTERRUPT>`  | *n/a*                           | `INTERRUPTED` |
-| `INTERRUPTED`  | `<INTERRUPT>`  | *n/a*                           | `INTERRUPTED` |
+| State          | Signal        | Server Response Summary Message | New State     |
+|----------------|---------------|---------------------------------|---------------|
+| `READY`        | `<INTERRUPT>` | *n/a*                           | `INTERRUPTED` |
+| `STREAMING`    | `<INTERRUPT>` | *n/a*                           | `INTERRUPTED` |
+| `TX_READY`     | `<INTERRUPT>` | *n/a*                           | `INTERRUPTED` |
+| `TX_STREAMING` | `<INTERRUPT>` | *n/a*                           | `INTERRUPTED` |
+| `FAILED`       | `<INTERRUPT>` | *n/a*                           | `INTERRUPTED` |
+| `INTERRUPTED`  | `<INTERRUPT>` | *n/a*                           | `INTERRUPTED` |
