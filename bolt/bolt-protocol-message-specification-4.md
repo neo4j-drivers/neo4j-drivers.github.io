@@ -1157,9 +1157,11 @@ The new `routing::Dictionary(address::String)` field adds an indicator if the se
 
 | `routing` values                                                                  | Description                                                                 |
 |-----------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
-| `{"routing": null}`                                                               | the server should not carry out routing                                     |
+| `{"routing": null}` or `{}`                                                       | the server should not carry out routing                                     |
 | `{"routing: {}}`                                                                  | the server should carry out routing                                         |
 | `{"routing: {"address": "x.example.com:9001", "region": "example", ...}}`         | the server should carry out routing according to the given routing context  |
+
+The absence of the `routing` key is semantically identical to passing a `null` value (first option).
 
 
 **Signature:** `01`
