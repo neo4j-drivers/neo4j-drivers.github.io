@@ -34,7 +34,7 @@ See, [**Bolt Protocol Server State Specification Version 1**]({% link bolt/bolt-
 
 ### Server Signals
 
-Jump ahead is that the signal will imediatly be available before any messages are processed in the message queue.
+Jump ahead is that the signal will immediately be available before any messages are processed in the message queue.
 
 | Server Signal   | Jump Ahead | Description            |
 |:----------------|:----------:|------------------------|
@@ -132,7 +132,7 @@ end marker: `00 00`
 
 Example: **A message split in two chunks**
 
-Message data containig 20 bytes:
+Message data containing 20 bytes:
 
 ```
 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 01 02 03 04
@@ -215,7 +215,7 @@ See, [**Bolt Protocol Server State Specification Version 1**](bolt-protocol-serv
 
 * **Request Message**, the client sends a message.
 * **Summary Message**, the server will always respond with one summary message if the connection is still open.
-* **Detail Message**, the server will always repond with zero or more detail messages before sending a summary message.
+* **Detail Message**, the server will always respond with zero or more detail messages before sending a summary message.
 
 
 | Message                                         | Signature | Request Message | Summary Message | Detail Message | Fields                                                                                                          | Description                                                      |

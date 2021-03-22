@@ -61,7 +61,7 @@ Some values, such as Boolean true, can be encoded within a single marker byte.
 Many small integers (specifically between -16 and +127 inclusive) are also encoded within a single byte.
 
 A number of marker bytes are reserved for future expansion of the format itself.
-These bytes should not be used, and encountering them in an incoming stream should treated as an error.
+These bytes should not be used, and encountering them in an incoming stream should be treated as an error.
 
 
 ### Sized Values
@@ -182,7 +182,7 @@ Specifically, values between `00` and `7F` inclusive can be directly translated 
 
 Similarly, values between `F0` and `FF` inclusive can do the same for negative numbers between -16 and -1.
 
-Note that while it is possible to encode small numbers in wider formats, it is generally recommended to use the most compact representation possible.
+Note that while it is possible to encode small numbers in wider formats, it is generally recommended using the most compact representation possible.
 
 The following table shows the **optimal representation** for every possible integer in the signed 64-bit range:
 

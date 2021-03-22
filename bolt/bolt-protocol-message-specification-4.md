@@ -81,7 +81,7 @@ Protocol errors are fatal and should immediately transition the server state to 
 
 ## Message Exchange
 
-Messages are exchanged in a request-response pattern between client and server.
+Messages are exchanged in a request-response pattern between the client and server.
 
 Each request consists of exactly one message and each response consists of zero or more detail messages followed by exactly one summary message.
 The presence or absence of detail messages in a response is directly related to the type of request message that has been sent.
@@ -155,7 +155,7 @@ end marker: `00 00`
 
 Example: **A message split in two chunks**
 
-Message data containig 20 bytes:
+Message data containing 20 bytes:
 
 ```
 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 01 02 03 04
@@ -297,7 +297,7 @@ See, [**Bolt Protocol Server State Specification Version 4**]({% link bolt/bolt-
 
 * **Request Message**, the client sends a message.
 * **Summary Message**, the server will always respond with one summary message.
-* **Detail Message**, the server will always repond with zero or more detail messages before sending a summary message.
+* **Detail Message**, the server will always respond with zero or more detail messages before sending a summary message.
 
 
 | Message                                       | Signature | Request Message | Summary Message | Detail Message | Fields                                                                                                                                                         | Description                                             |
@@ -378,7 +378,7 @@ Servers can include metadata that describes details of the server environment an
 The following fields are defined for inclusion in the `SUCCESS` metadata.
 
   - `server::String`, the server agent string. e.g. `"Neo4j/4.0.0"`.
-  - `connection_id::String`, an unique identifier of the bolt connection used on the server side. e.g. `"bolt-61"`.
+  - `connection_id::String`, a unique identifier of the bolt connection used on the server side. e.g. `"bolt-61"`.
 
 Example:
 
@@ -483,7 +483,7 @@ The transaction type is implied by the order of message sequence.
 
 ```
 query::String,
-paramaters::Dictionary,
+parameters::Dictionary,
 extra::Dictionary(
   bookmarks::List<String>,
   tx_timeout::Integer,
@@ -500,11 +500,11 @@ extra::Dictionary(
 
   For **Auto-commit Transaction** (`RUN`) the `extra` field carries:
 
-  - The `bookmarks` is a list of strings containg some kind of bookmark identification e.g ["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"]
-  - The `tx_timeout` is an integer in that specifies a transaction timeout in ms.
-  - The `tx_metadata` is a dictionary that can contain some metadata information, mainly used for logging.
-  - The `mode` specifies what kind of server the `RUN` message is targeting. For write access use `"w"` and for read access use `"r"`. Defaults to write access if no mode is sent.
-  - The `db` specifies the database name for multi-database to select where the transaction takes place. If no `db` is sent or empty string it implies that it is the default database.
+  - `bookmarks`: it is a list of strings containing some kind of bookmark identification e.g. ["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"]
+  - `tx_timeout`: it is an integer in that specifies a transaction timeout in ms.
+  - `tx_metadata`: it is a dictionary that can contain some metadata information, mainly used for logging.
+  - `mode`: it specifies what kind of server the `RUN` message is targeting. For write access use `"w"` and for read access use `"r"`. Defaults to write access if no mode is sent.
+  - `db`: it specifies the database name for multi-database to select where the transaction takes place. If no `db` is sent or empty string it implies that it is the default database.
 
 **Detail Messages:**
 
@@ -551,7 +551,7 @@ The following fields are defined for inclusion in the `SUCCESS` metadata.
   
   For **Explicit Transaction** (`BEGIN`+`RUN`):
 
-  - `qid::Integer`, specifies the server assigned statement id to reference the server side resultset with commencing `BEGIN`+`RUN`+`PULL` and `BEGIN`+`RUN`+`DISCARD` messages.
+  - `qid::Integer` specifies the server assigned statement id to reference the server side result set with commencing `BEGIN`+`RUN`+`PULL` and `BEGIN`+`RUN`+`DISCARD` messages.
 
 Example 1:
 
@@ -630,14 +630,14 @@ DISCARD {"n": 1000}
 
 #### Server Response `SUCCESS`
 
-The following fields are defined for inclusion in the `SUCCESS` metadata.
+The following fields are defined for inclusion in the `SUCCESS` metadata:
 
-  - `has_more::Boolean`, true if there are more records to stream. If this field is not present it should be considered to default to false.
+  - `has_more::Boolean`, true if there are more records to stream. If this field is not present, it should be considered to default to false.
 
   or in the case that `has_more` is false,
 
-  - `bookmark::String`, the bookmark after committing this transaction. (**Auto-commit Transaction** only).
-  - `db::String`, the database name where the query was executed
+  - `bookmark::String`: the bookmark after committing this transaction. (**Auto-commit Transaction** only).
+  - `db::String`: the database name where the query was executed
 
 Example 1:
 
@@ -718,7 +718,7 @@ PULL {"n": 1000}
 
 The following fields are defined for inclusion in the `SUCCESS` metadata.
 
-  - `has_more::Boolean`, true if there are more records to stream. If this field is not present it should be considered to default to false.
+  - `has_more::Boolean`, true if there are more records to stream. If this field is not present, it should be considered to default to false.
 
   or in the case that `has_more` is false,
 
@@ -783,7 +783,7 @@ extra::Dictionary(
 )
 ```
 
-  - The `bookmarks` is a list of strings containg some kind of bookmark identification e.g ["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"]
+  - The `bookmarks` is a list of strings containing some kind of bookmark identification e.g. ["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"]
   - The `tx_timeout` is an integer in that specifies a transaction timeout in ms.
   - The `tx_metadata` is a dictionary that can contain some metadata information, mainly used for logging.
   - The `mode` specifies what kind of server the `RUN` message is targeting. For write access use `"w"` and for read access use `"r"`. Defaults to write access if no mode is sent.
@@ -1152,7 +1152,7 @@ If authentication fails, the server **must** respond with a `FAILURE` message an
 
 Clients wishing to retry initialization should establish a new connection.
 
-The new `routing::Dictionary(address::String)` field adds an indicator if the server should carry out routing, according to the the given routing context.
+The new `routing::Dictionary(address::String)` field adds an indicator if the server should carry out routing, according to the given routing context.
 
 
 | `routing` values                                                                  | Description                                                                 |
