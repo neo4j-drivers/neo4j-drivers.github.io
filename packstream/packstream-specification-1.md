@@ -426,9 +426,9 @@ A Dictionary is a list containing key-value entries.
 
 * Keys must be a String.
 
-* Can contain multiple instances of the same key.
+* It can contain multiple instances of the same key (although the last read value for a given key wins when unpacking as detailed below).
 
-* Permit a mixture of types.
+* It permits a mixture of value types.
 
 The size of a Dictionary denotes the number of key-value entries within that Dictionary, not the total packed byte size.
 
@@ -461,12 +461,13 @@ The markers used to denote a Dictionary are described in the table below:
 For a Dictionary containing fewer than 16 key-value entries, including an empty Dictionary,
 the marker byte should contain the high-order nibble `A` (binary `1010`) followed by a low-order nibble containing the size.
 
+For a Dictionary containing 16 key-value entries or more, the marker `D8`, `D9` or `DA` should be used, depending on scale.
+This marker is followed by the size and the key-value entries.
+
 The entries within the Dictionary are then serialised in `[key, value, key, value]` order immediately after the marker.
 
 **Keys are always String values.**
 
-For a Dictionary containing 16 key-value entries or more, the marker `D8`, `D9` or `DA` should be used, depending on scale.
-This marker is followed by the size and the key-value entries.
 
 Example 1:
 
@@ -517,13 +518,13 @@ Example:
 ## Structure
 
 
-A structure is a composite value, comprised of fields and a unique type code.
+A structure is a composite value, comprised of a unique type code, and a sequence of fields.
 
 Structure encodings consist, beyond the marker, of a single byte, the **tag byte**, followed by a sequence of up to 15 fields, each an individual value.
 
 The size of a structure is measured as the number of fields and not the total byte size.
 
-This count does not include the tag.
+This count does not include the tag byte.
 
 The markers used to denote a structure are described in the table below:
 
@@ -547,13 +548,15 @@ The markers used to denote a structure are described in the table below:
 | `BF`   | contained within low-order nibble of marker | 15 fields    |
 
 
-For structures containing fewer than 16 fields, the marker byte should contain the high-order nibble 'B' (binary 1011) followed by a low-order nibble containing the size.
+The marker byte should contain the high-order nibble 'B' (binary 1011) followed by a low-order nibble containing the size.
 
 The marker is immediately followed by the **tag byte** and the field values in that order.
 
 The **tag byte** is used to identify the type or class of the structure.
 
 The **tag byte** may hold any value between 0 and +127.
+
+The following table lists the built-in PackStream types, encoded as structures:
 
 
 | Structure Name                                            | Code | tag byte | Description                                                                                                                                                           |

@@ -102,7 +102,7 @@ This also allows for unknown message types to be received and handled without br
 The Bolt protocol encodes each message using a chunked transfer encoding.
 
 * Each message is transferred as one or more chunks of data.
-* Each chunk starts with a two-byte header, an unsigned big-endian 16-bit integer, representing the size of the chunk not including the header.
+* Each chunk starts with a two-byte header, an unsigned big-endian 16-bit integer, representing the size of the chunk not including the header, nor the final zero chunk.
 * A message can be divided across multiple chunks, allowing client and server alike to transfer large messages without having to determine the length of the entire message in advance.
 * Chunking applies on each message individually.
 * One chunk cannot contain more than one message.
