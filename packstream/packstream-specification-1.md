@@ -518,7 +518,7 @@ Example:
 ## Structure
 
 
-A structure is a composite value, comprised of a unique type code, and a sequence of fields.
+A structure is a composite value, comprised of a unique type code and a sequence of fields.
 
 Structure encodings consist, beyond the marker, of a single byte, the **tag byte**, followed by a sequence of up to 15 fields, each an individual value.
 
