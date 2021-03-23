@@ -500,11 +500,11 @@ extra::Dictionary(
 
   For **Auto-commit Transaction** (`RUN`) the `extra` field carries:
 
-  - `bookmarks`: it is a list of strings containing some kind of bookmark identification e.g. ["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"]
-  - `tx_timeout`: it is an integer in that specifies a transaction timeout in ms.
-  - `tx_metadata`: it is a dictionary that can contain some metadata information, mainly used for logging.
-  - `mode`: it specifies what kind of server the `RUN` message is targeting. For write access use `"w"` and for read access use `"r"`. Defaults to write access if no mode is sent.
-  - `db`: it specifies the database name for multi-database to select where the transaction takes place. If no `db` is sent or empty string it implies that it is the default database.
+  - `bookmarks`: a list of strings containing some kind of bookmark identification e.g. ["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"]
+  - `tx_timeout`: an integer that specifies a transaction timeout in ms.
+  - `tx_metadata`: a dictionary that can contain some metadata information, mainly used for logging.
+  - `mode`: the kind of server the `RUN` message is targeting. For write access use `"w"` and for read access use `"r"`. Defaults to write access if no mode is sent.
+  - `db`: the database name to select where the transaction takes place. If no `db` or an empty string is sent, it implies that it is the default database.
 
 **Detail Messages:**
 
