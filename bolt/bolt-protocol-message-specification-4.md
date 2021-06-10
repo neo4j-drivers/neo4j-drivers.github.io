@@ -1257,7 +1257,7 @@ The changes compared to Bolt protocol version 4.2 are listed below:
 
  * `NOOP` chunks may now be transmitted in all connection states when a connection remains in idle for extended
    periods of time while the server is busy processing a request.
- * An additional `hint` dictionary has been added to the `metadata` property of the `SUCCESS` structure transmitted in
+ * An additional `hints` dictionary has been added to the `metadata` property of the `SUCCESS` structure transmitted in
    response to the `HELLO` command in order to provide optional configuration hints to drivers.
 
 ### Request Message - 4.3 - `HELLO`
