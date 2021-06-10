@@ -1447,7 +1447,7 @@ Maximum amount of time (in seconds) for which a connection may remain in idle fo
 consider it stale.
 
 The server will ensure that a chunk (or `NOOP` chunk) will be transmitted at least once per timeout period. Drivers
-which elect to interpret this hint may terminate connections which are considered stale by the definition of this hint.
+which choose to interpret this hint may terminate connections which are considered stale by the definition of this hint.
 
 ##### Example
 
