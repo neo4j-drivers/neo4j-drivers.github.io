@@ -1443,7 +1443,7 @@ following set of hints are currently defined:
 
 #### connection.recv_timeout_seconds - 4.3
 
-Maximum amount of time (in seconds) for which a connection may remain in idle following a request before drivers should
+Maximum amount of time (in seconds) for which a connection may remain idle following a request before drivers should
 consider it stale.
 
 The server will ensure that a chunk (or `NOOP` chunk) will be transmitted at least once per timeout period. Drivers
