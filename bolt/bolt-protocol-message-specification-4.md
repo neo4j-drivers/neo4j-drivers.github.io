@@ -1141,7 +1141,7 @@ The two messages encoded with chunking and a `NOOP` (empty chunk) in between.
 
 ### Request Message - 4.1 - `HELLO`
 
-The `HELLO` message request the connection to be authorized for use with the remote database.
+The `HELLO` message requests the connection to be authorized for use with the remote database.
 
 The server **must** be in the `CONNECTED` state to be able to process a `HELLO` message.
 For any other states, receipt of an `HELLO` request **must** be considered a protocol violation and lead to connection closure.
@@ -1251,8 +1251,119 @@ FAILURE {"code": "Example.Failure.Code", "message": "example failure"}
 
 No changes compared to version 4.1.
 
+# Version 4.3
 
-# Appendix - Bolt Message Exchange Examples
+## Deltas
+
+The changes compared to Bolt protocol version 4.2 are listed below:
+
+ * `NOOP` chunks may now be transmitted in all connection states when a connection remains in idle for extended
+   periods of time while the server is busy processing a request.
+ * An additional `hints` dictionary has been added to the `metadata` property of the `SUCCESS` structure transmitted in
+   response to the `HELLO` command in order to provide optional configuration hints to drivers.
+
+### Request Message - 4.3 - `HELLO`
+
+The `HELLO` message requests the connection to be authorized for use with the remote database.
+
+The server **must** be in the `CONNECTED` state to be able to process a `HELLO` message.
+For any other states, receipt of an `HELLO` request **must** be considered a protocol violation and lead to connection closure.
+
+Clients should send `HELLO` message to the server immediately after connection and process the corresponding response before using that connection in any other way.
+
+If authentication fails, the server **must** respond with a `FAILURE` message and immediately close the connection.
+
+Clients wishing to retry initialization should establish a new connection.
+
+**Signature:** `01`
+
+**Fields:**
+
+```
+extra::Dictionary(
+  user_agent::String,
+  scheme::String,
+  principal::String,
+  credentials::String,
+  routing::Dictionary(address::String),
+)
+```
+
+- The `user_agent` should conform to `"Name/Version"` for example `"Example/4.1.0"`. (see, [developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent))
+- The `scheme` is the authentication scheme. Predefined schemes are `"none"`, `"basic"`, `"kerberos"`.
+- The `routing` field should contain routing context information and the `address` field that should contain the address that the client initially tries to connect with e.g. `"x.example.com:9001"`. Key-value entries in the routing context should correspond exactly to those in the original URI query string. The absence of the `routing` field indicates that the server should not carry out any routing.
+
+
+
+
+
+
+
+
+**Detail Messages:**
+
+No detail messages should be returned.
+
+**Valid Summary Messages:**
+
+* `SUCCESS`
+* `FAILURE`
+
+
+#### Synopsis
+
+```
+HELLO {user_agent::String, scheme::String, principal::String, credentials::String, routing::Dictionary(address::String))
+```
+
+Example 1:
+
+```
+HELLO {"user_agent": "Example/4.1.0", "scheme": "basic", "principal": "user", "credentials": "password", "routing": {"address": "x.example.com:9001"}}
+```
+
+Example 2:
+
+```
+HELLO {"user_agent": "Example/4.1.0", "scheme": "basic", "principal": "user", "credentials": "password", "routing": {"address": "x.example.com:9001", "policy": "example_policy_routing_context", "region": "example_region_routing_context"}}
+```
+
+#### Server Response `SUCCESS`
+
+A `SUCCESS` message response indicates that the client is permitted to exchange further messages.
+Servers can include metadata that describes details of the server environment and/or the connection.
+
+The following fields are defined for inclusion in the `SUCCESS` metadata.
+
+- `server::String` (server agent string, example `"Neo4j/4.1.0"`)
+- `connection_id::String` (unique identifier of the bolt connection used on the server side, example: `"bolt-61"`)
+- `hints::Dictionary` (set of optional configuration hints to be considered by the driver)
+
+The new `hints` dictionary may contain a set of **optional** configuration hints which may be interpreted or ignored by
+drivers at their own discretion in order to augment operations where applicable. A full listing of the available
+hints may be found in [Appendix B](#appendix-b---connection-hints). Hints remain valid throughout the lifetime of a
+given connection and cannot be changed. As such, newly established connections may observe different hints and/or hint
+values as the server configuration is adjusted.
+
+Example:
+
+```
+SUCCESS {"server": "Neo4j/4.0.0", "hints": {"connection.recv_timeout_seconds": 120}}
+```
+
+
+#### Server Response `FAILURE`
+
+A `FAILURE` message response indicates that the client is not permitted to exchange further messages.
+Servers may choose to include metadata describing the nature of the failure but **must** immediately close the connection after the failure has been sent.
+
+Example:
+
+```
+FAILURE {"code": "Example.Failure.Code", "message": "example failure"}
+```
+
+# Appendix A - Bolt Message Exchange Examples
 
 * The `C:` stands for client.
 * The `S:` stands for server.
@@ -1324,4 +1435,25 @@ C: DISCARD {"n": -1, "qid": 0}
 S: SUCCESS {"type": "r", "db": "test"}
 C: COMMIT
 S: SUCCESS {"bookmark": "neo4j:bookmark-test-1"}
+```
+
+### Appendix B - Connection Hints
+
+As of version 4.3, the server may optionally include a set of configuration hints within the `SUCCESS` metadata provided
+in response to the `HELLO` message. Drivers may choose to interpret or ignore these hints at their own discretion. The
+following set of hints are currently defined:
+
+#### connection.recv_timeout_seconds - 4.3
+
+Maximum amount of time (in seconds) for which a connection may remain idle following a request before drivers should
+consider it stale.
+
+The server will ensure that a chunk (or `NOOP` chunk) will be transmitted at least once per timeout period. Drivers
+which choose to interpret this hint may terminate connections which are considered stale by the definition of this hint.
+
+##### Example
+
+```
+C: HELLO {"user_agent": "Example/4.0.0", "scheme": "basic", "principal": "test", "credentials": "test"}
+S: SUCCESS {"server": "Neo4j/4.0.0", "connection_id": "example-connection-id:1", "hints": {"connection.recv_timeout_seconds": 120}}
 ```
