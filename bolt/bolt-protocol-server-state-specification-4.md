@@ -227,6 +227,12 @@ No changes compared to version 4.0.
 No changes compared to version 4.1.
 
 
+# Version 4.3
+
+## Deltas
+No changes compared to version 4.2.
+
+
 # Appendix - Bolt Message State Transitions
 
 

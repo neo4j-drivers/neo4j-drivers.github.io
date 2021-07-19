@@ -10,6 +10,8 @@ layout: default
 
 * [**Version 4.2**](#version-42)
 
+* [**Version 4.3**](#version-43)
+
 * [**Appendix - Bolt Message Exchange Examples**](#appendix---bolt-message-exchange-examples)
 
 
