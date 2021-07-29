@@ -9,5 +9,5 @@
 
 ## Run locally
 
-Make sure to install Ruby and [https://bundler.io/](Bundler).
+Make sure to install Ruby 2 and [https://bundler.io/](Bundler).
 All you have to do then is to execute `run.sh`.
