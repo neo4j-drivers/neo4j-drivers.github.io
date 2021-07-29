@@ -730,7 +730,7 @@ The following fields are defined for inclusion in the `SUCCESS` metadata.
   - `stats::Dictionary`, counter information, such as db-hits etc.
   - `plan::Dictionary`, plan result.
   - `profile::Dictionary`, profile result.
-  - `notifications::Dictionary`, any notification generated during execution of this statement.
+  - `notifications::List<Dictionary>`, a list of all notifications generated during execution of this statement. Might be omitted if no notifications exist.
   - `db::String`, the database name where the query was executed.
 
 Example 1:
