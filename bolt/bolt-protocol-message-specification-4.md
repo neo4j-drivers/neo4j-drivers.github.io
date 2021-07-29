@@ -599,7 +599,7 @@ extra::Dictionary{
 ```
 
   - The `n` specifies how many records to throw away. `n=-1` will throw away all records.
-  - The `qid` (query identification) specifies the result of which statement the operation should be carried out. (**Explicit Transaction** only). `qid=-1` can be used to denote the last executed statement and if no ``.
+  - The `qid` (query identification) specifies for which statement the operation should be carried out. (**Explicit Transaction** only). `qid=-1` can be used to denote the last executed statement. Default if omitted: `-1`.
 
 **Detail Messages:**
 
@@ -686,7 +686,7 @@ extra::Dictionary{
 ```
 
   - The `n` specifies how many records to fetch. `n=-1` will fetch all records.
-  - The `qid` (query identification) specifies the result of which statement the operation should be carried out. (**Explicit Transaction** only). `qid=-1` can be used to denote the last executed statement and if no ``.
+  - The `qid` (query identification) specifies for which statement the operation should be carried out. (**Explicit Transaction** only). `qid=-1` can be used to denote the last executed statement. Default if omitted: `-1`.
 
 **Detail Messages:**
 
