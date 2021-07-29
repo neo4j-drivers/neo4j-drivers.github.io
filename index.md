@@ -36,10 +36,11 @@ Each version of Bolt provides a number of type system extensions, via the PackSt
 
 All Bolt connections begin with a handshake to negotiate which version of the messaging protocol to use.
 Following a successful negotiation, the agreed messaging protocol then takes ownership of the connection for the remainder of its lifetime.
-The handshake itself is not versioned. 
+The handshake itself is not versioned.
 
 * **Version 1**, corresponds to the first releases of the handshake specification.
-* **Version 4.0**, incorporates an updated handshake specification. Now supports Major and Minor versions.
+* **Version 4.0**, incorporates an updated handshake specification. Now supports major and minor versions.
+* **Version 4.3**, incorporates an updated handshake specification. Now supports ranges of minor versions.
 
 [**Bolt Protocol Handshake Specification**]({% link bolt/bolt-protocol-handshake-specification.md %})
 
