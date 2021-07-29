@@ -1377,7 +1377,6 @@ Example:
 
 ```
 FAILURE {"code": "Example.Failure.Code", "message": "example failure"}
-
 ```
 
 ### Request Message - 4.3 - `ROUTE`
@@ -1419,13 +1418,13 @@ ROUTE {routing} [bookmarks] "db"
 Example 1:
 
 ```
-RUN {"address": "x.example.com:7687"} [] null
+ROUTE {"address": "x.example.com:7687"} [] null
 ```
 
 Example 2:
 
 ```
-RUN {"address": "x.example.com:9001", "policy": "example_policy_routing_context", "region": "example_region_routing_context"} ["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"] "example_database"
+ROUTE {"address": "x.example.com:9001", "policy": "example_policy_routing_context", "region": "example_region_routing_context"} ["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"] "example_database"
 ```
 
 #### Server Response `SUCCESS`
