@@ -232,7 +232,8 @@ No changes compared to version 4.1.
 # Version 4.3
 
 ## Deltas
-No changes compared to version 4.2.
+
+ * The `ROUTE` message was added. It can only be received in the `READY` state and causes no state transition.
 
 
 # Appendix - Bolt Message State Transitions
@@ -247,6 +248,7 @@ No changes compared to version 4.2.
 | `READY`        | `RUN`           |                 | `FAILURE {}`                                  | `FAILED`                                                    |
 | `READY`        | `BEGIN`         |                 | `SUCCESS {}`                                  | `TX_READY`                                                  |
 | `READY`        | `BEGIN`         |                 | `FAILURE {}`                                  | `FAILED`                                                    |
+| `READY`        | `ROUTE`         |                 | `SUCCESS {}`                                  | `READY`                                                     |
 | `READY`        | `RESET`         | `<INTERRUPT>`   | *n/a*                                         |                                                             |
 | `READY`        | `GOODBYE`       | `<DISCONNECT>`  | *n/a*                                         | `DEFUNCT`                                                   |
 |                |                 |                 |                                               |                                                             |
