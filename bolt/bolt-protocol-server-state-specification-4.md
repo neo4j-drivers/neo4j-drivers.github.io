@@ -8,7 +8,7 @@ layout: default
 * [**Version 4.1**](#version-41)
 
 * [**Version 4.2**](#version-42)
-* 
+
 * [**Version 4.3**](#version-43)
 
 * [**Appendix - Bolt Message State Transitions**](#appendix---bolt-message-state-transitions)
