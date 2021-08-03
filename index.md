@@ -66,9 +66,9 @@ This state is used to determine what actions may be undertaken by the client. Ea
 * [**Version 2**]({% link bolt/bolt-protocol-server-state-specification-2.md %}), incorporates no changes to the server state specification.
 * [**Version 3**]({% link bolt/bolt-protocol-server-state-specification-3.md %}), incorporates major changes to the server state specification.
 * [**Version 4.0**]({% link bolt/bolt-protocol-server-state-specification-4.md %}), incorporates some changes to the server state specification.
-* [**Version 4.1**]({% link bolt/bolt-protocol-server-state-specification-4.md %}), incorporates no changes to the server state specification.
-* [**Version 4.2**]({% link bolt/bolt-protocol-server-state-specification-4.md %}), incorporates no changes to the server state specification.
-* [**Version 4.3**]({% link bolt/bolt-protocol-server-state-specification-4.md %}), incorporates no changes to the server state specification.
+* [**Version 4.1**]({% link bolt/bolt-protocol-server-state-specification-4.md %}#version-41), incorporates no changes to the server state specification.
+* [**Version 4.2**]({% link bolt/bolt-protocol-server-state-specification-4.md %}#version-42), incorporates no changes to the server state specification.
+* [**Version 4.3**]({% link bolt/bolt-protocol-server-state-specification-4.md %}#version-43), incorporates no changes to the server state specification.
 
 
 ## Bolt Protocol and Neo4j Compatibility
