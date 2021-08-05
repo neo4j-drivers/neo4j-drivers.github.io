@@ -304,7 +304,7 @@ See, [**Bolt Protocol Server State Specification Version 4**]({% link bolt/bolt-
 
 | Message                                       | Signature | Request Message | Summary Message | Detail Message | Fields                                                                                                                                                         | Description                                             |
 |-----------------------------------------------|:---------:|:---------------:|:---------------:|:--------------:|----------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
-| [`HELLO`](#request-message---hello)           | `01`      | x               |                 |                | `extra::Dictionary(user_agent::String, scheme::String, principal::String, credentials::String)`                                                                | initialize connection                                   |
+| [`HELLO`](#request-message---hello)           | `01`      | x               |                 |                | `extra::Dictionary(user_agent::String, scheme::String)`                                                                                                        | initialize connection                                   |
 | [`GOODBYE`](#request-message---goodbye)       | `02`      | x               |                 |                |                                                                                                                                                                | close the connection, triggers a `<DISCONNECT>` signal  |
 | [`RESET`](#request-message---reset)           | `0F`      | x               |                 |                |                                                                                                                                                                | reset the connection, triggers a `<INTERRUPT>` signal   |
 | [`RUN`](#request-message---run)               | `10`      | x               |                 |                | `query::String`, `parameters::Dictionary`, `extra::Dictionary(bookmarks::List<String>, tx_timeout::Integer, tx_metadata::Dictionary, mode::String, db:String)` | execute a query                                         |
@@ -341,13 +341,14 @@ Clients wishing to retry initialization should establish a new connection.
 extra::Dictionary(
   user_agent::String,
   scheme::String,
-  principal::String,
-  credentials::String,
+  …
 )
 ```
 
   - The `user_agent` should conform to `"Name/Version"` for example `"Example/4.0.0"`. (see, [developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent))
   - The `scheme` is the authentication scheme. Predefined schemes are `"none"`, `"basic"`, `"kerberos"`.
+  - Further entries in `extra` are passed to the implementation of the chosen authentication scheme. Their names, types, and defaults depend on that choice.  
+    The scheme `"basic"` requires a user name `principal::String` and a password `credentials::String`.
 
 **Detail Messages:**
 
@@ -362,7 +363,7 @@ No detail messages should be returned.
 #### Synopsis
 
 ```
-HELLO {user_agent::String, scheme::String, principal::String, credentials::String}
+HELLO {user_agent::String, scheme::String}
 ```
 
 Example:
@@ -502,11 +503,11 @@ extra::Dictionary(
 
   For **Auto-commit Transaction** (`RUN`) the `extra` field carries:
 
-  - The `bookmarks` is a list of strings containing some kind of bookmark identification e.g ["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"]
-  - The `tx_timeout` is an integer in that specifies a transaction timeout in ms.
-  - The `tx_metadata` is a dictionary that can contain some metadata information, mainly used for logging.
-  - The `mode` specifies what kind of server the `RUN` message is targeting. For write access use `"w"` and for read access use `"r"`. Defaults to write access if no mode is sent.
-  - The `db` specifies the database name for multi-database to select where the transaction takes place. If no `db` is sent or empty string it implies that it is the default database.
+  - The `bookmarks` is a list of strings containing some kind of bookmark identification e.g `["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"]`. Default if omitted: `[]`.
+  - The `tx_timeout` is an integer in that specifies a transaction timeout in ms. Default if omitted: server-side configured timeout.
+  - The `tx_metadata` is a dictionary that can contain some metadata information, mainly used for logging. Default if omitted: `null`.
+  - The `mode` specifies what kind of server the `RUN` message is targeting. For write access use `"w"` and for read access use `"r"`. Default if omitted: `"w"`.
+      - The `db` specifies the database name for multi-database to select where the transaction takes place. `null` and `""` denote the server-side configured default database. Default if omitted: `null`.
 
 **Detail Messages:**
 
@@ -550,7 +551,7 @@ The following fields are defined for inclusion in the `SUCCESS` metadata.
 
   - `fields::List<String>`, the fields of the return result. e.g. ["name", "age", ...]
   - `t_first::Integer`, the time, specified in ms, which the first record in the result stream is available after.
-  
+
   For **Explicit Transaction** (`BEGIN`+`RUN`):
 
   - `qid::Integer`, specifies the server assigned statement id to reference the server side resultset with commencing `BEGIN`+`RUN`+`PULL` and `BEGIN`+`RUN`+`DISCARD` messages.
@@ -598,7 +599,7 @@ extra::Dictionary{
 }
 ```
 
-  - The `n` specifies how many records to throw away. `n=-1` will throw away all records.
+  - The `n` specifies how many records to throw away. `n=-1` will throw away all records. `n` has no default and must be present.
   - The `qid` (query identification) specifies for which statement the operation should be carried out. (**Explicit Transaction** only). `qid=-1` can be used to denote the last executed statement. Default if omitted: `-1`.
 
 **Detail Messages:**
@@ -685,7 +686,7 @@ extra::Dictionary{
 }
 ```
 
-  - The `n` specifies how many records to fetch. `n=-1` will fetch all records.
+  - The `n` specifies how many records to fetch. `n=-1` will fetch all records. `n` has no default and must be present.
   - The `qid` (query identification) specifies for which statement the operation should be carried out. (**Explicit Transaction** only). `qid=-1` can be used to denote the last executed statement. Default if omitted: `-1`.
 
 **Detail Messages:**
@@ -785,11 +786,11 @@ extra::Dictionary(
 )
 ```
 
-  - The `bookmarks` is a list of strings containg some kind of bookmark identification e.g ["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"]
-  - The `tx_timeout` is an integer in that specifies a transaction timeout in ms.
-  - The `tx_metadata` is a dictionary that can contain some metadata information, mainly used for logging.
-  - The `mode` specifies what kind of server the `RUN` message is targeting. For write access use `"w"` and for read access use `"r"`. Defaults to write access if no mode is sent.
-  - The `db` specifies the database name for multi-database to select where the transaction takes place. If no `db` is sent or empty string it implies that it is the default database.
+  - The `bookmarks` is a list of strings containg some kind of bookmark identification e.g `["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"]`. Default if omitted: `[]`.
+  - The `tx_timeout` is an integer in that specifies a transaction timeout in ms. Default if omitted: server-side configured timeout.
+  - The `tx_metadata` is a dictionary that can contain some metadata information, mainly used for logging. Default if omitted: `null`.
+  - The `mode` specifies what kind of server the `RUN` message is targeting. For write access use `"w"` and for read access use `"r"`. Defaults to write access if no mode is sent. Default if omitted: `"w"`.
+  - The `db` specifies the database name for multi-database to select where the transaction takes place.  `null` and `""` denote the server-side configured default database. Default if omitted: `null`.
 
 **Detail Messages:**
 
@@ -1126,7 +1127,7 @@ The two messages encoded with chunking and a `NOOP` (empty chunk) in between.
 
 | Message                                      | Signature | Request Message | Summary Message | Detail Message | Fields                                                                                                                                                         | Description                                             |
 |----------------------------------------------|:---------:|:---------------:|:---------------:|:--------------:|----------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
-| [`HELLO`](#request-message---41---hello)     | `01`      | x               |                 |                | `extra::Dictionary(user_agent::String, scheme::String, principal::String, credentials::String, routing::Dictionary(address::String))`                          | initialize connection                                   |
+| [`HELLO`](#request-message---41---hello)     | `01`      | x               |                 |                | `extra::Dictionary(user_agent::String, scheme::String, routing::Dictionary(address::String))`                                                                  | initialize connection                                   |
 | [`GOODBYE`](#request-message---goodbye)      | `02`      | x               |                 |                |                                                                                                                                                                | close the connection, triggers a `<DISCONNECT>` signal  |
 | [`RESET`](#request-message---reset)          | `0F`      | x               |                 |                |                                                                                                                                                                | reset the connection, triggers a `<INTERRUPT>` signal   |
 | [`RUN`](#request-message---run)              | `10`      | x               |                 |                | `query::String`, `parameters::Dictionary`, `extra::Dictionary(bookmarks::List<String>, tx_timeout::Integer, tx_metadata::Dictionary, mode::String, db:String)` | execute a query                                         |
@@ -1174,22 +1175,16 @@ The absence of the `routing` key is semantically identical to passing a `null` v
 extra::Dictionary(
   user_agent::String,
   scheme::String,
-  principal::String,
-  credentials::String,
   routing::Dictionary(address::String),
+  …
 )
 ```
 
   - The `user_agent` should conform to `"Name/Version"` for example `"Example/4.1.0"`. (see, [developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent))
   - The `scheme` is the authentication scheme. Predefined schemes are `"none"`, `"basic"`, `"kerberos"`.
-  - The `routing` field should contain routing context information and the `address` field that should contain the address that the client initially tries to connect with e.g. `"x.example.com:9001"`. Key-value entries in the routing context should correspond exactly to those in the original URI query string. The absence of the `routing` field indicates that the server should not carry out any routing.
-
-
-
-
-
-
-
+  - The `routing` field should contain routing context information and the `address` field that should contain the address that the client initially tries to connect with e.g. `"x.example.com:9001"`. Key-value entries in the routing context should correspond exactly to those in the original URI query string. Setting `routing` to `null` indicates that the server should not carry out any routing. Default if omitted: `null`.
+  - Further entries in `extra` are passed to the implementation of the chosen authentication scheme. Their names, types, and defaults depend on that choice.  
+    The scheme `"basic"` requires a user name `principal::String` and a password `credentials::String`.
 
 **Detail Messages:**
 
@@ -1204,7 +1199,7 @@ No detail messages should be returned.
 #### Synopsis
 
 ```
-HELLO {user_agent::String, scheme::String, principal::String, credentials::String, routing::Dictionary(address::String))
+HELLO {user_agent::String, scheme::String, routing::Dictionary(address::String))
 ```
 
 Example 1:
@@ -1269,7 +1264,7 @@ The changes compared to Bolt protocol version 4.2 are listed below:
 
 | Message                                   | Signature | Request Message | Summary Message | Detail Message | Fields                                                                                                                                                         | Description                |
 |-------------------------------------------|:---------:|:---------------:|:---------------:|:--------------:|----------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------|
-| [`HELLO`](#request-message---43---hello)  | `01`      | x               |                 |                | `extra::Dictionary(user_agent::String, scheme::String, principal::String, credentials::String, routing::Dictionary(address::String))`                          | initialize connection                                  |
+| [`HELLO`](#request-message---43---hello)  | `01`      | x               |                 |                | `extra::Dictionary(user_agent::String, scheme::String, routing::Dictionary(address::String))`                                                                  | initialize connection                                  |
 | [`GOODBYE`](#request-message---goodbye)   | `02`      | x               |                 |                |                                                                                                                                                                | close the connection, triggers a `<DISCONNECT>` signal |
 | [`RESET`](#request-message---reset)       | `0F`      | x               |                 |                |                                                                                                                                                                | reset the connection, triggers a `<INTERRUPT>` signal  |
 | [`RUN`](#request-message---run)           | `10`      | x               |                 |                | `query::String`, `parameters::Dictionary`, `extra::Dictionary(bookmarks::List<String>, tx_timeout::Integer, tx_metadata::Dictionary, mode::String, db:String)` | execute a query                                        |
@@ -1305,15 +1300,16 @@ Clients wishing to retry initialization should establish a new connection.
 extra::Dictionary(
   user_agent::String,
   scheme::String,
-  principal::String,
-  credentials::String,
   routing::Dictionary(address::String),
+  …
 )
 ```
 
-- The `user_agent` should conform to `"Name/Version"` for example `"Example/4.1.0"`. (see, [developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent))
-- The `scheme` is the authentication scheme. Predefined schemes are `"none"`, `"basic"`, `"kerberos"`.
-- The `routing` field should contain routing context information and the `address` field that should contain the address that the client initially tries to connect with e.g. `"x.example.com:9001"`. Key-value entries in the routing context should correspond exactly to those in the original URI query string. The absence of the `routing` field indicates that the server should not carry out any routing.
+  - The `user_agent` should conform to `"Name/Version"` for example `"Example/4.1.0"`. (see, [developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent))
+  - The `scheme` is the authentication scheme. Predefined schemes are `"none"`, `"basic"`, `"kerberos"`.
+  - The `routing` field should contain routing context information and the `address` field that should contain the address that the client initially tries to connect with e.g. `"x.example.com:9001"`. Key-value entries in the routing context should correspond exactly to those in the original URI query string. Setting `routing` to `null` indicates that the server should not carry out any routing. Default if omitted: `null`.
+  - Further entries in `extra` are passed to the implementation of the chosen authentication scheme. Their names, types, and defaults depend on that choice.  
+    The scheme `"basic"` requires a user name `principal::String` and a password `credentials::String`.
 
 
 **Detail Messages:**
@@ -1395,9 +1391,9 @@ routing::Dictionary,
 bookmarks::List<String>,
 db:String
 ```
-- The `routing` field should contain routing context information and the `address` field that should contain the address that the client initially tries to connect with e.g. `"x.example.com:9001"`. Key-value entries in the routing context should correspond exactly to those in the original URI query string. The absence of the `routing` field indicates that the server should not carry out any routing.
-- The `bookmarks` is a list of strings containing some kind of bookmark identification e.g ["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"]
-- The `db` specifies the database name for multi-database to select where the transaction takes place. If no `db` is sent or empty string it implies that it is the default database.
+- The `routing` field should contain routing context information and the `address` field that should contain the address that the client initially tries to connect with e.g. `"x.example.com:9001"`. Key-value entries in the routing context should correspond exactly to those in the original URI query string.
+- The `bookmarks` is a list of strings containing some kind of bookmark identification e.g `["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"]`.
+- The `db` specifies the database name for multi-database to select where the transaction takes place. `null` denotes the server-side configured default database.
 
 **Detail Messages:**
 

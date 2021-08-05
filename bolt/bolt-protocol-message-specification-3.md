@@ -281,7 +281,7 @@ See, [**Bolt Protocol Server State Specification Version 3**]({% link bolt/bolt-
 
 | Message                                         | Signature | Request Message | Summary Message | Detail Message | Fields                                                                                                                                                         | Description                                             |
 |-------------------------------------------------|:---------:|:---------------:|:---------------:|:--------------:|----------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
-| [`HELLO`](#request-message---hello)             | `01`      | x               |                 |                | `extra::Dictionary(user_agent::String, scheme::String, principal::String, credentials::String)`                                                                | initialize connection                                   |
+| [`HELLO`](#request-message---hello)             | `01`      | x               |                 |                | `extra::Dictionary(user_agent::String, scheme::String)`                                                                                                        | initialize connection                                   |
 | [`GOODBYE`](#request-message---goodbye)         | `02`      | x               |                 |                |                                                                                                                                                                | close the connection, triggers a `<DISCONNECT>` signal  |
 | [`RESET`](#request-message---reset)             | `0F`      | x               |                 |                |                                                                                                                                                                | reset the connection, triggers a `<INTERRUPT>` signal   |
 | [`RUN`](#request-message---run)                 | `10`      | x               |                 |                | `query::String`, `parameters::Dictionary`, `extra::Dictionary(bookmarks::List<String>, tx_timeout::Integer, tx_metadata::Dictionary, mode::String)`            | execute a query                                         |
@@ -317,13 +317,14 @@ Clients wishing to retry initialization should establish a new connection.
 extra::Dictionary(
   user_agent::String,
   scheme::String,
-  principal::String,
-  credentials::String,
+  …
 )
 ```
 
   - The `user_agent` should conform to `"Name/Version"` for example `"Example/3.0.0"`. (see, [developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent))
   - The `scheme` is the authentication scheme. Predefined schemes are `"none"`, `"basic"`, `"kerberos"`.
+  - Further entries in `extra` are passed to the implementation of the chosen authentication scheme. Their names, types, and defaults depend on that choice.  
+    The scheme `"basic"` requires a user name `principal::String` and a password `credentials::String`.
 
 **Detail Messages:**
 
@@ -338,7 +339,7 @@ No detail messages should be returned.
 #### Synopsis
 
 ```
-HELLO {user_agent::String, scheme::String, principal::String, credentials::String}
+HELLO {user_agent::String, scheme::String}
 ```
 
 Example:
@@ -479,10 +480,10 @@ extra::Dictionary(
 
   For **Auto-commit Transaction** (`RUN`) the `extra` field carries:
 
-  - The `bookmarks` is a list of strings containg some kind of bookmark identification e.g ["neo4j-bookmark-transaction:1”, "neo4j-bookmark-transaction:2"]
-  - The `tx_timeout` is an integer in that specifies a transaction timeout in ms.
-  - The `tx_metadata` is a dictionary that can contain some metadata information, mainly used for logging.
-  - The `mode` specifies what kind of server the `RUN` message is targeting. For write access use `"w"` and for read access use `"r"`. Defaults to write access if no mode is sent.
+  - The `bookmarks` is a list of strings containing some kind of bookmark identification e.g `["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"]`. Default if omitted: `[]`.
+  - The `tx_timeout` is an integer in that specifies a transaction timeout in ms. Default if omitted: server-side configured timeout.
+  - The `tx_metadata` is a dictionary that can contain some metadata information, mainly used for logging. Default if omitted: `null`.
+  - The `mode` specifies what kind of server the `RUN` message is targeting. For write access use `"w"` and for read access use `"r"`. Default if omitted: `"w"`.
 
 **Detail Messages:**
 
@@ -700,10 +701,10 @@ extra::Dictionary(
 )
 ```
 
-  - The `bookmarks` is a list of strings containg some kind of bookmark identification e.g ["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"]
-  - The `tx_timeout` is an integer in that specifies a transaction timeout in ms.
-  - The `tx_metadata` is a dictionary that can contain some metadata information, mainly used for logging.
-  - The `mode` specifies what kind of server the `RUN` message is targeting. For write access use `"w"` and for read access use `"r"`. Defaults to write access if no mode is sent.
+  - The `bookmarks` is a list of strings containg some kind of bookmark identification e.g `["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"]`. Default if omitted: `[]`.
+  - The `tx_timeout` is an integer in that specifies a transaction timeout in ms. Default if omitted: server-side configured timeout.
+  - The `tx_metadata` is a dictionary that can contain some metadata information, mainly used for logging. Default if omitted: `null`.
+  - The `mode` specifies what kind of server the `RUN` message is targeting. For write access use `"w"` and for read access use `"r"`. Default if omitted: `"w"`.
 
 **Detail Messages:**
 
