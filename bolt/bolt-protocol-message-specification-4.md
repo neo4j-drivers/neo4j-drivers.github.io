@@ -105,6 +105,8 @@ The message type is denoted by the PackStream structure **tag byte** and each me
 
 **Serialization is specified with PackStream Version 1.**
 
+Some messages that contain `Dictionary` fields, define default values for some of the keys. Bandwidth can be saved by omitting these entries if the value equals the default.
+
 
 ### Chunking
 
@@ -503,11 +505,11 @@ extra::Dictionary(
 
   For **Auto-commit Transaction** (`RUN`) the `extra` field carries:
 
-  - The `bookmarks` is a list of strings containing some kind of bookmark identification e.g `["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"]`. Default if omitted: `[]`.
-  - The `tx_timeout` is an integer in that specifies a transaction timeout in ms. Default if omitted: server-side configured timeout.
-  - The `tx_metadata` is a dictionary that can contain some metadata information, mainly used for logging. Default if omitted: `null`.
-  - The `mode` specifies what kind of server the `RUN` message is targeting. For write access use `"w"` and for read access use `"r"`. Default if omitted: `"w"`.
-      - The `db` specifies the database name for multi-database to select where the transaction takes place. `null` and `""` denote the server-side configured default database. Default if omitted: `null`.
+  - The `bookmarks` is a list of strings containing some kind of bookmark identification e.g `["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"]`. Default: `[]`.
+  - The `tx_timeout` is an integer in that specifies a transaction timeout in ms. Default: server-side configured timeout.
+  - The `tx_metadata` is a dictionary that can contain some metadata information, mainly used for logging. Default: `null`.
+  - The `mode` specifies what kind of server the `RUN` message is targeting. For write access use `"w"` and for read access use `"r"`. Default: `"w"`.
+      - The `db` specifies the database name for multi-database to select where the transaction takes place. `null` and `""` denote the server-side configured default database. Default: `null`.
 
 **Detail Messages:**
 
@@ -600,7 +602,7 @@ extra::Dictionary{
 ```
 
   - The `n` specifies how many records to throw away. `n=-1` will throw away all records. `n` has no default and must be present.
-  - The `qid` (query identification) specifies for which statement the operation should be carried out. (**Explicit Transaction** only). `qid=-1` can be used to denote the last executed statement. Default if omitted: `-1`.
+  - The `qid` (query identification) specifies for which statement the operation should be carried out. (**Explicit Transaction** only). `qid=-1` can be used to denote the last executed statement. Default: `-1`.
 
 **Detail Messages:**
 
@@ -687,7 +689,7 @@ extra::Dictionary{
 ```
 
   - The `n` specifies how many records to fetch. `n=-1` will fetch all records. `n` has no default and must be present.
-  - The `qid` (query identification) specifies for which statement the operation should be carried out. (**Explicit Transaction** only). `qid=-1` can be used to denote the last executed statement. Default if omitted: `-1`.
+  - The `qid` (query identification) specifies for which statement the operation should be carried out. (**Explicit Transaction** only). `qid=-1` can be used to denote the last executed statement. Default: `-1`.
 
 **Detail Messages:**
 
@@ -786,11 +788,11 @@ extra::Dictionary(
 )
 ```
 
-  - The `bookmarks` is a list of strings containg some kind of bookmark identification e.g `["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"]`. Default if omitted: `[]`.
-  - The `tx_timeout` is an integer in that specifies a transaction timeout in ms. Default if omitted: server-side configured timeout.
-  - The `tx_metadata` is a dictionary that can contain some metadata information, mainly used for logging. Default if omitted: `null`.
-  - The `mode` specifies what kind of server the `RUN` message is targeting. For write access use `"w"` and for read access use `"r"`. Defaults to write access if no mode is sent. Default if omitted: `"w"`.
-  - The `db` specifies the database name for multi-database to select where the transaction takes place.  `null` and `""` denote the server-side configured default database. Default if omitted: `null`.
+  - The `bookmarks` is a list of strings containg some kind of bookmark identification e.g `["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"]`. Default: `[]`.
+  - The `tx_timeout` is an integer in that specifies a transaction timeout in ms. Default: server-side configured timeout.
+  - The `tx_metadata` is a dictionary that can contain some metadata information, mainly used for logging. Default: `null`.
+  - The `mode` specifies what kind of server the `RUN` message is targeting. For write access use `"w"` and for read access use `"r"`. Defaults to write access if no mode is sent. Default: `"w"`.
+  - The `db` specifies the database name for multi-database to select where the transaction takes place.  `null` and `""` denote the server-side configured default database. Default: `null`.
 
 **Detail Messages:**
 
@@ -1182,7 +1184,7 @@ extra::Dictionary(
 
   - The `user_agent` should conform to `"Name/Version"` for example `"Example/4.1.0"`. (see, [developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent))
   - The `scheme` is the authentication scheme. Predefined schemes are `"none"`, `"basic"`, `"kerberos"`.
-  - The `routing` field should contain routing context information and the `address` field that should contain the address that the client initially tries to connect with e.g. `"x.example.com:9001"`. Key-value entries in the routing context should correspond exactly to those in the original URI query string. Setting `routing` to `null` indicates that the server should not carry out any routing. Default if omitted: `null`.
+  - The `routing` field should contain routing context information and the `address` field that should contain the address that the client initially tries to connect with e.g. `"x.example.com:9001"`. Key-value entries in the routing context should correspond exactly to those in the original URI query string. Setting `routing` to `null` indicates that the server should not carry out any routing. Default: `null`.
   - Further entries in `extra` are passed to the implementation of the chosen authentication scheme. Their names, types, and defaults depend on that choice.  
     The scheme `"basic"` requires a user name `principal::String` and a password `credentials::String`.
 
@@ -1307,7 +1309,7 @@ extra::Dictionary(
 
   - The `user_agent` should conform to `"Name/Version"` for example `"Example/4.1.0"`. (see, [developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent))
   - The `scheme` is the authentication scheme. Predefined schemes are `"none"`, `"basic"`, `"kerberos"`.
-  - The `routing` field should contain routing context information and the `address` field that should contain the address that the client initially tries to connect with e.g. `"x.example.com:9001"`. Key-value entries in the routing context should correspond exactly to those in the original URI query string. Setting `routing` to `null` indicates that the server should not carry out any routing. Default if omitted: `null`.
+  - The `routing` field should contain routing context information and the `address` field that should contain the address that the client initially tries to connect with e.g. `"x.example.com:9001"`. Key-value entries in the routing context should correspond exactly to those in the original URI query string. Setting `routing` to `null` indicates that the server should not carry out any routing. Default: `null`.
   - Further entries in `extra` are passed to the implementation of the chosen authentication scheme. Their names, types, and defaults depend on that choice.  
     The scheme `"basic"` requires a user name `principal::String` and a password `credentials::String`.
 

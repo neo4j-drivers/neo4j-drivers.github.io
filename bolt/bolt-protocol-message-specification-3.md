@@ -94,6 +94,8 @@ The message type is denoted by the PackStream structure **tag byte** and each me
 
 **Serialization is specified with PackStream Version 1.**
 
+Some messages that contain `Dictionary` fields, define default values for some of the keys. Bandwidth can be saved by omitting these entries if the value equals the default.
+
 
 ### Chunking
 
@@ -480,10 +482,10 @@ extra::Dictionary(
 
   For **Auto-commit Transaction** (`RUN`) the `extra` field carries:
 
-  - The `bookmarks` is a list of strings containing some kind of bookmark identification e.g `["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"]`. Default if omitted: `[]`.
-  - The `tx_timeout` is an integer in that specifies a transaction timeout in ms. Default if omitted: server-side configured timeout.
-  - The `tx_metadata` is a dictionary that can contain some metadata information, mainly used for logging. Default if omitted: `null`.
-  - The `mode` specifies what kind of server the `RUN` message is targeting. For write access use `"w"` and for read access use `"r"`. Default if omitted: `"w"`.
+  - The `bookmarks` is a list of strings containing some kind of bookmark identification e.g `["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"]`. Default: `[]`.
+  - The `tx_timeout` is an integer in that specifies a transaction timeout in ms. Default: server-side configured timeout.
+  - The `tx_metadata` is a dictionary that can contain some metadata information, mainly used for logging. Default: `null`.
+  - The `mode` specifies what kind of server the `RUN` message is targeting. For write access use `"w"` and for read access use `"r"`. Default: `"w"`.
 
 **Detail Messages:**
 
@@ -701,10 +703,10 @@ extra::Dictionary(
 )
 ```
 
-  - The `bookmarks` is a list of strings containg some kind of bookmark identification e.g `["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"]`. Default if omitted: `[]`.
-  - The `tx_timeout` is an integer in that specifies a transaction timeout in ms. Default if omitted: server-side configured timeout.
-  - The `tx_metadata` is a dictionary that can contain some metadata information, mainly used for logging. Default if omitted: `null`.
-  - The `mode` specifies what kind of server the `RUN` message is targeting. For write access use `"w"` and for read access use `"r"`. Default if omitted: `"w"`.
+  - The `bookmarks` is a list of strings containg some kind of bookmark identification e.g `["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"]`. Default: `[]`.
+  - The `tx_timeout` is an integer in that specifies a transaction timeout in ms. Default: server-side configured timeout.
+  - The `tx_metadata` is a dictionary that can contain some metadata information, mainly used for logging. Default: `null`.
+  - The `mode` specifies what kind of server the `RUN` message is targeting. For write access use `"w"` and for read access use `"r"`. Default: `"w"`.
 
 **Detail Messages:**
 
