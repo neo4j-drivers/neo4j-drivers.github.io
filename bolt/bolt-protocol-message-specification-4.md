@@ -99,7 +99,8 @@ This prevents inadvertent execution of queries that may not be valid.
 
 Messages and their contents are serialized into network streams using [**PackStream Specification Version 1**]({% link packstream/packstream-specification-1.md %}).
 
-**Each message is represented as a PackStream structure**, that contains a fixed number of fields.
+**Each message is represented as a PackStream structure**, that contains a fixed number of fields.  
+*Note*: conceptually BOLT messages and PackStream structures are not the same. Even though they have the same encoded form, the tags used might overlap. It is recommended to model them separately when implementing the protocol.
 
 The message type is denoted by the PackStream structure **tag byte** and each message is defined in the Bolt protocol.
 
