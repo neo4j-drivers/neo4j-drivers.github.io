@@ -467,7 +467,7 @@ The transaction type is implied by the order of message sequence.
 
 ```
 query::String,
-paramaters::Dictionary,
+parameters::Dictionary,
 extra::Dictionary(
   bookmarks::List<String>,
   tx_timeout::Integer,
