@@ -48,6 +48,7 @@ This document describes the overview of a Driver and how different scenarios lik
   * `database::String`
   * `fetch_size::Integer`
   * `bookmarks::List<String>`
+  * `imp_user::String`
 
 
 * TransactionConfig
@@ -107,17 +108,47 @@ The driver should support a **routing table**.
 **Read Replicas** are not involved in the Raft Consensus Algorithm, but a Read Replica do return a routing table that only contain the Read Replica itself.
 
 
-### Routing Table Procedure Call
+### Fetching Routing Tables
 
 The procedure call to fetch the routing table has varied considerably throughout the various versions of Neo4j.
 
 
-| Neo4j | Bolt | Neo4j Procedure Call                                                                                                          |
-|------:|-----:|:------------------------------------------------------------------------------------------------------------------------------|
-| 3.5   | 3    | [`dbms.cluster.routing.getRoutingTable($context)`](https://neo4j.com/docs/operations-manual/3.5/reference/procedures/)        |
-| 4.0   | 4.0  | [`dbms.routing.getRoutingTable($context, $database)`](https://neo4j.com/docs/operations-manual/4.0/reference/procedures/)     |
-| 4.1   | 4.1  | [`dbms.routing.getRoutingTable($context, $database)`](https://neo4j.com/docs/operations-manual/4.1/reference/procedures/)     |
-| 4.2   | 4.2  | ?                                                                                                                             |
+#### Route Message (4.3 and newer)
+
+| Neo4j | Bolt | Bolt Message                                                       |
+|------:|-----:|:-------------------------------------------------------------------|
+| 4.3   | 4.3  | `ROUTE {$context} [$bookmarks] $db`                                |
+| 4.4   | 4.4  | `ROUTE {$context} [$bookmarks] {"db": $db, "imp_user": $imp_user}` |
+
+The table shows how to fetch the routing table for database `"foo"`:
+
+| Neo4j | Bolt | Bolt Message                                             |
+|------:|-----:|:---------------------------------------------------------|
+| 4.3   | 4.3  | `ROUTE {"address": "example.org:7687"} ["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"] "foo"` |
+| 4.4   | 4.4  | `ROUTE {"address": "example.org:7687"} ["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"] {"db": "foo"}` |
+
+
+Example:
+
+```
+C: 60 60 B0 17
+C: 00 00 04 04 00 00 00 00 00 00 00 00 00 00 00 00
+S: 00 00 04 04
+C: HELLO {"scheme": "basic", "principal": "user", "credentials": "password", "user_agent": "Example/4.4.0", "routing": {"address": "localhost:9001", "policy": "example_policy", "region": "example_region"}}
+S: SUCCESS {"server": "Neo4j/4.4.0", "connection_id": "bolt-123456789"}
+C: ROUTE {"address": "localhost:9001", "policy": "example_policy", "region": "example_region"} ["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"], {}
+S: SUCCESS {"rt": {"ttl": 300, "db": "foo", "servers": [{"addresses": ["127.0.0.1:9001"], "role": "WRITE"}, {"addresses": ["127.0.0.1:9002"], "role": "READ"}, {"addresses": ["127.0.0.1:9001", "127.0.0.1:9002"], "role": "ROUTE"}]}}
+C: GOODBYE
+```
+
+#### Procedure Call (4.2 and older)
+
+| Neo4j | Bolt | Neo4j Procedure Call                                                                                                                                                         |
+|------:|-----:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 3.5   | 3    | [`dbms.cluster.routing.getRoutingTable($context)`](https://neo4j.com/docs/operations-manual/3.5/reference/procedures/)                                                       |
+| 4.0   | 4.0  | [`dbms.routing.getRoutingTable($context, $database)`](https://neo4j.com/docs/operations-manual/4.0/reference/procedures/#procedure_dbms_cluster_routing_getroutingtable)     |
+| 4.1   | 4.1  | [`dbms.routing.getRoutingTable($context, $database)`](https://neo4j.com/docs/operations-manual/4.1/reference/procedures/#procedure_dbms_cluster_routing_getroutingtable)     |
+| 4.2   | 4.2  | [`dbms.routing.getRoutingTable($context, $database)`](https://neo4j.com/docs/operations-manual/4.2/reference/procedures/#procedure_dbms_cluster_routing_getroutingtable)     |
 
 
 The table shows how to fetch the routing table for database `"foo"`, (Neo4j 3.5 does not support multi-database)
@@ -128,7 +159,7 @@ The table shows how to fetch the routing table for database `"foo"`, (Neo4j 3.5 
 | 3.5   | 3     | `RUN "CALL dbms.cluster.routing.getRoutingTable($context)" {"context": {}} {"mode": "r"}`                                             |
 | 4.0   | 4.0   | `RUN "CALL dbms.routing.getRoutingTable($context, $database)" {"context": {}, "database": "foo"} {"db": "system", "mode": "r"}`       |
 | 4.1   | 4.1   | `RUN "CALL dbms.routing.getRoutingTable($context, $database)" {"context": {}, "database": "foo"} {"db": "system", "mode": "r"}`       |
-| 4.2   | 4.2   | ?                                                                                                                                     |
+| 4.2   | 4.2   | `RUN "CALL dbms.routing.getRoutingTable($context, $database)" {"context": {}, "database": "foo"} {"db": "system", "mode": "r"}`       |
 
 
 Example:

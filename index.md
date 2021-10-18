@@ -54,6 +54,7 @@ The handshake itself is not versioned.
 * [**Version 4.1**]({% link bolt/bolt-protocol-message-specification-4.md %}#version-41), incorporates an updated message specification.
 * [**Version 4.2**]({% link bolt/bolt-protocol-message-specification-4.md %}#version-42), incorporates no changes to the message specification.
 * [**Version 4.3**]({% link bolt/bolt-protocol-message-specification-4.md %}#version-43), incorporates an updated message specification.
+* [**Version 4.4**]({% link bolt/bolt-protocol-message-specification-4.md %}#version-44), incorporates an updated message specification.
 
 
 ### Bolt Protocol Server State Specification
@@ -69,23 +70,25 @@ This state is used to determine what actions may be undertaken by the client. Ea
 * [**Version 4.1**]({% link bolt/bolt-protocol-server-state-specification-4.md %}#version-41), incorporates no changes to the server state specification.
 * [**Version 4.2**]({% link bolt/bolt-protocol-server-state-specification-4.md %}#version-42), incorporates no changes to the server state specification.
 * [**Version 4.3**]({% link bolt/bolt-protocol-server-state-specification-4.md %}#version-43), incorporates no changes to the server state specification.
+* [**Version 4.4**]({% link bolt/bolt-protocol-server-state-specification-4.md %}#version-43), incorporates no changes to the server state specification.
 
 
 ## Bolt Protocol and Neo4j Compatibility
 
 
-| Neo4j Version | Bolt `1` | Bolt `2` | Bolt `3` | Bolt `4.0` | Bolt `4.1` | Bolt `4.2`  | Bolt `4.3`  |
-|:-------------:|:--------:|:--------:|:--------:|:----------:|:----------:|:-----------:|:-----------:|
-| `3.0`         | `x`      |          |          |            |            |             |             |
-| `3.1`         | `x`      |          |          |            |            |             |             |
-| `3.2`         | `x`      |          |          |            |            |             |             |
-| `3.3`         | `x`      |          |          |            |            |             |             |
-| `3.4`         | `(x)`    | `x`      |          |            |            |             |             |
-| `3.5`         |          | `(x)`    | `x`      |            |            |             |             |
-| `4.0`         |          |          | `(x)`    | `x`        |            |             |             |
-| `4.1`         |          |          | `(x)`    | `(x)`      | `x`        |             |             |
-| `4.2`         |          |          | `(x)`    | `(x)`      | `(x)`      | `x`         |             |
-| `4.3`         |          |          | `(x)`    | `(x)`      | `(x)`      | `(x)`       | `x`         |
+| Neo4j Version | Bolt `1` | Bolt `2` | Bolt `3` | Bolt `4.0` | Bolt `4.1` | Bolt `4.2`  | Bolt `4.3`  | Bolt `4.4` |
+|:-------------:|:--------:|:--------:|:--------:|:----------:|:----------:|:-----------:|:-----------:|:----------:|
+| `3.0`         | `x`      |          |          |            |            |             |             |            |
+| `3.1`         | `x`      |          |          |            |            |             |             |            |
+| `3.2`         | `x`      |          |          |            |            |             |             |            |
+| `3.3`         | `x`      |          |          |            |            |             |             |            |
+| `3.4`         | `(x)`    | `x`      |          |            |            |             |             |            |
+| `3.5`         |          | `(x)`    | `x`      |            |            |             |             |            |
+| `4.0`         |          |          | `(x)`    | `x`        |            |             |             |            |
+| `4.1`         |          |          | `(x)`    | `(x)`      | `x`        |             |             |            |
+| `4.2`         |          |          | `(x)`    | `(x)`      | `(x)`      | `x`         |             |            |
+| `4.3`         |          |          | `(x)`    | `(x)`      | `(x)`      | `(x)`       | `x`         |            |
+| `4.4`         |          |          | `(x)`    | `(x)`      | `(x)`      | `(x)`       | `(x)`       | `x`        |
 
 
 The `(x)` denotes that support could be removed in next version of Neo4j.
