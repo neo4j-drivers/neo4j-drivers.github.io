@@ -12,6 +12,8 @@ layout: default
 
 * [**Version 4.3**](#version-43)
 
+* [**Version 4.4**](#version-44)
+
 * [**Appendix - Bolt Message Exchange Examples**](#appendix---bolt-message-exchange-examples)
 
 
@@ -1463,12 +1465,326 @@ Example:
 FAILURE {"code": "Example.Failure.Code", "message": "example failure"}
 ```
 
+# Version 4.4
+
+## Deltas
+
+The changes compared to Bolt protocol version 4.4 are listed below:
+
+* The `db` parameter within the `ROUTE` message has been migrated into a dedicated dictionary named `extra`.
+* An `imp_user` parameter has been added to the `meta` fields within `ROUTE`, `RUN` and `BEGIN` messages respectively.
+
+## Messages - 4.4
+
+| Message                                   | Signature | Request Message | Summary Message | Detail Message | Fields                                                                                                                                                         | Description                |
+|-------------------------------------------|:---------:|:---------------:|:---------------:|:--------------:|----------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------|
+| [`HELLO`](#request-message---hello---43)  | `01`      | x               |                 |                | `extra::Dictionary(user_agent::String, scheme::String, routing::Dictionary(address::String))`                                                                  | initialize connection                                  |
+| [`GOODBYE`](#request-message---goodbye)   | `02`      | x               |                 |                |                                                                                                                                                                | close the connection, triggers a `<DISCONNECT>` signal |
+| [`RESET`](#request-message---reset)       | `0F`      | x               |                 |                |                                                                                                                                                                | reset the connection, triggers a `<INTERRUPT>` signal  |
+| [`RUN`](#request-message---run---44)           | `10`      | x               |                 |                | `query::String`, `parameters::Dictionary`, `extra::Dictionary(bookmarks::List<String>, tx_timeout::Integer, tx_metadata::Dictionary, mode::String, db::String, imp_user::String)` | execute a query                                        |
+| [`DISCARD`](#request-message---discard)   | `2F`      | x               |                 |                | `extra::Dictionary(n::Integer, qid::Integer)`                                                                                                                  | discard records                                        |
+| [`PULL`](#request-message---pull)         | `3F`      | x               |                 |                | `extra::Dictionary(n::Integer, qid::Integer)`                                                                                                                  | fetch records                                          |
+| [`BEGIN`](#request-message---begin---44)       | `11`      | x               |                 |                | `extra::Dictionary(bookmarks::List<String>, tx_timeout::Integer, tx_metadata::Dictionary, mode::String, db::String, imp_user::String)`                                           | begin a new transaction                                |
+| [`COMMIT`](#request-message---commit)     | `12`      | x               |                 |                |                                                                                                                                                                | commit a transaction                                   |
+| [`ROLLBACK`](#request-message---rollback) | `13`      | x               |                 |                |                                                                                                                                                                | rollback a transaction                                 |
+| [`ROUTE`](#request-message---44---route)  | `66`      | x               |                 |                | `routing::Dictionary(address::String), bookmarks::List<String>, extra::Dictionary(db::String, imp_user::String)`                                                                                     | fetch the current routing table                        |
+| [`SUCCESS`](#summary-message---success)   | `70`      |                 | x               |                | `metadata::Dictionary`                                                                                                                                         | request succeeded                                      |
+| [`IGNORED`](#summary-message---ignored)   | `7E`      |                 | x               |                |                                                                                                                                                                | request was ignored                                    |
+| [`FAILURE`](#summary-message---failure)   | `7F`      |                 | x               |                | `metadata::Dictionary(code::String, message::String)`                                                                                                          | request failed                                         |
+| [`RECORD`](#detail-message---record)      | `71`      |                 |                 | x              | `data::List`                                                                                                                                                   | data values                                            |
+
+### Request Message - `RUN` - 4.4
+
+The `RUN` message requests that a Cypher query is executed with a set of parameters and additional extra data.
+
+This message could both be used in an **Explicit Transaction** or an **Auto-commit Transaction**.
+The transaction type is implied by the order of message sequence.
+
+**Signature:** `10`
+
+**Fields:**
+
+```
+query::String,
+parameters::Dictionary,
+extra::Dictionary(
+  bookmarks::List<String>,
+  tx_timeout::Integer,
+  tx_metadata::Dictionary,
+  mode::String,
+  db::String,
+  imp_user::String
+)
+```
+
+- The `query` can be a Cypher syntax or a procedure call.
+- The `parameters` is a dictionary of parameters to be used in the `query` string.
+
+An **Explicit Transaction** (`BEGIN`+`RUN`) does not carry any data in the `extra` field.
+
+For **Auto-commit Transaction** (`RUN`) the `extra` field carries:
+
+- The `bookmarks` is a list of strings containing some kind of bookmark identification e.g `["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"]`. Default: `[]`.
+- The `tx_timeout` is an integer in that specifies a transaction timeout in ms. Default: server-side configured timeout.
+- The `tx_metadata` is a dictionary that can contain some metadata information, mainly used for logging. Default: `null`.
+- The `mode` specifies what kind of server the `RUN` message is targeting. For write access use `"w"` and for read access use `"r"`. Default: `"w"`.
+- The `db` key specifies the database name for multi-database to select where the transaction takes place. `null` and `""` denote the server-side configured default database. Default: `null`.
+- The `imp_user` key specifies the impersonated user which executes this transaction. `null` denotes no impersonation (execution takes place as the current user). Default: `null`.
+
+**Detail Messages:**
+
+No detail messages should be returned.
+
+**Valid Summary Messages:**
+
+* `SUCCESS`
+* `IGNORED`
+* `FAILURE`
+
+#### Synopsis
+
+```
+RUN "query" {parameters} {extra}
+```
+
+Example 1:
+
+```
+RUN "RETURN $x AS x" {"x": 1} {bookmarks: [], "tx_timeout": 123, "tx_metadata": {"log": "example_message"}, mode: "r", "imp_user" : "bob"}
+```
+
+Example 2:
+
+```
+RUN "RETURN $x AS x" {"x": 1} {}
+```
+
+Example 3:
+
+```
+RUN "CALL dbms.procedures()" {} {}
+```
+
+#### Server Response `SUCCESS`
+
+A `SUCCESS` message response indicates that the client is permitted to exchange further messages.
+
+The following fields are defined for inclusion in the `SUCCESS` metadata.
+
+- `fields::List<String>`, the fields of the return result. e.g. ["name", "age", ...]
+- `t_first::Integer`, the time, specified in ms, which the first record in the result stream is available after.
+
+For **Explicit Transaction** (`BEGIN`+`RUN`):
+
+- `qid::Integer`, specifies the server assigned statement id to reference the server side resultset with commencing `BEGIN`+`RUN`+`PULL` and `BEGIN`+`RUN`+`DISCARD` messages.
+
+Example 1:
+
+```
+SUCCESS {"fields": ["x"], "t_first": 123}
+```
+
+Example 2:
+
+```
+SUCCESS {"fields": ["x"], "t_first": 123, "qid": 7000}
+```
+
+#### Server Response `IGNORED`
+
+Example:
+
+```
+IGNORED
+```
+
+#### Server Response `FAILURE`
+
+Example:
+
+```
+FAILURE {"code": "Example.Failure.Code", "message": "example failure"}
+```
+
+### Request Message - `BEGIN` - 4.4
+
+The `BEGIN` message request the creation of a new **Explicit Transaction**.
+
+This message should then be followed by a `RUN` message.
+
+The **Explicit Transaction** is closed with either the `COMMIT` message or `ROLLBACK` message.
+
+
+**Signature:** `11`
+
+**Fields:**
+
+```
+extra::Dictionary(
+  bookmarks::List<String>,
+  tx_timeout::Integer,
+  tx_metadata::Dictionary,
+  mode::String,
+  db::String,
+  imp_user::String
+)
+```
+
+- The `bookmarks` is a list of strings containing some kind of bookmark identification e.g `["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"]`. Default: `[]`.
+- The `tx_timeout` is an integer in that specifies a transaction timeout in ms. Default: server-side configured timeout.
+- The `tx_metadata` is a dictionary that can contain some metadata information, mainly used for logging. Default: `null`.
+- The `mode` specifies what kind of server the `RUN` message is targeting. For write access use `"w"` and for read access use `"r"`. Defaults to write access if no mode is sent. Default: `"w"`.
+- The `db` key specifies the database name for multi-database to select where the transaction takes place.  `null` and `""` denote the server-side configured default database. Default: `null`.
+- The `imp_user` key specifies the impersonated user which executes this transaction. `null` denotes no impersonation (execution takes place as the current user). Default: `null`.
+
+**Detail Messages:**
+
+No detail messages.
+
+**Valid Summary Messages:**
+
+* `SUCCESS`
+* `FAILURE`
+
+#### Synopsis
+
+```
+BEGIN {extra}
+```
+
+Example 1:
+
+```
+BEGIN {"tx_timeout": 123, "mode": "r", "db": "example_database", "tx_metadata": {"log": "example_log_data"}, "imp_user" : "bob"}
+```
+
+
+Example 2:
+
+```
+BEGIN {"db": "example_database", "tx_metadata": {"log": "example_log_data"}, "bookmarks": ["example-bookmark:1", "example-bookmark2"]}
+```
+
+
+#### Server Response `SUCCESS`
+
+Example:
+
+```
+SUCCESS {}
+```
+
+#### Server Response `IGNORED`
+
+Example:
+
+```
+IGNORED
+```
+
+#### Server Response `FAILURE`
+
+Example:
+
+```
+FAILURE {"code": "Example.Failure.Code", "message": "example failure"}
+```
+
+### Request Message - 4.4 - `ROUTE`
+
+The `ROUTE` instructs the server to return the current routing table.
+In previous versions there was no explicit message for this and a procedure had to be invoked using Cypher through the `RUN` and `PULL` messages.
+
+This message can only be sent after successful authentication and outside of transactions.
+
+**Signature:** `66`
+
+**Fields:**
+
+```
+routing::Dictionary,
+bookmarks::List<String>,
+extra::Dictionary(
+  db::String,
+  imp_user::String,
+)
+```
+- The `routing` field should contain routing context information and the `address` field that should contain the address that the client initially tries to connect with e.g. `"x.example.com:9001"`. Key-value entries in the routing context should correspond exactly to those in the original URI query string.
+- The `bookmarks` is a list of strings containing some kind of bookmark identification e.g `["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"]`.
+- The `db` specifies the database name for multi-database to select where the transaction takes place. `null` denotes the server-side configured default database.
+- The `imp_user` specifies the impersonated user for the purposes of resolving their home database. `null` denotes no impersonation (execution takes place as the current user). Default: `null`.
+
+**Detail Messages:**
+
+No detail messages should be returned.
+
+**Valid Summary Messages:**
+
+* `SUCCESS`
+* `IGNORED`
+* `FAILURE`
+
+#### Synopsis
+
+```
+ROUTE {routing} [bookmarks] {extra}
+```
+
+Example 1:
+
+```
+ROUTE {"address": "x.example.com:7687"} [] null
+```
+
+Example 2:
+
+```
+ROUTE {"address": "x.example.com:9001", "policy": "example_policy_routing_context", "region": "example_region_routing_context"} ["neo4j-bookmark-transaction:1", "neo4j-bookmark-transaction:2"] {"db": example_database", "imp_user": "bob"}
+```
+
+#### Server Response `SUCCESS`
+
+A `SUCCESS` message response indicates that the client is permitted to exchange further messages.
+
+The following fields are defined for inclusion in the `SUCCESS` metadata.
+
+- `rt::Dictionary(ttl::Integer, db::String, servers::List<Dictionary(addresses::List<String>, role::String)>)`, the current routing table.
+    - `ttl::Integer` specifies for how many seconds this routing table should be considered valid.
+    - `db::String` identifies the database for which this routing table applies.
+    - `servers` will have three elements of the type `Dictionary(addresses::List<String>, role::String)`, where `role` is one of `"ROUTE"`, `"READ"`, `"WRITE"` for exactly one entry each.
+
+Example:
+
+```
+SUCCESS {
+    "rt": {"ttl": 1000,
+           "db": "foo",
+           "servers": [{"addresses": ["localhost:9001"], "role": "ROUTE"},
+                       {"addresses": ["localhost:9010", "localhost:9012"], "role": "READ"},
+                       {"addresses": ["localhost:9020", "localhost:9022"], "role": "WRITE"}]}
+}
+```
+
+#### Server Response `IGNORED`
+
+Example:
+
+```
+IGNORED
+```
+
+#### Server Response `FAILURE`
+
+Example:
+
+```
+FAILURE {"code": "Example.Failure.Code", "message": "example failure"}
+```
 
 # Appendix A - Bolt Message Exchange Examples
 
 * The `C:` stands for client.
 * The `S:` stands for server.
-
 
 ## Example 1
 
