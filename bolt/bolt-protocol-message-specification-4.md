@@ -1090,7 +1090,7 @@ RECORD [{"point": [1, 2]}, "example_data", 123]
 
 The changes compared to Bolt protocol version 4.0 are listed below:
 
-* The `BEGIN` message, defines the sub-field `routing::Dictionary(address::String)` to indicate if server side routing should be performed and can include routing context data.
+* The `HELLO` message, defines the sub-field `routing::Dictionary(address::String)` to indicate if server side routing should be performed and can include routing context data.
 * Support for `NOOP` chunk (empty chunk). Both server and client should support this.
 
 
