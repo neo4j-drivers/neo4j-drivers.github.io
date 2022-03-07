@@ -702,7 +702,7 @@ Path::Structure(
     indices: [1, 1, 1, 0, -2, 2],
 ```
 
-This represents the path `(42)-[id:1000]->(69)-[id:1000]->(42)<-[1001]-(1)`
+This represents the path `(42)-[1000]->(69)-[1000]->(42)<-[1001]-(1)`, where `(n)` denotes a node with id `n` and `[n]` a relationship with id `n` (`->` or `<-` denotes the direction of each relationship).
 
 ### Date - Structure
 
