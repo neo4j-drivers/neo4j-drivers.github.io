@@ -676,12 +676,33 @@ B3 72
 Path::Structure(
     nodes::List<Node>,
     rels::List<UnboundRelationship>,
-    ids::List<Integer>,
+    indices::List<Integer>,
 )
 ```
 
-- The `rels` field is a list of unbound relationships.
-- The `ids` is a list of relationship id and node id to represent the path.
+- The `nodes` fields contains a list of nodes.
+- The `rels` field contains a list of unbound relationships.
+- The `indices` are a list of integers describing how to construct the path from `nodes` and `rels`.
+  - The first node in `nodes` is always the first node in the path and is not referenced in `indices`.
+  - `indices` always has an even number of entries.
+    - The 1st, 3rd, ... entry in `indices` refers to an entry in `rels` (1-indexed).
+      E.g., a `3` would refer to the 3rd element of `rels`.  
+      The number can also be negative which should be treated like the positive equivalent,
+      except for denoting the relationship in the inverse direction.  
+      The number will never be `0`.
+    - The 2nd, 4th, ... entry in `indices` refers to an entry in `nodes` (0-indexed).
+      E.g., a `3` would refer the 2nd element of `nodes`.  
+      The number will always be `≥ 0`.
+
+Example (simplified notation for `<Node>` and `<UnboundRelationship>`):
+```
+Path::Structure(
+    nodes: [Node::Structure(42, ...), Node::Structure(69, ...), Node::Structure(1, ...)],
+    rels: [UnboundRelationship::Structure(1000, ...), UnboundRelationship::Structure(1001, ...)],
+    indices: [1, 1, 1, 0, -2, 2],
+```
+
+This represents the path `(42)-[1000]->(69)-[1000]->(42)<-[1001]-(1)`, where `(n)` denotes a node with id `n` and `[n]` a relationship with id `n` (`->` or `<-` denotes the direction of each relationship).
 
 ### Date - Structure
 
