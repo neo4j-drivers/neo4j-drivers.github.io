@@ -781,15 +781,20 @@ DateTime::Structure(
 )
 ```
 
-- The `seconds` are seconds since the adjusted [Unix epoch](https://en.wikipedia.org/wiki/Epoch_(computing)). This is not [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time).
 - The `tz_offset_seconds` specifies the offset in seconds from UTC.
+- The `seconds` are the above offset added to the seconds since the [Unix epoch](https://en.wikipedia.org/wiki/Epoch_(computing)).
 
-
-To convert to UTC:
-
+`1655472600` is the numbers of seconds since the Unix Epoch in `Fri Jun 17 2022 13:30:00 UTC`.
+If the time zone offset is +1 hour, i.e. 3600 seconds, then the corresponding `DateTime` instance is as follows:
 ```
-utc_nanoseconds = (seconds * 1000000000) + nanoseconds - (tx_offset_seconds * 1000000000)
+{
+  seconds: 1655476200 # that's the Unix timestamp (1655472600) + the timezone offset (3600)
+  nanoseconds: 0,
+  tz_offset_seconds: 3600
+}
 ```
+
+which corresponds to `Fri Jun 17 2022 14:30:00 +01:00`.
 
 ### DateTimeZoneId - Structure
 
@@ -809,14 +814,39 @@ DateTimeZoneId::Structure(
 )
 ```
 
-- The `seconds` are seconds since the adjusted [Unix epoch](https://en.wikipedia.org/wiki/Epoch_(computing)). This is not [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time).
+
 - The `tz_id` is an identifier for a specific time zone, such as `"Europe/Paris"`.
+- The `seconds` are the offset corresponding to the above timezone at the given point in time, added to the seconds 
+since the [Unix epoch](https://en.wikipedia.org/wiki/Epoch_(computing)).
 
-To convert to UTC:
+`1655472600` is the numbers of seconds since the Unix Epoch in `Fri Jun 17 2022 13:30:00 UTC`.
+In `Europe/Paris` at that point in time, the UTC offset is +2 hours, i.e. 7200 seconds.
 
 ```
-utc_nanoseconds = (seconds * 1000000000) + nanoseconds - get_offset_in_nanoseconds(tz_id)
+{
+  seconds: 1655479800 # that's the Unix timestamp (1655472600) + the resolved timezone offset (7200)
+  nanoseconds: 0,
+  tz_id: "Europe/Paris"
+}
 ```
+
+which corresponds to `Fri Jun 17 2022 15:30:00 (Europe/Paris)`.
+
+#### Known limitations
+
+Not all instances of `DateTimeZoneId` map to a single valid point in time.
+
+1. During time shifts like going from 2AM to 3AM in a given day and timezone, 2:30AM e.g. does not exist.
+2. Similarly, when going from 3AM to 2AM in a given day and timezone, 2:30AM exists twice.
+
+In the first case, a `DateTimeZoneId` specifying a time between 2AM and 3AM does not correspond to any actual points in
+time for that timezone and is invalid.
+
+In the second case, points in time between 2AM and 3AM happened twice, but with a different offset.
+Therefore, the timezone name is not sufficient to resolve the ambiguity, the timezone offset is also needed.
+Since `DateTimeZoneId` does not include the timezone offset, the resolution of these particular datetimes is an
+undefined behavior.
+
 
 ### LocalDateTime - Structure
 
