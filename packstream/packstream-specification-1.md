@@ -791,13 +791,13 @@ For instance, the serialization of the point in time denoted as `1970-01-01T02:1
 be implemented as follows:
 
  - compute the UTC time, i.e. `1970-01-01T01:15:00Z` (`Z` denotes UTC)
- - compute the difference between that UTC time and the Unix epoch, which is 1h15, i.e. `8_100` seconds.
- - add the offset of +1 hour, i.e. `3_600` seconds, to the above difference, which yields `11_700` (`8_100`+`3_600`)
+ - compute the difference between that UTC time and the Unix epoch, which is 1h15, i.e. `4_500` seconds.
+ - add the offset of +1 hour, i.e. `3_600` seconds, to the above difference, which yields `8_100` (`4_500`+`3_600`)
 
 The resulting `DateTime` instance is therefore as follows:
 ```
 {
-  seconds: 11700
+  seconds: 8100
   nanoseconds: 42,
   tz_offset_seconds: 3600
 }
@@ -839,13 +839,13 @@ nanoseconds) can be implemented as follows:
 
 - retrieve the offset of the named timezone for that point in time, here +1 hour, i.e. `3_600` seconds
 - compute the UTC time, i.e. `1970-01-01T01:15:00Z` (`Z` denotes UTC)
-- compute the difference between that UTC time and the Unix epoch, which is 1h15, i.e. `8_100` seconds.
-- add the resolved offset of +1 hour, i.e. `3_600` seconds, to the above difference, which yields `11_700` (`8_100`+`3_600`)
+- compute the difference between that UTC time and the Unix epoch, which is 1h15, i.e. `4_500` seconds.
+- add the resolved offset of +1 hour, i.e. `3_600` seconds, to the above difference, which yields `8_100` (`4_500`+`3_600`)
 
 The resulting `DateTime` instance is therefore as follows:
 ```
 {
-  seconds: 11700
+  seconds: 8100
   nanoseconds: 42,
   tz_id: "Europe/Paris"
 }
@@ -853,9 +853,11 @@ The resulting `DateTime` instance is therefore as follows:
 
 The deserialization of such a `DateTime` structure happens as follows:
 
-- instantiate the idiomatic equivalent of `DateTime` assuming the seconds denote a Unix timestamp
-- set the timezone of the resulting instance, without changing the date/time components (this may lead to
-  ambiguous `DateTime` values when serializing again, read the `Known Limitations` section below to learn more)
+- instantiate the idiomatic equivalent of `DateTime` assuming the seconds denote a Unix timestamp, giving
+  `1970-01-01T02:15:00Z`
+- set the timezone of the resulting instance, without changing the date/time components, giving
+  `1970-01-01T02:15:00+0100[Europe/Paris]` (this may lead to ambiguities, read the `Known Limitations` section below to
+  learn more)
 
 #### Known Limitations
 
