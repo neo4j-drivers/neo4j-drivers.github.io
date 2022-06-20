@@ -784,8 +784,8 @@ DateTime::Structure(
 - The `tz_offset_seconds` specifies the offset in seconds from UTC.
 - The `seconds` elapsed since the [Unix epoch](https://en.wikipedia.org/wiki/Epoch_(computing)), often referred as a
   Unix timestamp, **added** to the above offset.
-- The `nanoseconds` are what remains after the last second of the datetime. The amount of nanoseconds ranges from 0 to
-  999_999_999 (`_` separator added here and later for clarity).
+- The `nanoseconds` are what remains after the last second of the datetime. The amount of `nanoseconds` ranges from `0` to
+  `999_999_999` (`_` separator added here and later for clarity).
 
 For instance, the serialization of the point in time denoted as `1970-01-01T02:15:00+01:00` (and `42` nanoseconds) can 
 be implemented as follows:
