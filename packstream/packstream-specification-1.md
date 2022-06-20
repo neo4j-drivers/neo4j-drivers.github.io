@@ -784,7 +784,7 @@ DateTime::Structure(
 - The `tz_offset_seconds` specifies the offset in seconds from UTC.
 - The `seconds` elapsed since the [Unix epoch](https://en.wikipedia.org/wiki/Epoch_(computing)), often referred as a
   Unix timestamp, **added** to the above offset.
-- The `nanoseconds` are what remains after the last second of the datetime. The amount of `nanoseconds` ranges from `0` to
+- The `nanoseconds` are what remains after the last second of the `DateTime`. The amount of `nanoseconds` ranges from `0` to
   `999_999_999` (`_` separator added here and later for clarity).
 
 For instance, the serialization of the point in time denoted as `1970-01-01T02:15:00+01:00` (and `42` nanoseconds) can 
@@ -806,8 +806,8 @@ The resulting `DateTime` instance is therefore as follows:
 The deserialization of such a `DateTime` structure expectedly happens in reverse:
 
  - remove the offset from the `seconds` field, which gives here `8_100`
- - instantiate the idiomatic equivalent of `DateTime` based on that Unix timestamp giving `1970-01-01T01:15:00Z`
- - localize the resulting UTC `DateTime` to the timezone of the specified offset giving `1970-01-01T02:15:00+0100`
+ - instantiate the idiomatic equivalent of `DateTime` based on that Unix timestamp, giving `1970-01-01T01:15:00Z`
+ - localize the resulting UTC `DateTime` to the timezone of the specified offset, giving `1970-01-01T02:15:00+0100`
 
 ### DateTimeZoneId - Structure
 
@@ -831,17 +831,16 @@ DateTimeZoneId::Structure(
   by [the timezone database](https://en.wikipedia.org/wiki/Tz_database).
 - The `seconds` elapsed since the [Unix epoch](https://en.wikipedia.org/wiki/Epoch_(computing)), often referred as a
   Unix timestamp, **added** to the offset derived from the named timezone and specified the point in time.
-- The `nanoseconds` are what remains after the last second of the datetime. The amount of nanoseconds ranges from `0` to
+- The `nanoseconds` are what remains after the last second of the `DateTime`. The amount of nanoseconds ranges from `0` to
   `999_999_999` (`_` separator added here and later for clarity).
 
 For instance, the serialization of the point in time denoted as `1970-01-01T02:15:00+0100[Europe/Paris]` (and `42`
 nanoseconds) can be implemented as follows:
 
-- retrieve the offset of the named timezone for that point in time, here +1 hour, i.e. `3_600` seconds (the resolution
-  is not always defined, read the following `Known Limitations` section to learn more)
+- retrieve the offset of the named timezone for that point in time, here +1 hour, i.e. `3_600` seconds
 - compute the UTC time, i.e. `1970-01-01T01:15:00Z` (`Z` denotes UTC)
 - compute the difference between that UTC time and the Unix epoch, which is 1h15, i.e. `8_100` seconds.
-- add the resolved offset of 1 hour, i.e. `3_600`, seconds to the above difference, which yields `11_700` (`8_100`+`3_600`)
+- add the resolved offset of +1 hour, i.e. `3_600` seconds, to the above difference, which yields `11_700` (`8_100`+`3_600`)
 
 The resulting `DateTime` instance is therefore as follows:
 ```
@@ -852,15 +851,13 @@ The resulting `DateTime` instance is therefore as follows:
 }
 ```
 
-The deserialization of such a `DateTime` structure expectedly happens in reverse:
+The deserialization of such a `DateTime` structure happens as follows:
 
-- retrieve the offset of the named timezone for that point in time, here +1 hour, i.e. `3_600` seconds (the resolution
-  is not always defined, read the following `Known Limitations` to learn more)
-- remove the resolved offset from the `seconds` field, which gives here `8_100`
-- instantiate the idiomatic equivalent of `DateTime` based on that Unix timestamp giving `1970-01-01T01:15:00Z`
-- localize the resulting UTC `DateTime` to the timezone of the specified offset giving `1970-01-01T02:15:00+0100[Europe/Paris]`
+- instantiate the idiomatic equivalent of `DateTime` assuming the seconds denote a Unix timestamp
+- set the timezone of the resulting instance, without changing the date/time components (this may lead to
+  ambiguous `DateTime` values when serializing again, read the `Known Limitations` section below to learn more)
 
-#### Known limitations
+#### Known Limitations
 
 ##### Accuracy
 
