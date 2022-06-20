@@ -806,8 +806,8 @@ The resulting `DateTime` instance is therefore as follows:
 The deserialization of such a `DateTime` structure expectedly happens in reverse:
 
  - remove the offset from the `seconds` field, which gives here `8_100`
- - instantiate the idiomatic equivalent of `DateTime` based on that Unix timestamp
- - localize the resulting UTC `DateTime` to the timezone of the specified offset
+ - instantiate the idiomatic equivalent of `DateTime` based on that Unix timestamp giving `1970-01-01T01:15:00Z`
+ - localize the resulting UTC `DateTime` to the timezone of the specified offset giving `1970-01-01T02:15:00+0100`
 
 ### DateTimeZoneId - Structure
 
