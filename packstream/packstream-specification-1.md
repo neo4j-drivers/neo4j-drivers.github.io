@@ -792,7 +792,7 @@ be implemented as follows:
 
  - compute the UTC time, i.e. `1970-01-01T01:15:00Z` (`Z` denotes UTC)
  - compute the difference between that UTC time and the Unix epoch, which is 1h15, i.e. `8_100` seconds.
- - add the offset of 1 hour, i.e. `3_600` seconds to the above difference, which yields `11_700` (`8_100`+`3_600`)
+ - add the offset of +1 hour, i.e. `3_600` seconds, to the above difference, which yields `11_700` (`8_100`+`3_600`)
 
 The resulting `DateTime` instance is therefore as follows:
 ```
