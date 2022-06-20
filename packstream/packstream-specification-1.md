@@ -790,7 +790,7 @@ DateTime::Structure(
 For instance, the serialization of the point in time denoted as `1970-01-01T02:15:00+01:00` (and `42` nanoseconds) can 
 be implemented as follows:
 
- - compute the UTC time, i.e. `1970-01-01T01:15:00`.
+ - compute the UTC time, i.e. `1970-01-01T01:15:00Z` (`Z` denotes UTC)
  - compute the difference between that UTC time and the Unix epoch, which is 1h15, i.e. `8_100` seconds.
  - add the offset of 1 hour, i.e. `3_600` seconds to the above difference, which yields `11_700` (`8_100`+`3_600`)
 
