@@ -871,6 +871,11 @@ specified.
 Moreover, the offset resolution likely occurs both on the Bolt client side and Bolt server side. They each rely on a 
 different timezone database. That could lead to unwanted discrepancies if these copies are not in sync.
 
+If they are not in sync, either server or client could:
+
+ - reject a timezone name deemed valid by the other party
+ - resolve different offsets for the same time zone and `DateTimeZoneId`
+
 ##### Time Shifts
 
 Not all instances of `DateTimeZoneId` map to a single valid point in time.
