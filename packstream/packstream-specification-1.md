@@ -771,7 +771,7 @@ LocalTime::Structure(
 
 An instant capturing the date, the time, and the time zone.
 
-The time zone information is specified with a zone offset.
+The time zone information is specified with a zone offset from UTC.
 
 ```
 DateTime::Structure(
@@ -782,19 +782,32 @@ DateTime::Structure(
 ```
 
 - The `tz_offset_seconds` specifies the offset in seconds from UTC.
-- The `seconds` are the above offset added to the seconds since the [Unix epoch](https://en.wikipedia.org/wiki/Epoch_(computing)).
+- The `seconds` elapsed since the [Unix epoch](https://en.wikipedia.org/wiki/Epoch_(computing)), often referred as a
+  Unix timestamp, **added** to the above offset.
+- The `nanoseconds` are what remains after the last second of the datetime. The amount of nanoseconds ranges from 0 to
+  999_999_999 (`_` separator added here and later for clarity).
 
-`1655472600` is the numbers of seconds since the Unix Epoch in `Fri Jun 17 2022 13:30:00 UTC`.
-If the time zone offset is +1 hour, i.e. 3600 seconds, then the corresponding `DateTime` instance is as follows:
+For instance, the serialization of the point in time denoted as `1970-01-01T02:15:00+01:00` (and `42` nanoseconds) can 
+be implemented as follows:
+
+ - compute the UTC time, i.e. `1970-01-01T01:15:00`.
+ - compute the difference between that UTC time and the Unix epoch, which is 1h15, i.e. `8_100` seconds.
+ - add the offset of 1 hour, i.e. `3_600` seconds to the above difference, which yields `11_700` (`8_100`+`3_600`)
+
+The resulting `DateTime` instance is therefore as follows:
 ```
 {
-  seconds: 1655476200 # that's the Unix timestamp (1655472600) + the timezone offset (3600)
-  nanoseconds: 0,
+  seconds: 11700
+  nanoseconds: 42,
   tz_offset_seconds: 3600
 }
 ```
 
-which corresponds to `Fri Jun 17 2022 14:30:00 +01:00`.
+The deserialization of such a `DateTime` structure expectedly happens in reverse:
+
+ - remove the offset from the `seconds` field, which gives here `8_100`
+ - instantiate the idiomatic equivalent of `DateTime` based on that Unix timestamp
+ - localize the resulting UTC `DateTime` to the timezone of the specified offset
 
 ### DateTimeZoneId - Structure
 
@@ -814,23 +827,38 @@ DateTimeZoneId::Structure(
 )
 ```
 
+- The `tz_id` specifies the timezone name as understood
+  by [the timezone database](https://en.wikipedia.org/wiki/Tz_database).
+- The `seconds` elapsed since the [Unix epoch](https://en.wikipedia.org/wiki/Epoch_(computing)), often referred as a
+  Unix timestamp, **added** to the offset derived from the named timezone and specified the point in time.
+- The `nanoseconds` are what remains after the last second of the datetime. The amount of nanoseconds ranges from 0 to
+  999_999_999 (`_` separator added here and later for clarity).
 
-- The `tz_id` is an identifier for a specific time zone, such as `"Europe/Paris"`.
-- The `seconds` are the offset corresponding to the above timezone at the given point in time, added to the seconds 
-since the [Unix epoch](https://en.wikipedia.org/wiki/Epoch_(computing)).
+For instance, the serialization of the point in time denoted as `1970-01-01T02:15:00 Europe/Paris` (and `42`
+nanoseconds) can be implemented as follows:
 
-`1655472600` is the numbers of seconds since the Unix Epoch in `Fri Jun 17 2022 13:30:00 UTC`.
-In `Europe/Paris` at that point in time, the UTC offset is +2 hours, i.e. 7200 seconds.
+- retrieve the offset of the named timezone for that point in time, here +1 hour, i.e. `3_600` seconds (the resolution
+  is not always defined, read the following `Known Limitations` section to learn more)
+- compute the UTC time, i.e. `1970-01-01T01:15:00`.
+- compute the difference between that UTC time and the Unix epoch, which is 1h15, i.e. `8_100` seconds.
+- add the resolved offset of 1 hour, i.e. `3_600` seconds to the above difference, which yields `11_700` (`8_100`+`3_600`)
 
+The resulting `DateTime` instance is therefore as follows:
 ```
 {
-  seconds: 1655479800 # that's the Unix timestamp (1655472600) + the resolved timezone offset (7200)
-  nanoseconds: 0,
+  seconds: 11700
+  nanoseconds: 42,
   tz_id: "Europe/Paris"
 }
 ```
 
-which corresponds to `Fri Jun 17 2022 15:30:00 (Europe/Paris)`.
+The deserialization of such a `DateTime` structure expectedly happens in reverse:
+
+- retrieve the offset of the named timezone for that point in time, here +1 hour, i.e. `3_600` seconds (the resolution
+  is not always defined, read the following `Known Limitations` to learn more)
+- remove the resolved offset from the `seconds` field, which gives here `8_100`
+- instantiate the idiomatic equivalent of `DateTime` based on that Unix timestamp
+- localize the resulting UTC `DateTime` to the timezone of the specified offset
 
 #### Known limitations
 
@@ -848,8 +876,8 @@ different timezone database. That could lead to unwanted discrepancies if these 
 
 Not all instances of `DateTimeZoneId` map to a single valid point in time.
 
-1. During time shifts like going from 2AM to 3AM in a given day and timezone, 2:30AM e.g. does not exist.
-2. Similarly, when going from 3AM to 2AM in a given day and timezone, 2:30AM exists twice.
+1. During time shifts like going from 2AM to 3AM in a given day and timezone, 2:30AM e.g. does not happen.
+2. Similarly, when going from 3AM to 2AM in a given day and timezone, 2:30AM happens twice.
 
 In the first case, a `DateTimeZoneId` specifying a time between 2AM and 3AM does not correspond to any actual points in
 time for that timezone and is invalid.
