@@ -882,7 +882,7 @@ Not all instances of `DateTimeZoneId` map to a single valid point in time.
 In the first case, a `DateTimeZoneId` specifying a time between 2AM and 3AM does not correspond to any actual points in
 time for that timezone and is invalid.
 
-In the second case, points in time between 2AM and 3AM happened twice, but with a different offset.
+In the second case, all points in the time between 2AM and 3AM exist twice, but with a different offset.
 Therefore, the timezone name is not sufficient to resolve the ambiguity, the timezone offset is also needed.
 Since `DateTimeZoneId` does not include the timezone offset, the resolution of these particular datetimes is an
 undefined behavior.
