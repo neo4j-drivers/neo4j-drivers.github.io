@@ -834,6 +834,18 @@ which corresponds to `Fri Jun 17 2022 15:30:00 (Europe/Paris)`.
 
 #### Known limitations
 
+##### Accuracy
+
+The resolution of offsets for a given time zone name and point in time is bound to the accuracy of the underlying
+[timezone database](https://en.wikipedia.org/wiki/Tz_database). In
+particular, [time zones before 1970](https://en.wikipedia.org/wiki/Tz_database#Data_before_1970) are not as well
+specified.
+
+Moreover, the offset resolution likely occurs both on the Bolt client side and Bolt server side. They each rely on a 
+different timezone database. That could lead to unwanted discrepancies if these copies are not in sync.
+
+##### Time Shifts
+
 Not all instances of `DateTimeZoneId` map to a single valid point in time.
 
 1. During time shifts like going from 2AM to 3AM in a given day and timezone, 2:30AM e.g. does not exist.
