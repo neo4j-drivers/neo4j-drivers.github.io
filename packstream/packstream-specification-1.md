@@ -831,8 +831,8 @@ DateTimeZoneId::Structure(
   by [the timezone database](https://en.wikipedia.org/wiki/Tz_database).
 - The `seconds` elapsed since the [Unix epoch](https://en.wikipedia.org/wiki/Epoch_(computing)), often referred as a
   Unix timestamp, **added** to the offset derived from the named timezone and specified the point in time.
-- The `nanoseconds` are what remains after the last second of the datetime. The amount of nanoseconds ranges from 0 to
-  999_999_999 (`_` separator added here and later for clarity).
+- The `nanoseconds` are what remains after the last second of the datetime. The amount of nanoseconds ranges from `0` to
+  `999_999_999` (`_` separator added here and later for clarity).
 
 For instance, the serialization of the point in time denoted as `1970-01-01T02:15:00+0100[Europe/Paris]` (and `42`
 nanoseconds) can be implemented as follows:
