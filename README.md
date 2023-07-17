@@ -1,5 +1,10 @@
 # Neo4j Drivers
 
+***
+## ARCHIVED
+This repository has been migrated to https://github.com/neo4j/docs-bolt
+***
+
 + Please note that this documentation is provided as-is and may change at any time.
 
 + Likewise, no guarantees are given that this documentation is fully up to date.
